@@ -1,0 +1,1149 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  TECH_OPERATOR
+  REVIEWER
+  JUDGE
+  PARTICIPANT
+}
+
+enum UserStatus {
+  PENDING_VERIFICATION
+  ACTIVE
+  DISABLED
+}
+
+enum ContentStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum TentativeStatus {
+  TENTATIVE
+  CONFIRMED
+}
+
+enum LivestreamStatus {
+  HIDDEN
+  TENTATIVE
+  LIVE
+  ENDED
+}
+
+enum RegistrationMode {
+  INDIVIDUAL
+  TEAM
+  BOTH
+  UNDECIDED
+}
+
+enum RegistrationType {
+  INDIVIDUAL
+  TEAM
+}
+
+enum RegistrationStatus {
+  DRAFT
+  SUBMITTED
+  NEEDS_UPDATE
+  ELIGIBLE
+  INELIGIBLE
+  UNDER_REVIEW
+  SELECTED
+  NOT_SELECTED
+  WITHDRAWN
+  LOCKED
+}
+
+enum TeamStatus {
+  DRAFT
+  ACTIVE
+  LOCKED
+  DISBANDED
+  ARCHIVED
+}
+
+enum TeamMemberStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  REMOVED
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  REVOKED
+  EXPIRED
+}
+
+enum SubmissionStatus {
+  DRAFT
+  SUBMITTED
+  LOCKED
+  UNDER_REVIEW
+  SCORED
+  NEEDS_UPDATE
+  WITHDRAWN
+}
+
+enum RubricStage {
+  AUDITION
+  FINAL
+}
+
+enum ReviewStatus {
+  ASSIGNED
+  DRAFT
+  SUBMITTED
+  DECLINED
+  REOPENED
+  LOCKED
+}
+
+enum Recommendation {
+  STRONG_YES
+  YES
+  MAYBE
+  NO
+}
+
+enum MatchStatus {
+  DRAFT
+  SCHEDULED
+  CHECK_IN
+  READY
+  SPRINT
+  PITCH
+  SCORING
+  VERDICT
+  LOCKED
+  PUBLISHED
+  COMPLETED
+  CANCELLED
+  NEEDS_VERDICT
+  TIE_REVIEW
+}
+
+enum MatchSlot {
+  A
+  B
+}
+
+enum StageType {
+  SPRINT
+  PITCH
+  VERDICT
+  MIXED
+  OTHER
+}
+
+enum BracketMode {
+  CUSTOM
+  SINGLE_ELIMINATION
+  OTHER
+}
+
+enum TimerKind {
+  SPRINT
+  PITCH
+  VERDICT
+}
+
+enum TimerStatus {
+  IDLE
+  RUNNING
+  PAUSED
+  COMPLETED
+}
+
+enum TwistStatus {
+  DRAFT
+  READY
+  REVEALED
+  ARCHIVED
+}
+
+enum IncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum IncidentStatus {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+  CLOSED
+}
+
+enum EmailOutboxStatus {
+  PENDING
+  SENDING
+  SENT
+  FAILED
+  CANCELLED
+}
+
+enum AssetVisibility {
+  PRIVATE
+  PUBLIC
+}
+
+enum FileKind {
+  STUDENT_PROOF
+  AVATAR
+  INTRO_VIDEO
+  SUPPORTING_DOCUMENT
+  SOURCE_ARCHIVE
+  PROMPT_LOG
+  BRANDING
+  DOCUMENT
+  OTHER
+}
+
+enum RoundStatus {
+  DRAFT
+  SCHEDULED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id               String     @id @default(cuid())
+  email            String     @unique
+  emailNormalized  String     @unique
+  passwordHash     String
+  name             String?
+  emailVerifiedAt  DateTime?
+  status           UserStatus @default(PENDING_VERIFICATION)
+  lastLoginAt      DateTime?
+  failedLoginCount Int        @default(0)
+  lockedUntil      DateTime?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  deletedAt        DateTime?
+
+  roleAssignments     RoleAssignment[]
+  profile             ParticipantProfile?
+  ledTeams            Team[]                  @relation("TeamLeader")
+  teamMemberships     TeamMember[]
+  teamInvitationsSent TeamInvitation[]        @relation("TeamInvitationInviter")
+  teamInvitationsRecv TeamInvitation[]        @relation("TeamInvitationInvitee")
+  registrations       Registration[]          @relation("RegistrationOwner")
+  registrationSeats   RegistrationSeat[]
+  reviewsAssigned     ReviewAssignment[]
+  judgeAssignments    JudgeAssignment[]
+  notifications       Notification[]
+  auditLogs           AuditLog[]              @relation("AuditActor")
+  incidentsReported   Incident[]              @relation("IncidentReporter")
+  notesAuthored       InternalNote[]
+  invitationsCreated  StaffInvitation[]       @relation("StaffInvitationInviter")
+  staffInvitations    StaffInvitation[]       @relation("StaffInvitationUser")
+  consents            ConsentRecord[]
+  fileAssets          FileAsset[]
+  deadlineOverrides   DeadlineOverride[]      @relation("OverrideGrantor")
+  loginEvents         LoginEvent[]
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model RoleAssignment {
+  id        String    @id @default(cuid())
+  userId    String
+  role      Role
+  createdAt DateTime  @default(now())
+  revokedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([role])
+}
+
+model VerificationToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model StaffInvitation {
+  id          String           @id @default(cuid())
+  email       String
+  role        Role
+  tokenHash   String           @unique
+  invitedById String
+  userId      String?
+  status      InvitationStatus @default(PENDING)
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  createdAt   DateTime         @default(now())
+
+  invitedBy User @relation("StaffInvitationInviter", fields: [invitedById], references: [id])
+  user      User? @relation("StaffInvitationUser", fields: [userId], references: [id])
+
+  @@index([email])
+}
+
+model AuthRateLimit {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  count       Int      @default(0)
+  windowStart DateTime
+  updatedAt   DateTime @updatedAt
+}
+
+model LoginEvent {
+  id        String   @id @default(cuid())
+  userId    String?
+  email     String
+  success   Boolean
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([email, createdAt])
+}
+
+model Competition {
+  id              String         @id @default(cuid())
+  name            String
+  slug            String         @unique
+  season          String
+  isRehearsal     Boolean        @default(false)
+  clonedFromId    String?
+  publicStatus    ContentStatus  @default(DRAFT)
+  maintenanceMode Boolean        @default(false)
+  settings        Json
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  deletedAt       DateTime?
+  version         Int            @default(1)
+
+  clonedFrom Competition? @relation("CompetitionClone", fields: [clonedFromId], references: [id])
+  clones     Competition[] @relation("CompetitionClone")
+
+  teams            Team[]
+  registrations    Registration[]
+  submissions      Submission[]
+  rubrics          Rubric[]
+  finalists        Finalist[]
+  rounds           FinalRound[]
+  matches          Match[]
+  twists           OnStageTwist[]
+  announcements    Announcement[]
+  faqs             FAQ[]
+  timelineItems    TimelineItem[]
+  staticPages      StaticPage[]
+  fileAssets       FileAsset[]
+  incidents        Incident[]
+  auditLogs        AuditLog[]
+  backupStatuses   BackupStatus[]
+  reviewAssignments ReviewAssignment[]
+  judgeAssignments JudgeAssignment[]
+  partnerAssets    PartnerAsset[]
+
+  @@index([isRehearsal])
+}
+
+model PartnerAsset {
+  id            String   @id @default(cuid())
+  competitionId String
+  name          String
+  assetId       String?
+  imageUrl      String?
+  href          String?
+  displayOrder  Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  competition Competition @relation(fields: [competitionId], references: [id])
+}
+
+model ParticipantProfile {
+  id                           String    @id @default(cuid())
+  userId                       String    @unique
+  fullName                     String    @default("")
+  phoneNumber                  String?
+  institution                  String?
+  facultyOrDepartment          String?
+  major                        String?
+  studentId                    String?
+  academicYear                 String?
+  provinceOrCity               String?
+  shortBio                     String?
+  avatarAssetId                String?
+  studentProofAssetId          String?
+  consentToRules               Boolean   @default(false)
+  consentToDataProcessing      Boolean   @default(false)
+  consentToPublicFinalistProfile Boolean @default(false)
+  consentToRulesAt             DateTime?
+  consentToDataProcessingAt    DateTime?
+  consentToPublicFinalistAt    DateTime?
+  createdAt                    DateTime  @default(now())
+  updatedAt                    DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model ConsentRecord {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  accepted  Boolean
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, type])
+}
+
+model Team {
+  id                   String     @id @default(cuid())
+  competitionId        String
+  teamName             String
+  teamCode             String
+  leaderUserId         String
+  status               TeamStatus @default(DRAFT)
+  shortIntroduction    String?
+  institutionSummary   String?
+  invitationCode       String     @unique
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+  deletedAt            DateTime?
+  version              Int        @default(1)
+
+  competition  Competition      @relation(fields: [competitionId], references: [id])
+  leader       User             @relation("TeamLeader", fields: [leaderUserId], references: [id])
+  members      TeamMember[]
+  invitations  TeamInvitation[]
+  registration Registration?
+
+  @@unique([competitionId, teamCode])
+  @@index([competitionId, status])
+  @@index([leaderUserId])
+}
+
+model TeamMember {
+  id        String           @id @default(cuid())
+  teamId    String
+  userId    String
+  roleLabel String?
+  status    TeamMemberStatus @default(PENDING)
+  joinedAt  DateTime?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  team Team @relation(fields: [teamId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([teamId, userId])
+  @@index([userId])
+}
+
+model TeamInvitation {
+  id          String           @id @default(cuid())
+  teamId      String
+  email       String
+  tokenHash   String           @unique
+  invitedById String
+  inviteeId   String?
+  status      InvitationStatus @default(PENDING)
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  createdAt   DateTime         @default(now())
+
+  team      Team  @relation(fields: [teamId], references: [id])
+  invitedBy User  @relation("TeamInvitationInviter", fields: [invitedById], references: [id])
+  invitee   User? @relation("TeamInvitationInvitee", fields: [inviteeId], references: [id])
+
+  @@index([teamId, status])
+  @@index([email])
+}
+
+model Registration {
+  id                   String             @id @default(cuid())
+  competitionId        String
+  ownerUserId          String
+  teamId               String?            @unique
+  type                 RegistrationType
+  code                 String             @unique
+  status               RegistrationStatus @default(DRAFT)
+  submittedAt          DateTime?
+  lockedAt             DateTime?
+  confirmationEmailKey String?            @unique
+  lastAutosavedAt      DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  deletedAt            DateTime?
+  version              Int                @default(1)
+
+  competition       Competition                 @relation(fields: [competitionId], references: [id])
+  owner             User                        @relation("RegistrationOwner", fields: [ownerUserId], references: [id])
+  team              Team?                       @relation(fields: [teamId], references: [id])
+  seats             RegistrationSeat[]
+  statusHistory     RegistrationStatusHistory[]
+  deadlineOverrides DeadlineOverride[]
+  submissions       Submission[]
+  notes             InternalNote[]
+  tags              EntityTag[]
+  finalist          Finalist?
+
+  @@index([competitionId, status])
+  @@index([ownerUserId])
+  @@index([submittedAt])
+  @@index([code])
+}
+
+model RegistrationSeat {
+  userId         String
+  competitionId  String
+  registrationId String
+
+  user         User         @relation(fields: [userId], references: [id])
+  registration Registration @relation(fields: [registrationId], references: [id])
+
+  @@id([userId, competitionId])
+  @@index([registrationId])
+}
+
+model RegistrationStatusHistory {
+  id             String             @id @default(cuid())
+  registrationId String
+  fromStatus     RegistrationStatus?
+  toStatus       RegistrationStatus
+  reason         String?
+  actorUserId    String?
+  createdAt      DateTime           @default(now())
+
+  registration Registration @relation(fields: [registrationId], references: [id])
+
+  @@index([registrationId, createdAt])
+}
+
+model DeadlineOverride {
+  id             String    @id @default(cuid())
+  registrationId String?
+  submissionId   String?
+  kind           String
+  newDeadline    DateTime
+  reason         String
+  grantedById    String
+  createdAt      DateTime  @default(now())
+
+  registration Registration? @relation(fields: [registrationId], references: [id])
+  submission   Submission?   @relation(fields: [submissionId], references: [id])
+  grantedBy    User          @relation("OverrideGrantor", fields: [grantedById], references: [id])
+}
+
+model InternalNote {
+  id             String   @id @default(cuid())
+  registrationId String
+  authorId       String
+  body           String
+  createdAt      DateTime @default(now())
+
+  registration Registration @relation(fields: [registrationId], references: [id])
+  author       User         @relation(fields: [authorId], references: [id])
+
+  @@index([registrationId])
+}
+
+model EntityTag {
+  id             String   @id @default(cuid())
+  registrationId String
+  tag            String
+  createdAt      DateTime @default(now())
+
+  registration Registration @relation(fields: [registrationId], references: [id])
+
+  @@unique([registrationId, tag])
+}
+
+model Submission {
+  id                   String           @id @default(cuid())
+  competitionId        String
+  registrationId       String
+  status               SubmissionStatus @default(DRAFT)
+  currentVersionId     String?          @unique
+  submittedAt          DateTime?
+  lockedAt             DateTime?
+  confirmationEmailKey String?          @unique
+  lastAutosavedAt      DateTime?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  deletedAt            DateTime?
+  version              Int              @default(1)
+
+  competition    Competition         @relation(fields: [competitionId], references: [id])
+  registration   Registration        @relation(fields: [registrationId], references: [id])
+  currentVersion SubmissionVersion?  @relation("CurrentSubmissionVersion", fields: [currentVersionId], references: [id])
+  versions       SubmissionVersion[] @relation("SubmissionVersions")
+  overrides      DeadlineOverride[]
+  reviews        ReviewAssignment[]
+
+  @@index([competitionId, status])
+  @@index([registrationId])
+  @@index([submittedAt])
+}
+
+model SubmissionVersion {
+  id                         String   @id @default(cuid())
+  submissionId               String
+  versionNumber              Int
+  submissionTitle            String   @default("")
+  problemStatement           String   @default("")
+  targetUsers                String   @default("")
+  solutionSummary            String   @default("")
+  expectedImpact             String   @default("")
+  geminiUsageSummary         String   @default("")
+  promptingProcessSummary    String   @default("")
+  technicalApproach          String   @default("")
+  introVideoUrl              String?
+  introVideoAssetId          String?
+  deployedDemoUrl            String?
+  repositoryUrl              String?
+  designOrSlideUrl           String?
+  supportingDocumentAssetId  String?
+  sourceArchiveAssetId       String?
+  promptLogAssetId           String?
+  additionalNotes            String?
+  originalityDeclaration     Boolean  @default(false)
+  permissionToReviewPrivateLinks Boolean @default(false)
+  isImmutable                Boolean  @default(false)
+  createdAt                  DateTime @default(now())
+
+  submission          Submission         @relation("SubmissionVersions", fields: [submissionId], references: [id])
+  currentFor          Submission?        @relation("CurrentSubmissionVersion")
+  reviewAssignments   ReviewAssignment[]
+
+  @@unique([submissionId, versionNumber])
+  @@index([submissionId])
+}
+
+model FileAsset {
+  id               String          @id @default(cuid())
+  competitionId    String
+  ownerUserId      String?
+  bucket           String
+  objectKey        String
+  originalFilename String
+  contentType      String
+  sizeBytes        Int
+  checksumSha256   String?
+  kind             FileKind        @default(OTHER)
+  visibility       AssetVisibility @default(PRIVATE)
+  createdAt        DateTime        @default(now())
+  deletedAt        DateTime?
+
+  competition Competition @relation(fields: [competitionId], references: [id])
+  owner       User?       @relation(fields: [ownerUserId], references: [id])
+
+  @@unique([bucket, objectKey])
+  @@index([competitionId])
+  @@index([ownerUserId])
+}
+
+model Rubric {
+  id            String      @id @default(cuid())
+  competitionId String
+  stage         RubricStage
+  name          String
+  versionNumber Int
+  isActive      Boolean     @default(false)
+  clonedFromId  String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  lockedAt      DateTime?
+
+  competition Competition       @relation(fields: [competitionId], references: [id])
+  clonedFrom  Rubric?           @relation("RubricClone", fields: [clonedFromId], references: [id])
+  clones      Rubric[]          @relation("RubricClone")
+  criteria    RubricCriterion[]
+  reviews     ReviewAssignment[]
+  judgeScores JudgeScore[]
+  snapshots   SelectionSnapshot[]
+
+  @@unique([competitionId, stage, versionNumber])
+  @@index([competitionId, stage, isActive])
+}
+
+model RubricCriterion {
+  id            String  @id @default(cuid())
+  rubricId      String
+  code          String
+  titleVi       String
+  titleEn       String
+  description   String  @default("")
+  weight        Decimal @db.Decimal(7, 4)
+  minScore      Decimal @db.Decimal(12, 6)
+  maxScore      Decimal @db.Decimal(12, 6)
+  scoreStep     Decimal @db.Decimal(12, 6)
+  guidance      String  @default("")
+  displayOrder  Int
+  isRequired    Boolean @default(true)
+
+  rubric            Rubric            @relation(fields: [rubricId], references: [id])
+  reviewScoreItems  ReviewScoreItem[]
+  judgeScoreItems   JudgeScoreItem[]
+
+  @@unique([rubricId, code])
+  @@index([rubricId, displayOrder])
+}
+
+model ReviewAssignment {
+  id                  String       @id @default(cuid())
+  competitionId       String
+  submissionId        String
+  submissionVersionId String
+  reviewerId          String
+  rubricId            String
+  status              ReviewStatus @default(ASSIGNED)
+  deadline            DateTime?
+  conflictDeclared    Boolean      @default(false)
+  conflictNote        String?
+  declineReason       String?
+  submittedAt         DateTime?
+  reopenedAt          DateTime?
+  reopenReason        String?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  version             Int          @default(1)
+
+  competition       Competition       @relation(fields: [competitionId], references: [id])
+  submission        Submission        @relation(fields: [submissionId], references: [id])
+  submissionVersion SubmissionVersion @relation(fields: [submissionVersionId], references: [id])
+  reviewer          User              @relation(fields: [reviewerId], references: [id])
+  rubric            Rubric            @relation(fields: [rubricId], references: [id])
+  review            Review?
+
+  @@unique([submissionVersionId, reviewerId])
+  @@index([reviewerId, status])
+  @@index([submissionId])
+  @@index([competitionId])
+}
+
+model Review {
+  id               String         @id @default(cuid())
+  assignmentId     String         @unique
+  overallComment   String         @default("")
+  recommendation   Recommendation?
+  totalNormalized  Decimal        @db.Decimal(14, 8)
+  submittedAt      DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  version          Int            @default(1)
+
+  assignment ReviewAssignment @relation(fields: [assignmentId], references: [id])
+  items      ReviewScoreItem[]
+}
+
+model ReviewScoreItem {
+  id               String  @id @default(cuid())
+  reviewId         String
+  criterionId      String
+  rawScore         Decimal @db.Decimal(12, 6)
+  normalizedScore  Decimal @db.Decimal(14, 8)
+  comment          String  @default("")
+
+  review    Review          @relation(fields: [reviewId], references: [id])
+  criterion RubricCriterion @relation(fields: [criterionId], references: [id])
+
+  @@unique([reviewId, criterionId])
+}
+
+model SelectionSnapshot {
+  id             String   @id @default(cuid())
+  competitionId  String
+  rubricId       String
+  payload        Json
+  lockedAt       DateTime
+  lockedById     String
+  publishedAt    DateTime?
+  createdAt      DateTime @default(now())
+
+  rubric Rubric @relation(fields: [rubricId], references: [id])
+
+  @@index([competitionId])
+}
+
+model Finalist {
+  id                 String    @id @default(cuid())
+  competitionId      String
+  registrationId     String    @unique
+  seed               Int?
+  displayName        String
+  institutionPublic  String?
+  published          Boolean   @default(false)
+  selectedAt         DateTime  @default(now())
+  publishedAt        DateTime?
+  overrideReason     String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  competition  Competition @relation(fields: [competitionId], references: [id])
+  registration Registration @relation(fields: [registrationId], references: [id])
+  matchesAsA   Match[]     @relation("MatchCompetitorA")
+  matchesAsB   Match[]     @relation("MatchCompetitorB")
+  wins         Match[]     @relation("MatchWinner")
+  judgeScores  JudgeScore[]
+
+  @@index([competitionId, published])
+  @@index([competitionId, seed])
+}
+
+model FinalRound {
+  id           String      @id @default(cuid())
+  competitionId String
+  name         String
+  displayName  String
+  order        Int
+  stageType    StageType   @default(MIXED)
+  scheduledAt  DateTime?
+  status       RoundStatus @default(DRAFT)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  competition Competition @relation(fields: [competitionId], references: [id])
+  matches     Match[]
+
+  @@unique([competitionId, order])
+  @@index([competitionId])
+}
+
+model Match {
+  id                String      @id @default(cuid())
+  competitionId     String
+  roundId           String
+  code              String
+  competitorAId     String?
+  competitorBId     String?
+  winnerId          String?
+  nextMatchId       String?
+  nextSlot          MatchSlot?
+  scheduledAt       DateTime?
+  actualStartedAt   DateTime?
+  actualEndedAt     DateTime?
+  status            MatchStatus @default(DRAFT)
+  publicStatus      ContentStatus @default(DRAFT)
+  notes             String?
+  isBye             Boolean     @default(false)
+  bracketLocked     Boolean     @default(false)
+  version           Int         @default(1)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  competition Competition  @relation(fields: [competitionId], references: [id])
+  round       FinalRound   @relation(fields: [roundId], references: [id])
+  competitorA Finalist?    @relation("MatchCompetitorA", fields: [competitorAId], references: [id])
+  competitorB Finalist?    @relation("MatchCompetitorB", fields: [competitorBId], references: [id])
+  winner      Finalist?    @relation("MatchWinner", fields: [winnerId], references: [id])
+  nextMatch   Match?       @relation("MatchGraph", fields: [nextMatchId], references: [id])
+  previous    Match[]      @relation("MatchGraph")
+  timers      TimerSession[]
+  twists      OnStageTwist[]
+  judgeAssignments JudgeAssignment[]
+  judgeScores JudgeScore[]
+
+  @@unique([competitionId, code])
+  @@index([competitionId, status])
+  @@index([roundId])
+  @@index([competitorAId])
+  @@index([competitorBId])
+}
+
+model JudgeAssignment {
+  id        String       @id @default(cuid())
+  competitionId String
+  matchId   String
+  judgeId   String
+  status    ReviewStatus @default(ASSIGNED)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  competition Competition @relation(fields: [competitionId], references: [id])
+  match       Match       @relation(fields: [matchId], references: [id])
+  judge       User        @relation(fields: [judgeId], references: [id])
+  scores      JudgeScore[]
+
+  @@unique([matchId, judgeId])
+  @@index([judgeId])
+  @@index([competitionId])
+}
+
+model JudgeScore {
+  id              String    @id @default(cuid())
+  assignmentId    String
+  matchId         String
+  competitorId    String
+  rubricId        String
+  overallComment  String    @default("")
+  totalNormalized Decimal   @db.Decimal(14, 8)
+  status          ReviewStatus @default(DRAFT)
+  submittedAt     DateTime?
+  reopenedAt      DateTime?
+  reopenReason    String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  version         Int       @default(1)
+
+  assignment JudgeAssignment @relation(fields: [assignmentId], references: [id])
+  match      Match           @relation(fields: [matchId], references: [id])
+  competitor Finalist        @relation(fields: [competitorId], references: [id])
+  rubric     Rubric          @relation(fields: [rubricId], references: [id])
+  items      JudgeScoreItem[]
+
+  @@unique([assignmentId, competitorId])
+  @@index([matchId, status])
+}
+
+model JudgeScoreItem {
+  id              String  @id @default(cuid())
+  judgeScoreId    String
+  criterionId     String
+  rawScore        Decimal @db.Decimal(12, 6)
+  normalizedScore Decimal @db.Decimal(14, 8)
+  comment         String  @default("")
+
+  judgeScore JudgeScore      @relation(fields: [judgeScoreId], references: [id])
+  criterion  RubricCriterion @relation(fields: [criterionId], references: [id])
+
+  @@unique([judgeScoreId, criterionId])
+}
+
+model OnStageTwist {
+  id            String      @id @default(cuid())
+  competitionId String
+  matchId       String?
+  title         String
+  content       String
+  internalNotes String      @default("")
+  revealAt      DateTime?
+  revealedAt    DateTime?
+  status        TwistStatus @default(DRAFT)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  competition Competition @relation(fields: [competitionId], references: [id])
+  match       Match?      @relation(fields: [matchId], references: [id])
+}
+
+model TimerSession {
+  id                    String      @id @default(cuid())
+  matchId               String
+  kind                  TimerKind
+  status                TimerStatus @default(IDLE)
+  durationSeconds       Int
+  remainingSnapshot     Int
+  startedAt             DateTime?
+  pausedAt              DateTime?
+  accumulatedPausedMs   Int         @default(0)
+  version               Int         @default(1)
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+
+  match Match @relation(fields: [matchId], references: [id])
+
+  @@unique([matchId, kind])
+}
+
+model Announcement {
+  id            String        @id @default(cuid())
+  competitionId String
+  title         String
+  slug          String
+  excerpt       String        @default("")
+  bodyMarkdown  String        @default("")
+  status        ContentStatus @default(DRAFT)
+  publishAt     DateTime?
+  publishedAt   DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  competition Competition @relation(fields: [competitionId], references: [id])
+
+  @@unique([competitionId, slug])
+  @@index([status, publishAt])
+}
+
+model FAQ {
+  id            String        @id @default(cuid())
+  competitionId String
+  question      String
+  answerMarkdown String
+  displayOrder  Int           @default(0)
+  status        ContentStatus @default(DRAFT)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  competition Competition @relation(fields: [competitionId], references: [id])
+
+  @@index([competitionId, displayOrder])
+}
+
+model TimelineItem {
+  id            String        @id @default(cuid())
+  competitionId String
+  title         String
+  description   String        @default("")
+  startAt       DateTime?
+  endAt         DateTime?
+  statusLabel   String        @default("Dự kiến")
+  displayOrder  Int           @default(0)
+  status        ContentStatus @default(DRAFT)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  competition Competition @relation(fields: [competitionId], references: [id])
+
+  @@index([competitionId, displayOrder])
+}
+
+model StaticPage {
+  id            String        @id @default(cuid())
+  competitionId String
+  slug          String
+  title         String
+  bodyMarkdown  String        @default("")
+  status        ContentStatus @default(DRAFT)
+  updatedAt     DateTime      @updatedAt
+  createdAt     DateTime      @default(now())
+
+  competition Competition @relation(fields: [competitionId], references: [id])
+
+  @@unique([competitionId, slug])
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  title     String
+  body      String
+  href      String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+}
+
+model EmailOutbox {
+  id             String            @id @default(cuid())
+  toEmail        String
+  templateCode   String
+  payload        Json
+  idempotencyKey String            @unique
+  status         EmailOutboxStatus @default(PENDING)
+  attempts       Int               @default(0)
+  lastError      String?
+  scheduledAt    DateTime          @default(now())
+  sentAt         DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@index([status, scheduledAt])
+}
+
+model Incident {
+  id             String           @id @default(cuid())
+  competitionId  String
+  severity       IncidentSeverity
+  title          String
+  description    String
+  affectedModule String
+  matchId        String?
+  reporterId     String
+  startedAt      DateTime         @default(now())
+  resolvedAt     DateTime?
+  resolution     String?
+  status         IncidentStatus   @default(OPEN)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  competition Competition @relation(fields: [competitionId], references: [id])
+  reporter    User        @relation("IncidentReporter", fields: [reporterId], references: [id])
+
+  @@index([competitionId, status])
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  competitionId String?
+  actorUserId  String?
+  action       String
+  entityType   String
+  entityId     String?
+  before       Json?
+  after        Json?
+  reason       String?
+  ip           String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  competition Competition? @relation(fields: [competitionId], references: [id], onDelete: SetNull)
+  actor       User?        @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([competitionId, createdAt])
+  @@index([actorUserId, createdAt])
+  @@index([entityType, entityId])
+  @@index([action])
+}
+
+model BackupStatus {
+  id             String   @id @default(cuid())
+  competitionId  String?
+  kind           String
+  location       String
+  success        Boolean
+  message        String?
+  createdAt      DateTime @default(now())
+
+  competition Competition? @relation(fields: [competitionId], references: [id])
+}
+
+model IdempotencyKey {
+  id           String   @id @default(cuid())
+  userId       String
+  action       String
+  key          String
+  responseJson Json?
+  createdAt    DateTime @default(now())
+
+  @@unique([userId, action, key])
+}

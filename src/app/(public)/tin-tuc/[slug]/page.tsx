@@ -1,0 +1,26 @@
+import { prisma } from "@/lib/db/prisma";
+import { getProductionCompetition } from "@/server/services/competition-service";
+import { Card } from "@/components/ui/form";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  return { title: slug };
+}
+
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const competition = await getProductionCompetition();
+  if (!competition) notFound();
+  const item = await prisma.announcement.findUnique({
+    where: { competitionId_slug: { competitionId: competition.id, slug } },
+  });
+  if (!item || item.status !== "PUBLISHED") notFound();
+  return (
+    <div className="mx-auto max-w-3xl px-4 py-12">
+      <h1 className="display text-4xl">{item.title}</h1>
+      <Card className="mt-6 whitespace-pre-wrap">{item.bodyMarkdown}</Card>
+    </div>
+  );
+}

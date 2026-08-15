@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <title>Báo cáo tiến độ hệ thống — Prompt-Off: Vietnam 2026</title>
+  <style>
+    :root {
+      --navy: #0b1f3a;
+      --gold: #c9a227;
+      --muted: #4b5563;
+      --line: #d6dde6;
+      --ok: #166534;
+      --warn: #92400e;
+      --no: #991b1b;
+      --bg: #f4f1ea;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      color: var(--navy);
+      font-family: "Times New Roman", "Nimbus Roman", "Noto Serif", serif;
+      font-size: 11pt;
+      line-height: 1.45;
+    }
+    h1, h2, h3, h4 {
+      font-family: "Arial", "Helvetica Neue", "Noto Sans", sans-serif;
+      page-break-after: avoid;
+    }
+    h1 { font-size: 20pt; margin: 0 0 8pt; }
+    h2 {
+      font-size: 14pt;
+      margin: 22pt 0 8pt;
+      padding-bottom: 4pt;
+      border-bottom: 2px solid var(--navy);
+    }
+    h3 { font-size: 12pt; margin: 14pt 0 6pt; color: #16345c; }
+    p { margin: 0 0 8pt; }
+    ul, ol { margin: 0 0 10pt; padding-left: 18pt; }
+    li { margin-bottom: 3pt; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0 0 12pt;
+      font-size: 9.5pt;
+      page-break-inside: auto;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 5pt 6pt;
+      vertical-align: top;
+      text-align: left;
+    }
+    th { background: var(--navy); color: #fff; font-weight: 600; }
+    tr { page-break-inside: avoid; }
+    code, .mono {
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 9pt;
+    }
+    .cover {
+      min-height: 240mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 18mm 8mm 12mm;
+    }
+    .kicker {
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-size: 9pt;
+      color: var(--gold);
+      font-family: Arial, sans-serif;
+      font-weight: 700;
+    }
+    .cover h1 { font-size: 28pt; line-height: 1.2; margin-top: 12pt; }
+    .meta { color: var(--muted); font-size: 11pt; }
+    .badge-row { margin-top: 18pt; }
+    .badge {
+      display: inline-block;
+      border: 1px solid var(--navy);
+      padding: 3pt 8pt;
+      margin: 0 6pt 6pt 0;
+      font-family: Arial, sans-serif;
+      font-size: 8.5pt;
+      font-weight: 700;
+    }
+    .callout {
+      border-left: 4px solid var(--gold);
+      background: #faf6ea;
+      padding: 8pt 10pt;
+      margin: 0 0 12pt;
+    }
+    .warn {
+      border-left-color: #b45309;
+      background: #fff7ed;
+    }
+    .danger {
+      border-left-color: #b91c1c;
+      background: #fef2f2;
+    }
+    .ok { color: var(--ok); font-weight: 700; }
+    .partial { color: var(--warn); font-weight: 700; }
+    .missing { color: var(--no); font-weight: 700; }
+    .muted { color: var(--muted); }
+    .break { page-break-before: always; }
+    .small { font-size: 9pt; color: var(--muted); }
+    .toc a { color: var(--navy); text-decoration: none; }
+    .toc td { border: none; padding: 3pt 0; }
+    .toc td:last-child { text-align: right; color: var(--muted); }
+    .footer-note { font-size: 8.5pt; color: var(--muted); margin-top: 16pt; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10pt; }
+    .stat {
+      border: 1px solid var(--line);
+      padding: 8pt 10pt;
+    }
+    .stat b { display: block; font-size: 16pt; font-family: Arial, sans-serif; }
+  </style>
+</head>
+<body>
+
+<section class="cover">
+  <div>
+    <div class="kicker">Đại học Quốc gia Hà Nội · Trường Đại học Công nghệ</div>
+    <h1>Báo cáo tiến độ hệ thống<br/>Prompt-Off: Vietnam 2026</h1>
+    <p class="meta">Cổng thông tin đăng ký, nộp bài Audition, chấm chọn, chung kết và vận hành sân khấu</p>
+    <div class="badge-row">
+      <span class="badge">Phiên bản phần mềm 1.0.0</span>
+      <span class="badge">Next.js 16.3.1</span>
+      <span class="badge">Ngày báo cáo: 15/08/2026</span>
+    </div>
+  </div>
+  <div>
+    <table>
+      <tr><th style="width:32%">Hạng mục</th><th>Nội dung</th></tr>
+      <tr><td>Đối tượng đọc</td><td>Ban Tổ chức, đầu mối hệ thống, nhóm kỹ thuật</td></tr>
+      <tr><td>Mục đích</td><td>Báo cáo những gì đã chạy được, cách dùng theo vai trò, API, tài khoản thử nghiệm, lỗ hổng còn lại và câu hỏi cần BTC chốt</td></tr>
+      <tr><td>Môi trường mô tả</td><td>Development trên máy local (<span class="mono">http://localhost:3000</span>). Chưa triển khai internet.</td></tr>
+      <tr><td>Nguồn</td><td>Mã nguồn hiện tại, <span class="mono">docs/</span>, <span class="mono">prisma/schema.prisma</span>, seed và kiểm thử nội bộ ngày 14–15/08/2026</td></tr>
+    </table>
+    <p class="footer-note">Tài liệu nội bộ. Phần mật khẩu chỉ dùng cho môi trường phát triển — không đưa lên production, slide công khai hay email rộng.</p>
+  </div>
+</section>
+
+<section class="break">
+  <h2>1. Tóm tắt cho buổi họp</h2>
+  <div class="grid-2">
+    <div class="stat"><b>Khung P0–P2</b>đã dựng xong</div>
+    <div class="stat"><b>Chưa</b>công bố internet</div>
+    <div class="stat"><b>Chưa</b>có ngân hàng đề</div>
+    <div class="stat"><b>Một phần</b>admin ngày thi</div>
+  </div>
+  <p>Hệ thống là <strong>modular monolith Next.js</strong>: một ứng dụng web phục vụ website công khai, thí sinh, reviewer, giám khảo, kỹ thuật sân khấu và Ban Tổ chức. Database PostgreSQL, file S3-compatible, email qua hàng đợi (outbox).</p>
+  <div class="callout">
+    <strong>Có thể demo ngay trên local:</strong> đăng ký tài khoản, tạo hồ sơ cá nhân/đội, nộp Audition (nháp + nộp), reviewer chấm, BTC xem ranking; trận mẫu PI1 (Đội 7 vs Finalist 10) để giám khảo chấm và overlay hiện tên + timer.
+  </div>
+  <div class="callout warn">
+    <strong>Chưa sẵn sàng phát động 15/09</strong> nếu hiểu “sẵn sàng” = các đội trên internet đăng ký được. Còn thiếu: máy chủ + tên miền + HTTPS + email thật + S3 thật; CMS soạn thể lệ; form mời giám khảo/kỹ thuật; CAPTCHA; và BTC chốt thể lệ / hình thức thi.
+  </div>
+  <h3>Ba câu cần chốt trong họp</h3>
+  <ol>
+    <li>Audition là thí sinh tự đề bài hay BTC công bố đề bí mật đúng giờ?</li>
+    <li>Thi cá nhân, đội, hay cả hai? Sĩ số đội?</li>
+    <li>Cổng public đặt ở đâu (subdomain trường / VPS / PaaS) và email gửi thư xác minh là địa chỉ nào?</li>
+  </ol>
+</section>
+
+<section>
+  <h2>2. Kiến trúc và phạm vi</h2>
+  <h3>2.1. Thành phần runtime</h3>
+  <table>
+    <tr><th>Thành phần</th><th>Local</th><th>Production (kế hoạch)</th></tr>
+    <tr><td>Ứng dụng web</td><td><span class="mono">pnpm dev</span> / <span class="mono">pnpm start</span></td><td>Node 20.9+, cổng 3000 sau Nginx/HTTPS</td></tr>
+    <tr><td>PostgreSQL 16</td><td>Homebrew :5432 hoặc Docker :5433</td><td>Managed Postgres hoặc Postgres trên VPS</td></tr>
+    <tr><td>Object storage</td><td>MinIO :9000</td><td>S3 / R2 / MinIO riêng</td></tr>
+    <tr><td>Email</td><td>Mailpit :1025 / UI :8025</td><td>SMTP trường hoặc Resend</td></tr>
+    <tr><td>Cron email</td><td>thủ công <span class="mono">pnpm email:outbox</span></td><td>Mỗi phút <span class="mono">POST /api/cron/email</span></td></tr>
+  </table>
+  <h3>2.2. Lớp mã nguồn</h3>
+  <table>
+    <tr><th>Thư mục</th><th>Vai trò</th></tr>
+    <tr><td><span class="mono">src/app</span></td><td>Giao diện, App Router, Route Handlers</td></tr>
+    <tr><td><span class="mono">src/server/actions</span></td><td>Server Actions (xác thực + quyền)</td></tr>
+    <tr><td><span class="mono">src/server/services</span></td><td>Nghiệp vụ</td></tr>
+    <tr><td><span class="mono">src/server/domain</span></td><td>Luật thuần: điểm, hạn, RBAC, đội</td></tr>
+    <tr><td><span class="mono">prisma</span></td><td>Schema, migration, seed</td></tr>
+  </table>
+  <h3>2.3. Hai vòng nghiệp vụ</h3>
+  <ol>
+    <li><strong>Vòng tuyển chọn (online):</strong> tạo tài khoản → hồ sơ → đăng ký → Audition → reviewer chấm → khóa danh sách → công bố finalist.</li>
+    <li><strong>Vòng chung kết (trực tiếp):</strong> bracket ~10 finalist → sprint/pitch → giám khảo chấm → twist → verdict → overlay livestream.</li>
+  </ol>
+</section>
+
+<section class="break">
+  <h2>3. Chức năng — đã có / một phần / chưa có</h2>
+  <p>Chú thích: <span class="ok">Đã có</span> dùng được end-to-end trên local. <span class="partial">Một phần</span> có model hoặc trang xem nhưng thiếu nút/soạn thảo. <span class="missing">Chưa có</span> so với kế hoạch tổ chức.</p>
+
+  <h3>3.1. Website công khai</h3>
+  <table>
+    <tr><th>Chức năng</th><th>Trạng thái</th><th>Ghi chú</th></tr>
+    <tr><td>Landing, giới thiệu, thể lệ, lịch, FAQ, tin, liên hệ, chính sách</td><td class="ok">Đã có</td><td>Nội dung seed là khung “đang hoàn thiện”</td></tr>
+    <tr><td>Trang tiêu chí chấm lấy rubric active</td><td class="ok">Đã có</td><td>40% / 30% / 30%</td></tr>
+    <tr><td>Finalists, scoreboard, livestream</td><td class="partial">Một phần</td><td>Scoreboard không hiện điểm số; livestream ẩn khi chưa bật; /ket-qua là placeholder</td></tr>
+    <tr><td>Admin soạn/đăng CMS</td><td class="partial">Một phần</td><td>Trang admin chỉ liệt kê, chưa có form sửa/đăng</td></tr>
+    <tr><td>Logo chính thức ĐHQGHN / Google</td><td class="missing">Chưa có</td><td>Placeholder trung tính</td></tr>
+  </table>
+
+  <h3>3.2. Tài khoản và phân quyền</h3>
+  <table>
+    <tr><th>Chức năng</th><th>Trạng thái</th><th>Ghi chú</th></tr>
+    <tr><td>Đăng ký email/mật khẩu, xác minh, quên mật khẩu</td><td class="ok">Đã có</td><td>Cần SMTP + cron mới gửi được mail</td></tr>
+    <tr><td>RBAC 6 role + SUPER_ADMIN bypass</td><td class="ok">Đã có</td><td>Proxy + layout kiểm tra lại</td></tr>
+    <tr><td>Thí sinh tự đăng ký</td><td class="ok">Đã có</td><td>/dang-ky</td></tr>
+    <tr><td>Mời thành viên đội</td><td class="ok">Đã có</td><td>Người nhận phải đã có tài khoản và đăng nhập</td></tr>
+    <tr><td>Mời giám khảo / reviewer / kỹ thuật / admin trên UI</td><td class="partial">Một phần</td><td>Hàm <span class="mono">createStaffInvitation</span> + /loi-moi đã có, chưa gắn nút admin</td></tr>
+    <tr><td>Tạo SUPER_ADMIN</td><td class="ok">Đã có</td><td>Chỉ script <span class="mono">pnpm create-super-admin</span></td></tr>
+    <tr><td>CAPTCHA / Turnstile</td><td class="partial">Một phần</td><td>Tắt khi thiếu credential</td></tr>
+  </table>
+
+  <h3>3.3. Đăng ký dự thi và Audition</h3>
+  <table>
+    <tr><th>Chức năng</th><th>Trạng thái</th><th>Ghi chú</th></tr>
+    <tr><td>Hồ sơ cá nhân</td><td class="ok">Đã có</td><td>Nộp hồ sơ bắt buộc: họ tên, trường, mã SV</td></tr>
+    <tr><td>Wizard cá nhân / đội, biên nhận</td><td class="ok">Đã có</td><td>Mode mặc định BOTH; 1 người 1 hồ sơ</td></tr>
+    <tr><td>Hạn đăng ký phía server</td><td class="ok">Đã có</td><td>Dự kiến 15/09–05/10/2026</td></tr>
+    <tr><td>Form Audition + autosave + khóa bản khi nộp</td><td class="ok">Đã có</td><td>Chỉ nhóm trưởng nộp bài</td></tr>
+    <tr><td>Upload file trên form Audition</td><td class="partial">Một phần</td><td>API POST /api/uploads có; UI chủ yếu ô URL</td></tr>
+    <tr><td>Bắt buộc video/demo/repo</td><td class="ok">Đã có (cờ tắt)</td><td>Mặc định không bắt buộc — bật trong settings</td></tr>
+    <tr><td>Admin duyệt hồ sơ, đổi trạng thái, export CSV BOM</td><td class="ok">Đã có</td><td>/admin/registrations, /admin/exports</td></tr>
+  </table>
+
+  <h3>3.4. Chấm Audition và finalist</h3>
+  <table>
+    <tr><th>Chức năng</th><th>Trạng thái</th><th>Ghi chú</th></tr>
+    <tr><td>Rubric versioned 40/30/30</td><td class="ok">Đã có</td><td>AUDITION và FINAL riêng</td></tr>
+    <tr><td>Phân công reviewer, form chấm, ranking</td><td class="ok">Đã có</td><td>Blind review bật mặc định</td></tr>
+    <tr><td>Khóa lựa chọn + công bố finalist</td><td class="ok">Đã có</td><td>Không publish trước khi lock</td></tr>
+    <tr><td>Sửa rubric trên UI</td><td class="partial">Một phần</td><td>Trang /admin/rubrics chỉ xem</td></tr>
+  </table>
+
+  <h3>3.5. Chung kết, sân khấu, overlay</h3>
+  <table>
+    <tr><th>Chức năng</th><th>Trạng thái</th><th>Ghi chú</th></tr>
+    <tr><td>Bracket tùy biến 10 finalist, bye, play-in</td><td class="ok">Đã có (dữ liệu)</td><td>Trang admin chủ yếu xem</td></tr>
+    <tr><td>Giám khảo chấm 2 bên, lưu nháp, nộp phiếu</td><td class="ok">Đã có</td><td>Đã sửa lỗi inline server action 15/08</td></tr>
+    <tr><td>Tổng hợp điểm, hòa → BTC chọn tay</td><td class="ok">Đã có</td><td>Cần đủ 3 giám khảo; điểm gộp ở /admin/scoring</td></tr>
+    <tr><td>Timer sprint Start/Pause/Resume</td><td class="ok">Đã có</td><td>Start reset về 2700s; PITCH/VERDICT chưa có session</td></tr>
+    <tr><td>Overlay OBS current-match / scoreboard</td><td class="ok">Đã có</td><td>Poll 1–2 giây; chưa vẽ twist</td></tr>
+    <tr><td>On-stage Twist</td><td class="partial">Một phần</td><td>Có model + màn hình; không có nút Reveal</td></tr>
+    <tr><td>Ngân hàng đề / công bố đề</td><td class="missing">Chưa có</td><td>Không có entity đề, không embargo/reveal</td></tr>
+    <tr><td>Đổi pha trận, chốt thắng trên UI</td><td class="partial">Một phần</td><td>advanceWinner backend có, chưa gắn form</td></tr>
+    <tr><td>Trang /ket-qua công khai</td><td class="missing">Chưa có</td><td>Placeholder “đang cập nhật”</td></tr>
+  </table>
+
+  <h3>3.6. Vận hành kỹ thuật</h3>
+  <table>
+    <tr><th>Chức năng</th><th>Trạng thái</th><th>Ghi chú</th></tr>
+    <tr><td>Health check, audit log, incident</td><td class="ok">Đã có</td><td>Audit append-only</td></tr>
+    <tr><td>Backup/restore script</td><td class="ok">Đã có</td><td>docs/BACKUP_AND_RESTORE.md</td></tr>
+    <tr><td>Email outbox + template</td><td class="ok">Đã có</td><td>Local phụ thuộc Mailpit</td></tr>
+    <tr><td>Competition rehearsal riêng</td><td class="ok">Đã có</td><td>Seed tạo bản rehearsal</td></tr>
+    <tr><td>Dockerfile / CI lint-test-build</td><td class="ok">Đã có</td><td>Compose local chỉ hạ tầng, không gồm app</td></tr>
+    <tr><td>Deploy production</td><td class="missing">Chưa làm</td><td>Chưa có domain, TLS, SMTP thật</td></tr>
+  </table>
+</section>
+
+<section class="break">
+  <h2>4. Cách sử dụng theo vai trò</h2>
+  <p>Base URL local: <span class="mono">http://localhost:3000</span>. Mật khẩu demo: xem mục 5.</p>
+
+  <h3>4.1. Khách (chưa đăng nhập)</h3>
+  <ol>
+    <li>Xem thông tin cuộc thi: <span class="mono">/</span>, /gioi-thieu, /the-le, /lich-trinh, /faq, /tin-tuc.</li>
+    <li>Tạo tài khoản: /dang-ky (họ tên, email, mật khẩu ≥ 10 ký tự).</li>
+    <li>Xác minh email qua link (nếu SMTP chạy).</li>
+    <li>Đăng nhập /dang-nhap. Quên mật khẩu: /quen-mat-khau.</li>
+    <li>Xem finalist / scoreboard / livestream khi BTC bật cờ tương ứng.</li>
+  </ol>
+
+  <h3>4.2. Thí sinh / đội (PARTICIPANT)</h3>
+  <p>Menu: Tổng quan, Hồ sơ, Đội thi, Đăng ký, Audition, Thông báo, Biên nhận.</p>
+  <ol>
+    <li><strong>Hồ sơ</strong> — điền họ tên, trường, mã sinh viên (bắt buộc trước khi nộp đăng ký).</li>
+    <li><strong>Đăng ký</strong> — tạo nháp Cá nhân hoặc Đội. Đội: đặt tên, mời email. Sĩ số khi nộp: 2–4 thành viên đã chấp nhận.</li>
+    <li>Đồng ý thể lệ + xử lý dữ liệu → <strong>Nộp hồ sơ</strong> → nhận mã <span class="mono">PO26…</span>.</li>
+    <li><strong>Biên nhận</strong> — in trang /dashboard/bien-nhan.</li>
+    <li><strong>Audition</strong> — chỉ khi hồ sơ đã SUBMITTED (hoặc ELIGIBLE / UNDER_REVIEW / …). Autosave khi rời ô. Bắt buộc: tiêu đề, bài toán, giải pháp, cách dùng Gemini, cam kết nguyên gốc. Chỉ nhóm trưởng nộp bài.</li>
+    <li>Thành viên đội vào /loi-moi-doi khi đã đăng nhập.</li>
+  </ol>
+  <p class="small">Một người chỉ thuộc một hồ sơ đang hiệu lực. Không có role “đội” riêng — đội = nhiều PARTICIPANT.</p>
+
+  <h3>4.3. Reviewer (chấm Audition)</h3>
+  <ol>
+    <li>Đăng nhập → /reviewer.</li>
+    <li>Mở bài được phân công, chấm từng tiêu chí 0–10 (bước 0.5), nhận xét, lưu nháp, nộp.</li>
+    <li>Điểm chuẩn hóa theo trọng số, tổng 0–100. Không thấy email thí sinh nếu blind review bật.</li>
+  </ol>
+
+  <h3>4.4. Giám khảo chung kết (JUDGE)</h3>
+  <ol>
+    <li>Đăng nhập judge1|2|3 → /judge. Badge “Đã nộp phiếu” / “Chưa nộp”.</li>
+    <li>Vào trận (ví dụ PI1). Chấm <em>từng bên</em> (Đội 7 và Finalist 10): khả thi / sáng tạo / tác động.</li>
+    <li>Bấm <strong>Lưu nháp</strong> cho đủ hai bên (thấy “Đã lưu nháp · tổng …”) rồi <strong>Nộp điểm trận</strong>.</li>
+    <li>Thành công: khung xanh “Phiếu của bạn đã được ghi nhận” + điểm từng tiêu chí.</li>
+    <li>Giám khảo <strong>không</strong> thấy điểm gộp 3 phiếu. BTC xem /admin/scoring. Công chúng /scoreboard không hiện số (cờ tắt).</li>
+  </ol>
+  <p class="small">Công thức: (raw/10)×trọng số; tổng giám khảo; điểm trận = trung bình các phiếu đã nộp. Cần 3/3. Hòa → TIE_REVIEW, BTC chọn tay.</p>
+
+  <h3>4.5. Kỹ thuật sân khấu (TECH_OPERATOR)</h3>
+  <ol>
+    <li>Đăng nhập tech@ → /admin/operations: Start / Pause / Resume timer sprint của trận đang SPRINT/PITCH/SCORING/READY.</li>
+    <li>Màn sân khấu (cần đăng nhập): /stage/current-match, /stage/timer, /stage/twist, /stage/verdict. Stage <strong>không tự refresh</strong> — F5.</li>
+    <li>Overlay (không login, để OBS Browser Source): /overlay/current-match (thêm ?compact=1 nếu cần), /overlay/scoreboard.</li>
+  </ol>
+
+  <h3>4.6. Ban Tổ chức (ADMIN) và SUPER_ADMIN</h3>
+  <p>Đăng nhập admin@ hoặc superadmin@ → /admin. Các mục chính:</p>
+  <table>
+    <tr><th>URL</th><th>Dùng để</th><th>Mức hoàn thiện UI</th></tr>
+    <tr><td>/admin</td><td>Thống kê tài khoản, hồ sơ, bài nộp</td><td>Xem</td></tr>
+    <tr><td>/admin/settings</td><td>Tên, mô tả, hình thức đăng ký, livestream, giải, bật/tắt cổng</td><td>Sửa được một phần settings</td></tr>
+    <tr><td>/admin/registrations</td><td>Danh sách, chi tiết, đổi trạng thái (cần lý do)</td><td>Dùng được</td></tr>
+    <tr><td>/admin/submissions</td><td>Xem bài Audition</td><td>Dùng được</td></tr>
+    <tr><td>/admin/review-assignments</td><td>Phân công reviewer (kèm auto-assign)</td><td>Dùng được</td></tr>
+    <tr><td>/admin/finalists</td><td>Ranking, khóa danh sách, công bố</td><td>Dùng được</td></tr>
+    <tr><td>/admin/scoring</td><td>Tiến độ phiếu GK, điểm gộp A/B</td><td>Xem</td></tr>
+    <tr><td>/admin/operations</td><td>Timer, health DB/storage/email</td><td>Timer sprint</td></tr>
+    <tr><td>/admin/exports</td><td>CSV đăng ký (BOM, có PII)</td><td>Dùng được</td></tr>
+    <tr><td>/admin/users, roles, judges, reviewers, content, faqs, announcements, rubrics, bracket</td><td>Xem danh sách</td><td>Chưa có form thêm/sửa</td></tr>
+  </table>
+  <p>SUPER_ADMIN: tạo bằng script; được gán SUPER_ADMIN; reopen điểm; không bị ADMIN sửa role.</p>
+</section>
+
+<section class="break">
+  <h2>5. Tài khoản và mật khẩu môi trường phát triển</h2>
+  <div class="callout danger">
+    <strong>Cảnh báo:</strong> Đây là credential seed development. Mật khẩu chung mặc định <span class="mono">DevPassword123!</span> (đổi bằng biến <span class="mono">SEED_PASSWORD</span>). Không dùng trên production, không gửi nhóm rộng, không seed lên server thật.
+  </div>
+  <table>
+    <tr><th>Vai trò</th><th>Email</th><th>Mật khẩu</th><th>Vào đâu sau login</th></tr>
+    <tr><td>SUPER_ADMIN</td><td>superadmin@promptoff.local</td><td>DevPassword123!</td><td>/admin</td></tr>
+    <tr><td>ADMIN</td><td>admin@promptoff.local</td><td>DevPassword123!</td><td>/admin</td></tr>
+    <tr><td>TECH_OPERATOR</td><td>tech@promptoff.local</td><td>DevPassword123!</td><td>/admin/operations, /stage/*</td></tr>
+    <tr><td>REVIEWER</td><td>reviewer1@ … reviewer3@promptoff.local</td><td>DevPassword123!</td><td>/reviewer</td></tr>
+    <tr><td>JUDGE</td><td>judge1@ … judge3@promptoff.local</td><td>DevPassword123!</td><td>/judge</td></tr>
+    <tr><td>PARTICIPANT</td><td>student1@promptoff.local …</td><td>DevPassword123!</td><td>/dashboard</td></tr>
+    <tr><td>Finalist phụ</td><td>finalist9@, finalist10@promptoff.local</td><td>DevPassword123!</td><td>seed extra</td></tr>
+  </table>
+  <p>Tạo SUPER_ADMIN thật (production):</p>
+  <p class="mono">ADMIN_SEED_EMAIL=ban.to.chuc@example.edu.vn ADMIN_SEED_PASSWORD='mat-khau-dai' pnpm create-super-admin</p>
+  <p>Mật khẩu script yêu cầu tối thiểu 12 ký tự.</p>
+  <h3>5.1. Dữ liệu trận mẫu sau seed</h3>
+  <table>
+    <tr><th>Mã</th><th>Vòng</th><th>A</th><th>B</th><th>Status</th></tr>
+    <tr><td>PI1</td><td>Play-in</td><td>Đội 7</td><td>Finalist 10</td><td>SCORING (đang demo chấm)</td></tr>
+    <tr><td>PI2</td><td>Play-in</td><td>Đội 8</td><td>Finalist 9</td><td>SCHEDULED</td></tr>
+    <tr><td>QF1–QF4</td><td>Tứ kết</td><td colspan="2">Một phần TBD / bye graph</td><td>DRAFT</td></tr>
+    <tr><td>SF1, SF2, FINAL</td><td>Bán kết / CK</td><td>TBD</td><td>TBD</td><td>DRAFT</td></tr>
+  </table>
+  <p>PI1 có timer SPRINT pause còn 1200/2700 giây; 3 giám khảo đã gán; twist “Yêu cầu thêm từ BTC” status READY (sân khấu chưa hiện cho đến REVEALED). Thắng PI1 vào slot B của QF1.</p>
+</section>
+
+<section class="break">
+  <h2>6. Danh mục API</h2>
+  <p>Hầu hết nghiệp vụ đi qua Server Actions (form POST), không phải REST công khai. Dưới đây là Route Handlers.</p>
+  <table>
+    <tr><th>Method</th><th>Đường dẫn</th><th>Auth</th><th>Mục đích</th></tr>
+    <tr><td>GET/POST</td><td>/api/auth/[...nextauth]</td><td>—</td><td>Auth.js v5 (credentials, JWT 7 ngày)</td></tr>
+    <tr><td>GET</td><td>/api/health</td><td>Không</td><td>database + storage; 200 hoặc 503</td></tr>
+    <tr><td>GET</td><td>/api/public/competition</td><td>Không</td><td>Tên, ngày (Dự kiến), giải, mode đăng ký — không PII</td></tr>
+    <tr><td>GET</td><td>/api/public/timeline</td><td>Không</td><td>Mốc lịch đã PUBLISHED</td></tr>
+    <tr><td>GET</td><td>/api/public/finalists</td><td>Không</td><td>Rỗng nếu chưa bật công bố</td></tr>
+    <tr><td>GET</td><td>/api/public/bracket</td><td>Không</td><td>Vòng + mã trận + tên hiển thị, không điểm</td></tr>
+    <tr><td>GET</td><td>/api/public/scoreboard</td><td>Không</td><td>Trận + status; điểm chỉ khi publicScoresEnabled</td></tr>
+    <tr><td>GET</td><td>/api/public/event-state</td><td>Không, no-store</td><td>Trận hiện tại, timer, twist đã REVEALED — overlay poll 1s</td></tr>
+    <tr><td>POST</td><td>/api/uploads</td><td>Đăng nhập</td><td>Upload private; chặn exe; MIME/size; rate 20/giờ</td></tr>
+    <tr><td>GET</td><td>/api/admin/export-registrations</td><td>ADMIN (PII)</td><td>CSV UTF-8 BOM</td></tr>
+    <tr><td>POST</td><td>/api/cron/email</td><td>Bearer CRON_SECRET</td><td>Xả tối đa 50 mail outbox</td></tr>
+  </table>
+  <h3>6.1. Server Actions chính</h3>
+  <table>
+    <tr><th>Nhóm</th><th>Action</th></tr>
+    <tr><td>Auth</td><td>register, login, logout, forgot/reset password, verify email</td></tr>
+    <tr><td>Thí sinh</td><td>tạo đăng ký, lưu hồ sơ, mời đội, nộp đăng ký, autosave/nộp Audition</td></tr>
+    <tr><td>Reviewer</td><td>lưu nháp, nộp review</td></tr>
+    <tr><td>Giám khảo</td><td>lưu nháp điểm, nộp phiếu trận</td></tr>
+    <tr><td>Admin</td><td>settings, auto-assign reviewer, lock/publish finalist, export CSV, timer, advanceWinner</td></tr>
+  </table>
+  <h3>6.2. Email template (outbox)</h3>
+  <p>verify_email, reset_password, team_invite, registration_confirm, registration_update_request, submission_confirm, submission_reopened, audition_result, finalist_notice, reviewer_invite, judge_invite, review_reminder, schedule_change.</p>
+</section>
+
+<section>
+  <h2>7. Trạng thái nghiệp vụ (rút gọn)</h2>
+  <p><strong>Đăng ký:</strong> DRAFT → SUBMITTED → NEEDS_UPDATE | UNDER_REVIEW | ELIGIBLE | INELIGIBLE | SELECTED | NOT_SELECTED | WITHDRAWN | LOCKED</p>
+  <p><strong>Bài nộp:</strong> DRAFT → SUBMITTED → UNDER_REVIEW → SCORED → LOCKED; NEEDS_UPDATE để mở lại.</p>
+  <p><strong>Phiếu chấm:</strong> ASSIGNED → DRAFT → SUBMITTED → LOCKED; reopen chỉ SUPER_ADMIN + lý do.</p>
+  <p><strong>Trận:</strong> DRAFT → SCHEDULED → CHECK_IN → READY → SPRINT → PITCH → SCORING → VERDICT → LOCKED → PUBLISHED → COMPLETED; thêm TIE_REVIEW / NEEDS_VERDICT.</p>
+  <p><strong>Uniqueness:</strong> một seat (user, cuộc thi); mã hồ sơ unique; một reviewer một version bài; một phiếu GK một thí sinh trong trận.</p>
+</section>
+
+<section class="break">
+  <h2>8. Chạy local (nhắc nhanh)</h2>
+  <ol>
+    <li>Node 20.9+, pnpm 10+, PostgreSQL (hoặc Docker postgres/minio/mailpit).</li>
+    <li><span class="mono">cp .env.example .env</span> — đổi AUTH_SECRET ≥ 32 ký tự nếu máy dùng chung.</li>
+    <li><span class="mono">pnpm install && pnpm db:generate && pnpm db:migrate && pnpm db:seed</span></li>
+    <li><span class="mono">pnpm dev</span> → http://localhost:3000</li>
+    <li>Không seed trên production. Migration production: <span class="mono">pnpm db:migrate:deploy</span> có kiểm soát, backup trước.</li>
+  </ol>
+  <p>Kiểm thử đã chạy 14/08/2026: lint, typecheck, unit/integration, build, e2e Playwright (trang chủ, login, dashboard, không lộ PII public).</p>
+</section>
+
+<section>
+  <h2>9. Lưu ý quan trọng</h2>
+  <ol>
+    <li><strong>Không “export localhost” ra internet.</strong> Cần server + DNS + HTTPS. Cookie đăng nhập yêu cầu HTTPS khi lên production.</li>
+    <li><strong>Không chạy seed trên production</strong> — lộ mật khẩu demo, dữ liệu giả, tài khoản local.</li>
+    <li>Email xác minh / mời đội / biên nhận phụ thuộc SMTP và cron. Local thiếu Mailpit thì mail fail (đã gặp ECONNREFUSED :1025).</li>
+    <li>CSP production không có unsafe-eval; development cần unsafe-eval cho React (đã chỉnh next.config.ts).</li>
+    <li>Giám khảo phải Lưu nháp cả hai bên trước khi Nộp. Overlay tự cập nhật; màn /stage phải F5.</li>
+    <li>Start timer sprint reset về 45 phút, không tiếp tục từ thời điểm pause.</li>
+    <li>Điểm công khai tắt mặc định (publicScoresEnabled = false).</li>
+    <li>Export CSV chứa PII — chỉ ADMIN/SUPER_ADMIN; có audit.</li>
+    <li>File upload chặn executable; object private, lấy bằng URL ký.</li>
+    <li>Rate limit login/register/upload trên bảng DB — đủ một instance, chưa Redis.</li>
+    <li>Production: AUTH_SECRET, CRON_SECRET, mật khẩu DB/S3 phải khác local.</li>
+    <li>Nội dung “chưa chốt” phải hiện Dự kiến / Đang cập nhật — không bịa ngày giải livestream.</li>
+  </ol>
+</section>
+
+<section class="break">
+  <h2>10. Thông tin còn thiếu — đề nghị hỏi BTC</h2>
+  <h3>10.1. Để phát động đăng ký (ưu tiên họp này)</h3>
+  <table>
+    <tr><th>#</th><th>Câu hỏi</th><th>Hiện trong hệ thống</th></tr>
+    <tr><td>1</td><td>Thi cá nhân, đội, hay cả hai? Sĩ số min–max?</td><td>BOTH, đội 2–4 (nên UNDECIDED trên production đến khi chốt)</td></tr>
+    <tr><td>2</td><td>Thể lệ chính thức + file PDF?</td><td>Trang tĩnh khung, CMS chưa sửa trên UI</td></tr>
+    <tr><td>3</td><td>Rubric Audition giữ 40/30/30?</td><td>Đúng, có thể version mới</td></tr>
+    <tr><td>4</td><td>Audition: tự đề bài hay đề BTC? Bắt buộc video/demo/GitHub/file?</td><td>Tự viết form; video/demo/repo không bắt buộc</td></tr>
+    <tr><td>5</td><td>Ngày mở–đóng đăng ký và nộp bài?</td><td>Dự kiến 15/09–05/10/2026</td></tr>
+    <tr><td>6</td><td>Email liên hệ, fanpage, logo ĐHQGHN/UET/Google?</td><td>placeholder</td></tr>
+    <tr><td>7</td><td>Bắt buộc giấy/thẻ SV?</td><td>requireStudentProof = false</td></tr>
+    <tr><td>8</td><td>Ai là SUPER_ADMIN? SMTP gửi mail xác minh?</td><td>Chưa có production</td></tr>
+    <tr><td>9</td><td>Hạ tầng: subdomain trường, VPS, hay PaaS?</td><td>Chưa deploy</td></tr>
+  </table>
+  <h3>10.2. Ngân hàng đề và chung kết</h3>
+  <table>
+    <tr><th>#</th><th>Câu hỏi</th><th>Hiện trong hệ thống</th></tr>
+    <tr><td>10</td><td>Đề Audition công bố lúc nào, kênh nào?</td><td>Không có module đề</td></tr>
+    <tr><td>11</td><td>Chung kết: mỗi trận một đề hay chung? Bung trước Sprint hay giữa trận?</td><td>Chưa gán đề vào trận</td></tr>
+    <tr><td>12</td><td>On-stage Twist: có/không, ai bấm Reveal, hiện sân khấu hay máy thí sinh?</td><td>Model + màn hình, chưa nút Reveal</td></tr>
+    <tr><td>13</td><td>Hyper-Local: nguồn, bảo mật trước giờ G?</td><td>Chưa có</td></tr>
+    <tr><td>14</td><td>10 finalist là cá nhân hay đội trên sân? Play-in/bye?</td><td>Bracket CUSTOM mẫu 10</td></tr>
+    <tr><td>15</td><td>Số giám khảo / trận? Xử lý hòa?</td><td>3 GK; MANUAL_VERDICT</td></tr>
+    <tr><td>16</td><td>Ngày 01/11 hay 03/11? Hội trường? Livestream?</td><td>01/11 TENTATIVE; livestream HIDDEN</td></tr>
+    <tr><td>17</td><td>Cơ cấu giải?</td><td>Chuỗi rỗng → “Đang cập nhật”</td></tr>
+    <tr><td>18</td><td>Điểm công khai khi nào?</td><td>Tắt</td></tr>
+    <tr><td>19</td><td>Danh sách email GK, reviewer, kỹ thuật, admin?</td><td>Chưa có UI mời staff</td></tr>
+  </table>
+  <div class="callout">
+    Câu then chốt với phụ trách ngân hàng đề: <em>“Thí sinh nhận đề Audition và đề chung kết ở đâu — website có giờ G, PDF email, hay MC đọc trên sân?”</em> Trả lời này quyết định có phải xây module công bố đề trước 15/09 hay chỉ dùng CMS/tin tức.
+  </div>
+</section>
+
+<section>
+  <h2>11. Đề xuất việc làm tiếp (gợi ý ưu tiên)</h2>
+  <h3>Trước phát động (nếu mốc 15/09 giữ)</h3>
+  <ol>
+    <li>Chốt câu 1–9; khóa thể lệ và hình thức thi trên settings.</li>
+    <li>Deploy staging (HTTPS + Postgres + SMTP + S3), tạo SUPER_ADMIN thật, không seed.</li>
+    <li>CMS admin: sửa thể lệ / FAQ / tin / hướng dẫn Audition.</li>
+    <li>Form mời ADMIN, TECH, REVIEWER, JUDGE.</li>
+    <li>Nút upload trên form Audition; bật CAPTCHA.</li>
+    <li>Mở đăng ký trên domain chính thức.</li>
+  </ol>
+  <h3>Trước chung kết (tháng 10–11)</h3>
+  <ol>
+    <li>Ngân hàng đề + Reveal; gán đề/twist cho trận.</li>
+    <li>UI đổi pha trận, chốt thắng, timer PITCH/VERDICT.</li>
+    <li>Stage auto-refresh; overlay twist; trang kết quả.</li>
+    <li>Rehearsal trên competition riêng, runbook ngày thi.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>12. Phụ lục — sơ đồ luồng thí sinh</h2>
+  <p class="mono" style="white-space:pre-wrap;font-size:9.5pt;line-height:1.5;">Tạo tài khoản (/dang-ky)
+  → Xác minh email
+  → Đăng nhập → /dashboard
+  → Điền hồ sơ SV
+  → Tạo đăng ký (cá nhân | đội)
+       → nếu đội: mời 2–4 thành viên (/loi-moi-doi)
+  → Nộp hồ sơ + đồng ý thể lệ → mã PO26 + biên nhận
+  → Viết Audition (autosave) → Nộp bài (nhóm trưởng)
+  → Reviewer chấm → BTC lock + publish finalist
+  → Chung kết: bracket → sprint/pitch → 3 GK chấm → (twist) → verdict
+  </p>
+  <p class="footer-note">Hết báo cáo. File nguồn HTML: docs/bao-cao-tien-do.html. Cập nhật khi BTC chốt thể lệ hoặc khi bổ sung module đề / deploy.</p>
+</section>
+
+</body>
+</html>

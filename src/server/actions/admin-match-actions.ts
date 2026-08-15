@@ -1,0 +1,197 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { requirePermission } from "@/lib/auth/guards";
+import {
+  assignMatchJudges,
+  createAndOpenScoringMatch,
+  setCurrentMatch,
+  setMatchStatus,
+  stopMatch,
+  updateMatchPairing,
+  advanceWinner,
+  controlTimer,
+} from "@/server/services/match-service";
+
+export type MatchSetupState = { ok: boolean; message: string };
+
+function fail(error: unknown): MatchSetupState {
+  return { ok: false, message: error instanceof Error ? error.message : "Không thực hiện được." };
+}
+
+function revalidateMatch(matchId: string) {
+  revalidatePath("/admin/bracket");
+  revalidatePath(`/admin/bracket/${matchId}`);
+  revalidatePath("/admin/scoring");
+  revalidatePath("/admin/operations");
+  revalidatePath("/judge");
+  revalidatePath(`/judge/matches/${matchId}`);
+  revalidatePath("/stage/current-match");
+}
+
+export async function createScoringMatchAction(
+  _prev: MatchSetupState,
+  formData: FormData,
+): Promise<MatchSetupState> {
+  const user = await requirePermission("bracket:manage");
+  let redirectTo: string | null = null;
+  try {
+    const match = await createAndOpenScoringMatch({
+      actorUserId: user.id,
+      competitorAId: String(formData.get("competitorAId") ?? ""),
+      competitorBId: String(formData.get("competitorBId") ?? ""),
+      judgeIds: formData.getAll("judgeIds").map((item) => String(item)),
+      roundId: String(formData.get("roundId") ?? "").trim() || undefined,
+      code: String(formData.get("code") ?? "").trim() || undefined,
+      setAsCurrent: formData.get("setAsCurrent") === "on",
+      reason: String(formData.get("reason") ?? ""),
+    });
+    revalidateMatch(match.id);
+    redirectTo = `/admin/bracket/${match.id}`;
+  } catch (error) {
+    return fail(error);
+  }
+  if (redirectTo) redirect(redirectTo);
+  return { ok: true, message: "Đã tạo trận." };
+}
+
+export async function updateMatchPairingAction(
+  _prev: MatchSetupState,
+  formData: FormData,
+): Promise<MatchSetupState> {
+  const user = await requirePermission("bracket:manage");
+  const matchId = String(formData.get("matchId") ?? "");
+  try {
+    const result = await updateMatchPairing({
+      actorUserId: user.id,
+      matchId,
+      competitorAId: String(formData.get("competitorAId") ?? ""),
+      competitorBId: String(formData.get("competitorBId") ?? ""),
+      reason: String(formData.get("reason") ?? ""),
+    });
+    revalidateMatch(matchId);
+    return { ok: true, message: `Đã đổi cặp: ${result.competitorA} vs ${result.competitorB}.` };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function stopMatchAction(
+  _prev: MatchSetupState,
+  formData: FormData,
+): Promise<MatchSetupState> {
+  const user = await requirePermission("bracket:manage");
+  const matchId = String(formData.get("matchId") ?? "");
+  try {
+    const result = await stopMatch({
+      actorUserId: user.id,
+      matchId,
+      reason: String(formData.get("reason") ?? ""),
+    });
+    revalidateMatch(matchId);
+    return { ok: true, message: `Đã dừng trận ${result.code} (CANCELLED). Timer tạm dừng.` };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function setMatchStatusAction(
+  _prev: MatchSetupState,
+  formData: FormData,
+): Promise<MatchSetupState> {
+  const user = await requirePermission("bracket:manage");
+  const matchId = String(formData.get("matchId") ?? "");
+  try {
+    const result = await setMatchStatus({
+      actorUserId: user.id,
+      matchId,
+      status: String(formData.get("status") ?? ""),
+      reason: String(formData.get("reason") ?? ""),
+    });
+    revalidateMatch(matchId);
+    return { ok: true, message: `Trận ${result.code} → ${result.status}.` };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function setCurrentMatchAction(
+  _prev: MatchSetupState,
+  formData: FormData,
+): Promise<MatchSetupState> {
+  const user = await requirePermission("stage:control");
+  const matchId = String(formData.get("matchId") ?? "");
+  try {
+    const result = await setCurrentMatch({
+      actorUserId: user.id,
+      matchId,
+      reason: String(formData.get("reason") ?? "Đặt trận hiện tại"),
+    });
+    revalidateMatch(matchId);
+    return { ok: true, message: `Đã đặt ${result.code} làm trận hiện tại trên sân khấu/overlay.` };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function assignMatchJudgesAction(
+  _prev: MatchSetupState,
+  formData: FormData,
+): Promise<MatchSetupState> {
+  const user = await requirePermission("judge:assign");
+  const matchId = String(formData.get("matchId") ?? "");
+  try {
+    const result = await assignMatchJudges({
+      actorUserId: user.id,
+      matchId,
+      judgeIds: formData.getAll("judgeIds").map((item) => String(item)),
+      reason: String(formData.get("reason") ?? ""),
+    });
+    revalidateMatch(matchId);
+    return { ok: true, message: `Đã gán ${result.judgeCount} giám khảo cho trận ${result.code}.` };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function advanceMatchWinnerAction(
+  _prev: MatchSetupState,
+  formData: FormData,
+): Promise<MatchSetupState> {
+  const user = await requirePermission("bracket:manage");
+  const matchId = String(formData.get("matchId") ?? "");
+  try {
+    await advanceWinner({
+      actorUserId: user.id,
+      matchId,
+      winnerId: String(formData.get("winnerId") ?? ""),
+      reason: String(formData.get("reason") ?? ""),
+      expectedVersion: Number(formData.get("version") ?? 1),
+    });
+    revalidateMatch(matchId);
+    return { ok: true, message: "Đã công bố thắng cuộc. Trận chuyển COMPLETED." };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function matchTimerAction(
+  _prev: MatchSetupState,
+  formData: FormData,
+): Promise<MatchSetupState> {
+  const user = await requirePermission("stage:control");
+  const matchId = String(formData.get("matchId") ?? "");
+  try {
+    await controlTimer({
+      actorUserId: user.id,
+      matchId,
+      kind: String(formData.get("kind")) as "SPRINT" | "PITCH" | "VERDICT",
+      action: String(formData.get("action")) as "start" | "pause" | "resume",
+    });
+    revalidateMatch(matchId);
+    return { ok: true, message: "Đã cập nhật timer." };
+  } catch (error) {
+    return fail(error);
+  }
+}

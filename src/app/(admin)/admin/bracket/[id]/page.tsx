@@ -1,0 +1,437 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { prisma } from "@/lib/db/prisma";
+import { Badge, Card } from "@/components/ui/form";
+import { requireAnyRole } from "@/lib/auth/guards";
+import { hasPermission, type Role } from "@/server/domain/permissions";
+import { formatDateTime } from "@/lib/dates";
+import { formatScoreDisplay } from "@/server/domain/scoring";
+import { remainingTimerSeconds } from "@/server/domain/timer";
+import { formatTimerClock } from "@/server/domain/match-setup";
+import { MATCH_TRANSITIONS } from "@/server/domain/status-transitions";
+import { finalizeMatchIfReady } from "@/server/services/match-service";
+import { getActiveRubric } from "@/server/services/review-service";
+import { getProductionCompetition } from "@/server/services/competition-service";
+import {
+  AdvanceWinnerForm,
+  AssignJudgesForm,
+  ChangePairingForm,
+  MatchStatusForm,
+  MatchTimerForm,
+  SetCurrentMatchForm,
+  StopMatchForm,
+} from "@/components/admin/match-admin-forms";
+import { AdminDeleteForm } from "@/components/admin/delete-form";
+import { deleteMatchAction } from "@/server/actions/admin-delete-actions";
+
+const finalistInclude = {
+  registration: {
+    include: {
+      owner: { include: { profile: true } },
+      team: { include: { members: { include: { user: { include: { profile: true } } } } } },
+    },
+  },
+} as const;
+
+function memberName(user: { name: string | null; email: string; profile: { fullName: string } | null }) {
+  return user.profile?.fullName || user.name || user.email;
+}
+
+function SideCard({
+  label,
+  finalist,
+}: {
+  label: string;
+  finalist: {
+    id: string;
+    displayName: string;
+    institutionPublic: string | null;
+    seed: number | null;
+    registration: {
+      id: string;
+      code: string;
+      type: "TEAM" | "INDIVIDUAL";
+      status: string;
+      owner: { email: string; name: string | null; profile: { fullName: string; phoneNumber: string | null; institution: string | null; facultyOrDepartment: string | null; major: string | null } | null };
+      team: {
+        teamName: string;
+        teamCode: string;
+        shortIntroduction: string | null;
+        members: { roleLabel: string | null; status: string; user: { email: string; name: string | null; profile: { fullName: string } | null } }[];
+      } | null;
+    };
+  } | null;
+}) {
+  if (!finalist) {
+    return (
+      <Card>
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
+        <p className="mt-2 text-slate-500">Chưa gán (TBD)</p>
+      </Card>
+    );
+  }
+  const { registration } = finalist;
+  const members =
+    registration.team?.members.map((member) => ({
+      name: memberName(member.user),
+      email: member.user.email,
+      role: member.roleLabel ?? "Thành viên",
+      status: member.status,
+    })) ?? [
+      {
+        name: memberName(registration.owner),
+        email: registration.owner.email,
+        role: "Thí sinh",
+        status: "OWNER",
+      },
+    ];
+  return (
+    <Card>
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
+      <h2 className="mt-1 text-xl font-semibold">{finalist.displayName}</h2>
+      <p className="text-sm text-slate-600">
+        {registration.code} · {registration.type === "TEAM" ? "Đội" : "Cá nhân"} · {registration.status}
+        {finalist.seed != null ? ` · seed ${finalist.seed}` : ""}
+      </p>
+      <p className="mt-1 text-sm">{finalist.institutionPublic || registration.owner.profile?.institution || "—"}</p>
+      {registration.owner.profile?.facultyOrDepartment || registration.owner.profile?.major ? (
+        <p className="text-sm text-slate-600">
+          {[registration.owner.profile?.facultyOrDepartment, registration.owner.profile?.major].filter(Boolean).join(" · ")}
+        </p>
+      ) : null}
+      {registration.team?.shortIntroduction ? (
+        <p className="mt-2 text-sm text-slate-700">{registration.team.shortIntroduction}</p>
+      ) : null}
+      <ul className="mt-3 space-y-1 text-sm">
+        {members.map((member) => (
+          <li key={member.email}>
+            {member.name} — {member.email}
+            <span className="text-slate-500"> · {member.role}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-3 text-sm">
+        <Link href={`/admin/registrations/${registration.id}`} className="underline">
+          Mở hồ sơ đăng ký
+        </Link>
+      </p>
+    </Card>
+  );
+}
+
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const user = await requireAnyRole(["SUPER_ADMIN", "ADMIN", "TECH_OPERATOR"]);
+  const roles = user.roles as Role[];
+  const canManage = hasPermission(roles, "bracket:manage");
+  const canStage = hasPermission(roles, "stage:control");
+  const canAssignJudges = hasPermission(roles, "judge:assign");
+  const { id } = await params;
+
+  const match = await prisma.match.findUnique({
+    where: { id },
+    include: {
+      round: true,
+      competitorA: { include: finalistInclude },
+      competitorB: { include: finalistInclude },
+      winner: true,
+      nextMatch: true,
+      timers: { orderBy: { kind: "asc" } },
+      twists: true,
+      judgeAssignments: {
+        include: {
+          judge: true,
+          scores: { include: { items: true } },
+        },
+      },
+    },
+  });
+  if (!match) notFound();
+
+  const [summary, rubric, competition, finalists, judges] = await Promise.all([
+    finalizeMatchIfReady(match.id),
+    getActiveRubric(match.competitionId, "FINAL"),
+    getProductionCompetition(),
+    prisma.finalist.findMany({
+      where: { competitionId: match.competitionId, registration: { status: "SELECTED" } },
+      include: { registration: true },
+      orderBy: { seed: "asc" },
+    }),
+    prisma.roleAssignment.findMany({
+      where: { role: "JUDGE", revokedAt: null },
+      include: { user: true },
+      orderBy: { createdAt: "asc" },
+    }),
+  ]);
+
+  const now = new Date();
+  const isCurrent = competition?.settings.currentMatchId === match.id;
+  const nextStatuses = MATCH_TRANSITIONS[match.status] ?? [];
+  const canStop = !["CANCELLED", "COMPLETED", "PUBLISHED", "LOCKED"].includes(match.status);
+  const canChangePairing =
+    canManage && !["COMPLETED", "PUBLISHED", "LOCKED", "CANCELLED"].includes(match.status);
+  const submittedCount = match.judgeAssignments.filter((item) => item.status === "SUBMITTED").length;
+
+  return (
+    <div className="space-y-6">
+      <p className="text-sm">
+        <Link href="/admin/bracket" className="text-slate-600 underline">
+          ← Bracket
+        </Link>
+        {" · "}
+        <Link href="/admin/scoring" className="text-slate-600 underline">
+          Chấm chung kết
+        </Link>
+      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        <h1 className="display text-3xl">
+          {match.round.displayName} · {match.code}
+        </h1>
+        <Badge tone={match.status === "SCORING" ? "gold" : match.status === "COMPLETED" ? "green" : match.status === "CANCELLED" ? "red" : "slate"}>
+          {match.status}
+        </Badge>
+        {isCurrent ? <Badge tone="blue">Trận hiện tại</Badge> : null}
+        {match.winner ? <Badge tone="green">Thắng: {match.winner.displayName}</Badge> : null}
+      </div>
+      <p className="text-sm text-slate-600">
+        Bắt đầu: {formatDateTime(match.actualStartedAt)} · Kết thúc: {formatDateTime(match.actualEndedAt)}
+        {match.nextMatch ? ` · Thắng vào ${match.nextMatch.code} (${match.nextSlot ?? "?"})` : ""}
+      </p>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <SideCard label="Đội A" finalist={match.competitorA} />
+        <SideCard label="Đội B" finalist={match.competitorB} />
+      </div>
+
+      <Card>
+        <h2 className="font-semibold">Kết quả chấm</h2>
+        <p className="mt-1 text-sm text-slate-600">
+          Điểm gộp = trung bình phiếu đã nộp. Cần {competition?.settings.numberOfJudgesPerMatch ?? 3} giám khảo nộp đủ
+          mới chốt.
+        </p>
+        <p className="mt-2 text-sm">
+          Đã nộp: {submittedCount}/{match.judgeAssignments.length}
+        </p>
+        {summary.ready ? (
+          <p className="mt-2 text-lg font-semibold">
+            {match.competitorA?.displayName ?? "A"} {formatScoreDisplay(summary.aggregateA)} —{" "}
+            {match.competitorB?.displayName ?? "B"} {formatScoreDisplay(summary.aggregateB)}
+            <span className="ml-2 text-sm font-normal text-slate-600">
+              {summary.tieState === "A" || summary.tieState === "B"
+                ? `Gợi ý thắng: ${summary.tieState === "A" ? match.competitorA?.displayName : match.competitorB?.displayName}`
+                : `Hòa / ${summary.tieState}`}
+            </span>
+          </p>
+        ) : (
+          <p className="mt-2 text-sm text-amber-700">Chưa đủ phiếu để chốt điểm gộp.</p>
+        )}
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full min-w-[32rem] text-left text-sm">
+            <thead>
+              <tr className="border-b text-slate-500">
+                <th className="py-2 pr-3">Giám khảo</th>
+                <th className="py-2 pr-3">Phiếu</th>
+                <th className="py-2 pr-3">{match.competitorA?.displayName ?? "A"}</th>
+                <th className="py-2 pr-3">{match.competitorB?.displayName ?? "B"}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {match.judgeAssignments.map((assignment) => {
+                const scoreA = assignment.scores.find((score) => score.competitorId === match.competitorAId);
+                const scoreB = assignment.scores.find((score) => score.competitorId === match.competitorBId);
+                return (
+                  <tr key={assignment.id} className="border-b border-slate-100 align-top">
+                    <td className="py-2 pr-3">{assignment.judge.name || assignment.judge.email}</td>
+                    <td className="py-2 pr-3">{assignment.status}</td>
+                    <td className="py-2 pr-3">
+                      {scoreA ? formatScoreDisplay(scoreA.totalNormalized.toString()) : "—"}
+                      {scoreA?.overallComment ? (
+                        <span className="mt-1 block text-xs text-slate-500">{scoreA.overallComment}</span>
+                      ) : null}
+                    </td>
+                    <td className="py-2 pr-3">
+                      {scoreB ? formatScoreDisplay(scoreB.totalNormalized.toString()) : "—"}
+                      {scoreB?.overallComment ? (
+                        <span className="mt-1 block text-xs text-slate-500">{scoreB.overallComment}</span>
+                      ) : null}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        {rubric && match.judgeAssignments.some((item) => item.scores.length) ? (
+          <details className="mt-4 text-sm">
+            <summary className="cursor-pointer font-medium">Chi tiết tiêu chí</summary>
+            <div className="mt-2 space-y-3">
+              {match.judgeAssignments.flatMap((assignment) =>
+                assignment.scores.map((score) => (
+                  <div key={score.id} className="rounded-xl border p-3">
+                    <p className="font-medium">
+                      {assignment.judge.email} →{" "}
+                      {score.competitorId === match.competitorAId
+                        ? match.competitorA?.displayName
+                        : match.competitorB?.displayName}{" "}
+                      ({score.status})
+                    </p>
+                    <ul className="mt-1 text-slate-700">
+                      {rubric.criteria.map((criterion) => {
+                        const item = score.items.find((row) => row.criterionId === criterion.id);
+                        return (
+                          <li key={criterion.id}>
+                            {criterion.titleVi}: {item ? item.rawScore.toString() : "—"}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )),
+              )}
+            </div>
+          </details>
+        ) : null}
+      </Card>
+
+      <Card>
+        <h2 className="font-semibold">Timer</h2>
+        {match.timers.length === 0 ? (
+          <p className="mt-2 text-sm text-slate-600">Chưa có timer. Đổi trạng thái sang READY/SCORING để tạo.</p>
+        ) : (
+          <div className="mt-3 space-y-3">
+            {match.timers.map((timer) => (
+              <div key={timer.id} className="rounded-xl border p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="font-medium">
+                    {timer.kind} · {formatTimerClock(
+                      remainingTimerSeconds({
+                        now,
+                        status: timer.status,
+                        durationSeconds: timer.durationSeconds,
+                        remainingSnapshot: timer.remainingSnapshot,
+                        startedAt: timer.startedAt,
+                        pausedAt: timer.pausedAt,
+                        accumulatedPausedMs: timer.accumulatedPausedMs,
+                      }),
+                    )}{" "}
+                    <Badge>{timer.status}</Badge>
+                  </p>
+                  {canStage ? <MatchTimerForm matchId={match.id} kind={timer.kind} /> : null}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        {canStage && match.status !== "CANCELLED" ? (
+          <div className="mt-4">
+            <SetCurrentMatchForm matchId={match.id} />
+          </div>
+        ) : null}
+      </Card>
+
+      {canManage ? (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {canChangePairing ? (
+            <Card>
+              <h2 className="font-semibold">Đổi cặp đấu</h2>
+              <p className="mt-1 text-sm text-slate-600">
+                Không đổi được nếu đã có phiếu nộp. Phiếu nháp của đội bị thay sẽ bị xóa.
+              </p>
+              <div className="mt-3">
+                <ChangePairingForm
+                  matchId={match.id}
+                  competitorAId={match.competitorAId ?? ""}
+                  competitorBId={match.competitorBId ?? ""}
+                  finalists={finalists.map((item) => ({
+                    id: item.id,
+                    label: `${item.displayName} (${item.registration.code})`,
+                  }))}
+                />
+              </div>
+            </Card>
+          ) : null}
+          <Card>
+            <h2 className="font-semibold">Trạng thái trận</h2>
+            <div className="mt-3">
+              <MatchStatusForm matchId={match.id} currentStatus={match.status} nextStatuses={nextStatuses} />
+            </div>
+          </Card>
+          {canStop ? (
+            <Card>
+              <h2 className="font-semibold">Dừng trận</h2>
+              <p className="mt-1 text-sm text-slate-600">
+                Chuyển CANCELLED, tạm dừng timer, gỡ khỏi sân khấu nếu đây là trận hiện tại. Điểm đã nộp được giữ.
+              </p>
+              <div className="mt-3">
+                <StopMatchForm matchId={match.id} />
+              </div>
+            </Card>
+          ) : null}
+          <Card>
+            <h2 className="font-semibold">Công bố thắng cuộc</h2>
+            <p className="mt-1 text-sm text-slate-600">
+              Trận → COMPLETED. Nếu có trận tiếp theo, đội thắng được đẩy vào slot đã cấu hình.
+            </p>
+            <div className="mt-3">
+              <AdvanceWinnerForm
+                matchId={match.id}
+                version={match.version}
+                competitors={[match.competitorA, match.competitorB]
+                  .filter(Boolean)
+                  .map((item) => ({ id: item!.id, label: item!.displayName }))}
+              />
+            </div>
+          </Card>
+        </div>
+      ) : null}
+
+      {canAssignJudges ? (
+        <Card>
+          <h2 className="font-semibold">Giám khảo</h2>
+          <p className="mt-1 text-sm text-slate-600">Không gỡ được người đã nộp phiếu.</p>
+          <div className="mt-3">
+            <AssignJudgesForm
+              matchId={match.id}
+              assignedIds={match.judgeAssignments.map((item) => item.judgeId)}
+              judges={judges.map((item) => ({
+                id: item.user.id,
+                label: item.user.name ? `${item.user.name} — ${item.user.email}` : item.user.email,
+              }))}
+            />
+          </div>
+        </Card>
+      ) : null}
+
+      {canManage ? (
+        <Card>
+          <h2 className="font-semibold">Xóa cặp đấu</h2>
+          <p className="mt-1 text-sm text-slate-600">
+            Xóa hẳn trận {match.code}, phiếu, timer và phân công giám khảo. Trận khác đang trỏ winner vào đây sẽ mất liên
+            kết.
+          </p>
+          <div className="mt-3">
+            <AdminDeleteForm
+              idPrefix={`match-${match.id}`}
+              action={deleteMatchAction}
+              hidden={{ matchId: match.id }}
+              warning="Thao tác không hoàn tác. Nếu chỉ muốn dừng thi, dùng Dừng trận."
+              submitLabel="Xóa trận"
+            />
+          </div>
+        </Card>
+      ) : null}
+
+      {match.twists.length ? (
+        <Card>
+          <h2 className="font-semibold">Twist</h2>
+          <ul className="mt-2 text-sm">
+            {match.twists.map((twist) => (
+              <li key={twist.id}>
+                {twist.title} · {twist.status}
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ) : null}
+    </div>
+  );
+}
