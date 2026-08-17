@@ -3,6 +3,7 @@ import { getPublicHomeData } from "@/server/services/content-service";
 import { formatDate, formatDateTime } from "@/lib/dates";
 import { Button } from "@/components/ui/button";
 import { Badge, Card } from "@/components/ui/form";
+import { OrganizerLogos } from "@/components/public/organizer-logos";
 import { publicLabel } from "@/server/services/competition-service";
 
 export default async function HomePage() {
@@ -18,7 +19,7 @@ export default async function HomePage() {
       <section className="bg-[#0B1F3A] text-white">
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 md:grid-cols-2 md:py-24">
           <div>
-            <p className="text-sm uppercase tracking-[0.2em] text-[#C9A227]">ĐHQGHN · UET · Gemini</p>
+            <p className="text-sm uppercase tracking-[0.2em] text-[#C9A227]">ĐHQGHN · UET · Google</p>
             <h1 className="display mt-4 text-4xl font-semibold leading-tight md:text-6xl">
               Prompt-Off: Vietnam 2026
             </h1>
@@ -159,17 +160,13 @@ export default async function HomePage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-16">
-        <h2 className="display text-3xl">Đơn vị tổ chức</h2>
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
-          {(data?.partners ?? []).map((partner) => (
-            <Card key={partner.id} className="flex min-h-28 items-center justify-center text-center">
-              <div>
-                <div className="mx-auto mb-3 h-12 w-12 rounded-full bg-slate-200" aria-hidden />
-                <p className="font-medium">{partner.name}</p>
-                <p className="text-xs text-slate-500">Logo placeholder — chờ tài sản chính thức</p>
-              </div>
-            </Card>
-          ))}
+        <h2 className="display text-3xl">Đơn vị đồng tổ chức</h2>
+        <p className="mt-2 max-w-3xl text-slate-600">
+          Đại học Quốc gia Hà Nội triển khai cuộc thi, Trường Đại học Công nghệ là đầu mối phối hợp, phối hợp cùng
+          Google.
+        </p>
+        <div className="mt-8">
+          <OrganizerLogos size="section" labeled />
         </div>
       </section>
     </div>

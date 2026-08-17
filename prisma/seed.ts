@@ -2,6 +2,7 @@ import "dotenv/config";
 import { PrismaClient, type Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { defaultCompetitionSettings } from "../src/config/competition-settings";
+import { ORGANIZERS } from "../src/config/organizers";
 
 const prisma = new PrismaClient();
 
@@ -42,6 +43,31 @@ async function upsertUser(params: {
     }
   }
   return user;
+}
+
+async function upsertOrganizers(competitionId: string) {
+  const existing = await prisma.partnerAsset.findMany({
+    where: { competitionId },
+    orderBy: { displayOrder: "asc" },
+  });
+  for (const [index, organizer] of ORGANIZERS.entries()) {
+    const displayOrder = index + 1;
+    const match =
+      existing.find((item) => item.name === organizer.name) ??
+      existing.find((item) => item.displayOrder === displayOrder) ??
+      existing[index];
+    const data = {
+      name: organizer.name,
+      imageUrl: organizer.imageUrl,
+      href: organizer.href,
+      displayOrder,
+    };
+    if (match) {
+      await prisma.partnerAsset.update({ where: { id: match.id }, data });
+    } else {
+      await prisma.partnerAsset.create({ data: { competitionId, ...data } });
+    }
+  }
 }
 
 async function createRubric(
@@ -308,14 +334,9 @@ async function main() {
         data: { competitionId: production.id, slug, title, bodyMarkdown, status: "PUBLISHED" },
       });
     }
-    await prisma.partnerAsset.createMany({
-      data: [
-        { competitionId: production.id, name: "Đại học Quốc gia Hà Nội", displayOrder: 1 },
-        { competitionId: production.id, name: "Trường Đại học Công nghệ", displayOrder: 2 },
-        { competitionId: production.id, name: "Đối tác công nghệ (placeholder)", displayOrder: 3 },
-      ],
-    });
   }
+
+  await upsertOrganizers(production.id);
 
   const students = [];
   for (let i = 1; i <= 12; i += 1) {

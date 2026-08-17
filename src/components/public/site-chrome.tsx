@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { OrganizerLogos } from "@/components/public/organizer-logos";
 
 const NAV = [
   { href: "/gioi-thieu", label: "Giới thiệu" },
@@ -71,6 +72,12 @@ export function PublicHeader({ workspaceHref }: { workspaceHref?: string | null 
           )}
         </div>
       ) : null}
+      <div className="border-t border-white/10 bg-white">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Đồng tổ chức</p>
+          <OrganizerLogos size="header" />
+        </div>
+      </div>
     </header>
   );
 }
@@ -82,8 +89,11 @@ export function PublicFooter() {
         <div>
           <p className="font-semibold text-[#0B1F3A]">Prompt-Off: Vietnam 2026</p>
           <p className="mt-2 text-sm text-slate-600">
-            Đại học Quốc gia Hà Nội. Trường Đại học Công nghệ là đầu mối phối hợp. Phối hợp cùng Google.
+            Đồng tổ chức: Đại học Quốc gia Hà Nội, Trường Đại học Công nghệ (đầu mối phối hợp) và Google.
           </p>
+          <div className="mt-4">
+            <OrganizerLogos size="footer" />
+          </div>
         </div>
         <div className="text-sm">
           <p className="font-semibold">Thông tin</p>

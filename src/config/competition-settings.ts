@@ -121,7 +121,7 @@ export function defaultCompetitionSettings(
     fullDescription:
       "Cuộc thi do Đại học Quốc gia Hà Nội triển khai, Trường Đại học Công nghệ làm đầu mối phối hợp, phối hợp cùng Google. Vòng tuyển chọn trực tuyến; vòng chung kết tổ chức trực tiếp tại ĐHQGHN, kết hợp livestream.",
     organizerText: "Đại học Quốc gia Hà Nội — Trường Đại học Công nghệ (đầu mối phối hợp).",
-    partnerText: "Phối hợp cùng Google. Logo đối tác sẽ được cập nhật khi có tài sản chính thức.",
+    partnerText: "Đồng tổ chức: Đại học Quốc gia Hà Nội, Trường Đại học Công nghệ (đầu mối phối hợp) và Google.",
     officialContactEmail: "promptoff@example.edu.vn",
     officialContactPhone: "",
     venue: "Hội trường tầng 1, Trung tâm Văn hóa ULIS - Jonathan KS. Choi, ĐHQGHN",
