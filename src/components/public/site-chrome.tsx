@@ -75,7 +75,7 @@ export function PublicHeader({ workspaceHref }: { workspaceHref?: string | null 
       <div className="border-t border-white/10 bg-white">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2">
           <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Đồng tổ chức</p>
-          <OrganizerLogos size="header" />
+          <OrganizerLogos variant="compact" />
         </div>
       </div>
     </header>
@@ -85,14 +85,14 @@ export function PublicHeader({ workspaceHref }: { workspaceHref?: string | null 
 export function PublicFooter() {
   return (
     <footer className="mt-auto border-t border-slate-200 bg-slate-50">
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 md:grid-cols-3">
+      <div className="mx-auto grid max-w-6xl items-start gap-6 px-4 py-6 md:grid-cols-3">
         <div>
           <p className="font-semibold text-[#0B1F3A]">Prompt-Off: Vietnam 2026</p>
-          <p className="mt-2 text-sm text-slate-600">
-            Đồng tổ chức: Đại học Quốc gia Hà Nội, Trường Đại học Công nghệ (đầu mối phối hợp) và Google.
+          <p className="mt-1 text-sm text-slate-600">
+            Đồng tổ chức: ĐHQGHN, Trường Đại học Công nghệ và Google.
           </p>
-          <div className="mt-4">
-            <OrganizerLogos size="footer" />
+          <div className="mt-3">
+            <OrganizerLogos variant="compact" />
           </div>
         </div>
         <div className="text-sm">

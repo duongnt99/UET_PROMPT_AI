@@ -13,6 +13,7 @@ export default async function HomePage() {
     ? publicLabel(settings.eventDateStatus, formatDate(settings.eventDate))
     : "Đang cập nhật";
   const venueLabel = settings ? publicLabel(settings.venueStatus, settings.venue) : "Đang cập nhật";
+  const criteriaIntro = data?.pages.find((page) => page.slug === "tieu-chi-cham");
 
   return (
     <div>
@@ -117,8 +118,12 @@ export default async function HomePage() {
 
       <section className="bg-[#0B1F3A] py-16 text-white">
         <div className="mx-auto max-w-6xl px-4">
-          <h2 className="display text-3xl">Tiêu chí chấm</h2>
-          <p className="mt-2 text-white/70">Lấy từ rubric đang kích hoạt, không hard-code trên giao diện.</p>
+          <h2 className="display text-3xl">{criteriaIntro?.title ?? "Tiêu chí chấm"}</h2>
+          {criteriaIntro?.bodyMarkdown ? (
+            <p className="mt-3 max-w-3xl whitespace-pre-wrap text-white/80">{criteriaIntro.bodyMarkdown}</p>
+          ) : (
+            <p className="mt-2 text-white/70">Trọng số lấy từ rubric đang kích hoạt.</p>
+          )}
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             {(data?.rubric?.criteria ?? []).map((criterion) => (
               <Card key={criterion.id} className="bg-white/5 border-white/10 text-white">
@@ -127,6 +132,11 @@ export default async function HomePage() {
                 <p className="mt-2 text-sm text-white/70">{criterion.description}</p>
               </Card>
             ))}
+          </div>
+          <div className="mt-8">
+            <Button asChild variant="outline" className="border-white/30 bg-transparent text-white hover:bg-white/10">
+              <Link href="/tieu-chi-cham">Xem đầy đủ tiêu chí</Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -166,7 +176,7 @@ export default async function HomePage() {
           Google.
         </p>
         <div className="mt-8">
-          <OrganizerLogos size="section" labeled />
+          <OrganizerLogos />
         </div>
       </section>
     </div>

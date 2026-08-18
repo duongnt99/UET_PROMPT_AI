@@ -32,7 +32,7 @@ export async function getPublicHomeData() {
 export async function getPublishedPage(slug: string) {
   const competition = await getProductionCompetition();
   if (!competition) return null;
-  return prisma.staticPage.findUnique({
-    where: { competitionId_slug: { competitionId: competition.id, slug } },
+  return prisma.staticPage.findFirst({
+    where: { competitionId: competition.id, slug, status: "PUBLISHED" },
   });
 }

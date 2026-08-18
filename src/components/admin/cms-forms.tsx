@@ -86,6 +86,12 @@ export function StaticPageForm({
           defaultValue={page?.bodyMarkdown}
           className="mt-1 min-h-72"
         />
+        {page?.slug === "tieu-chi-cham" ? (
+          <p className="mt-1 text-xs text-slate-500">
+            Đoạn này hiện trên trang chủ (phần Tiêu chí chấm) và trang /tieu-chi-cham. Các thẻ trọng số
+            (40/30/30…) lấy từ menu <strong>Rubric</strong> đang kích hoạt, không lấy từ ô nội dung này.
+          </p>
+        ) : null}
       </div>
       <Button type="submit" disabled={pending}>
         {pending ? "Đang lưu…" : page ? "Lưu trang" : "Tạo trang"}
