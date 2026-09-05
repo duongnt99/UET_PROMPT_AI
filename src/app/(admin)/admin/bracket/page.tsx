@@ -8,7 +8,7 @@ import { getProductionCompetition } from "@/server/services/competition-service"
 export default async function Page() {
   await requirePermission("bracket:manage");
   const competition = await getProductionCompetition();
-  const [matches, finalists, judges, rounds] = await Promise.all([
+  const [matches, finalists, judges, rounds, challenges] = await Promise.all([
     prisma.match.findMany({
       include: {
         round: true,
@@ -31,6 +31,13 @@ export default async function Page() {
     prisma.finalRound.findMany({
       orderBy: { order: "asc" },
     }),
+    competition
+      ? prisma.matchChallenge.findMany({
+          where: { competitionId: competition.id },
+          orderBy: { updatedAt: "desc" },
+          select: { id: true, title: true },
+        })
+      : Promise.resolve([]),
   ]);
 
   return (
@@ -38,7 +45,7 @@ export default async function Page() {
       <div>
         <h1 className="display text-3xl">Bracket tùy biến</h1>
         <p className="mt-2 text-sm text-slate-600">
-          Chọn hai finalist, gán giám khảo, tạo trận và mở chấm (SCORING). Không bắt buộc đủ 8/16 đội.
+          Chọn hai finalist, gán giám khảo, gán đề chung, tạo trận và mở chấm (SCORING). Bracket mặc định 8 đội, không bye.
         </p>
       </div>
 
@@ -63,6 +70,7 @@ export default async function Page() {
               id: item.id,
               label: `${item.displayName} (${item.status})`,
             }))}
+            challenges={challenges}
           />
         </div>
       </Card>

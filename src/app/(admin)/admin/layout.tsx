@@ -23,6 +23,7 @@ const LINKS = [
   ["/admin/rubrics", "Rubric"],
   ["/admin/finalists", "Finalist"],
   ["/admin/bracket", "Bracket"],
+  ["/admin/challenges", "Đề thi"],
   ["/admin/judges", "Giám khảo"],
   ["/admin/scoring", "Chấm chung kết"],
   ["/admin/operations", "Vận hành"],

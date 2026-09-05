@@ -3,6 +3,7 @@ import { saveSettingsAction } from "@/server/actions/admin-actions";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/form";
 import { requirePermission } from "@/lib/auth/guards";
+import { formatDurationLabel, formatTimerClock } from "@/server/domain/match-setup";
 
 async function save(formData: FormData) {
   "use server";
@@ -50,6 +51,71 @@ export default async function Page() {
           <Label htmlFor="prizeInformation">Giải thưởng (để trống = Đang cập nhật)</Label>
           <Textarea id="prizeInformation" name="prizeInformation" defaultValue={s?.prizeInformation} className="mt-1" />
         </div>
+        <fieldset className="grid gap-4 rounded-2xl border border-slate-200 p-4">
+          <legend className="px-1 text-sm font-semibold text-slate-800">Chung kết và đồng hồ</legend>
+          <div>
+            <Label htmlFor="finalistCount">Số đội chung kết</Label>
+            <Input
+              id="finalistCount"
+              name="finalistCount"
+              type="number"
+              min={2}
+              defaultValue={s?.finalistCount ?? 8}
+              className="mt-1"
+            />
+            <p className="mt-1 text-xs text-slate-500">Mặc định 8 đội, loại trực tiếp 8 → 4 → 2.</p>
+          </div>
+          <label className="flex gap-2 text-sm">
+            <input type="checkbox" name="allowByes" defaultChecked={s?.allowByes} />
+            Cho phép bye (miễn đấu). Để trống = không bye.
+          </label>
+          <div>
+            <Label htmlFor="sprintDurationSeconds">The Sprint (giây)</Label>
+            <Input
+              id="sprintDurationSeconds"
+              name="sprintDurationSeconds"
+              type="number"
+              min={1}
+              list="sprint-presets"
+              defaultValue={s?.sprintDurationSeconds ?? 300}
+              className="mt-1"
+            />
+            <datalist id="sprint-presets">
+              <option value="300" label="5 phút" />
+              <option value="600" label="10 phút" />
+              <option value="420" label="7 phút" />
+            </datalist>
+            <p className="mt-1 text-xs text-slate-500">
+              Hiện tại {formatTimerClock(s?.sprintDurationSeconds ?? 300)} ({formatDurationLabel(s?.sprintDurationSeconds ?? 300)}).
+              Mặc định 300 (5 phút); thử 10 phút thì điền 600. Trận đã tạo giữ timer cũ.
+            </p>
+          </div>
+          <div>
+            <Label htmlFor="pitchDurationSeconds">The Pitch (giây)</Label>
+            <Input
+              id="pitchDurationSeconds"
+              name="pitchDurationSeconds"
+              type="number"
+              min={1}
+              defaultValue={s?.pitchDurationSeconds ?? 60}
+              className="mt-1"
+            />
+            <p className="mt-1 text-xs text-slate-500">
+              Hiện tại {formatTimerClock(s?.pitchDurationSeconds ?? 60)}. Mặc định 60 giây.
+            </p>
+          </div>
+          <div>
+            <Label htmlFor="verdictDurationSeconds">The Verdict (giây)</Label>
+            <Input
+              id="verdictDurationSeconds"
+              name="verdictDurationSeconds"
+              type="number"
+              min={1}
+              defaultValue={s?.verdictDurationSeconds ?? 180}
+              className="mt-1"
+            />
+          </div>
+        </fieldset>
         <label className="flex gap-2 text-sm"><input type="checkbox" name="registrationEnabled" defaultChecked={s?.registrationEnabled} /> Mở đăng ký</label>
         <label className="flex gap-2 text-sm"><input type="checkbox" name="submissionEnabled" defaultChecked={s?.submissionEnabled} /> Mở nộp bài</label>
         <label className="flex gap-2 text-sm"><input type="checkbox" name="publicScoreboardEnabled" defaultChecked={s?.publicScoreboardEnabled} /> Scoreboard công khai</label>

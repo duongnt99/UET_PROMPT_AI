@@ -1,17 +1,19 @@
-import { ORGANIZERS } from "@/config/organizers";
+import { ORGANIZERS, type Organizer } from "@/config/organizers";
 import { cn } from "@/lib/utils";
 
 export function OrganizerLogos({
   variant = "full",
   className,
+  items = ORGANIZERS,
 }: {
-  variant?: "full" | "compact";
+  variant?: "full" | "compact" | "bare";
   className?: string;
+  items?: readonly Organizer[];
 }) {
   if (variant === "compact") {
     return (
       <ul className={cn("flex flex-nowrap items-center gap-2", className)}>
-        {ORGANIZERS.map((item) => (
+        {items.map((item) => (
           <li key={item.shortName}>
             <a
               href={item.href}
@@ -29,9 +31,34 @@ export function OrganizerLogos({
     );
   }
 
+  if (variant === "bare") {
+    return (
+      <ul className={cn("flex flex-wrap items-center justify-center gap-10 md:gap-16", className)}>
+        {items.map((item) => (
+          <li key={item.shortName}>
+            <a
+              href={item.href}
+              target="_blank"
+              rel="noreferrer"
+              title={item.name}
+              className="block transition hover:opacity-80"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={item.imageUrl}
+                alt={item.name}
+                className="h-14 w-auto max-w-[240px] object-contain md:h-20"
+              />
+            </a>
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
   return (
     <ul className={cn("grid gap-4 sm:grid-cols-3", className)}>
-      {ORGANIZERS.map((item) => (
+      {items.map((item) => (
         <li key={item.shortName}>
           <a
             href={item.href}

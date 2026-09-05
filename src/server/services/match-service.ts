@@ -8,6 +8,7 @@ import { normalizeCriterionScore, rubricWeightsSumTo100 } from "@/server/domain/
 import { parseCompetitionSettings } from "@/config/competition-settings";
 import { Decimal } from "@prisma/client/runtime/library";
 import { assertLiveMatchSetup, LIVE_MATCH_STATUSES, assertCanChangePairing } from "@/server/domain/match-setup";
+import { normalizeMatchProblem } from "@/server/domain/match-problem";
 import { Prisma } from "@prisma/client";
 import { assertTransition, MATCH_TRANSITIONS } from "@/server/domain/status-transitions";
 
@@ -288,6 +289,10 @@ export async function publicEventState(competitionId: string) {
             }),
           })),
           twist: match.twists[0] ? { title: match.twists[0].title, content: match.twists[0].content } : null,
+          problem:
+            match.problemTitle.trim() || match.problemPrompt.trim()
+              ? { title: match.problemTitle, prompt: match.problemPrompt }
+              : null,
         }
       : null,
   };
@@ -342,6 +347,9 @@ export async function createAndOpenScoringMatch(params: {
   code?: string;
   setAsCurrent?: boolean;
   reason: string;
+  problemTitle?: string;
+  problemPrompt?: string;
+  challengeId?: string;
 }) {
   const reason = params.reason.trim();
   if (reason.length < 3) throw new Error("Cần ghi lý do (audit) khi tạo trận.");
@@ -404,6 +412,26 @@ export async function createAndOpenScoringMatch(params: {
   });
   if (codeTaken) throw new Error(`Mã trận ${code} đã tồn tại.`);
 
+  let problemTitle = "";
+  let problemPrompt = "";
+  let challengeId: string | null = null;
+  if (params.challengeId) {
+    const challenge = await prisma.matchChallenge.findFirst({
+      where: { id: params.challengeId, competitionId: competition.id },
+    });
+    if (!challenge) throw new Error("Không tìm thấy đề thi trong kho.");
+    problemTitle = challenge.title;
+    problemPrompt = challenge.prompt;
+    challengeId = challenge.id;
+  } else if (params.problemTitle?.trim() || params.problemPrompt?.trim()) {
+    const problem = normalizeMatchProblem({
+      title: params.problemTitle ?? "",
+      prompt: params.problemPrompt ?? "",
+    });
+    problemTitle = problem.title;
+    problemPrompt = problem.prompt;
+  }
+
   const match = await prisma.$transaction(async (tx) => {
     const created = await tx.match.create({
       data: {
@@ -414,6 +442,9 @@ export async function createAndOpenScoringMatch(params: {
         competitorAId: competitorA.id,
         competitorBId: competitorB.id,
         actualStartedAt: new Date(),
+        problemTitle,
+        problemPrompt,
+        challengeId,
       },
     });
     await tx.timerSession.createMany({

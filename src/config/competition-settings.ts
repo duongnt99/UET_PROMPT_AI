@@ -25,6 +25,15 @@ export const competitionSettingsSchema = z.object({
   publicStatus: publicStatusSchema,
   shortDescription: z.string(),
   fullDescription: z.string(),
+  landingFinalRoundTitle: z.string(),
+  finalRoundSprintTitle: z.string(),
+  finalRoundSprintDescription: z.string(),
+  finalRoundPitchTitle: z.string(),
+  finalRoundPitchDescription: z.string(),
+  finalRoundVerdictTitle: z.string(),
+  finalRoundVerdictDescription: z.string(),
+  finalRoundTwistTitle: z.string(),
+  finalRoundTwistDescription: z.string(),
   organizerText: z.string(),
   partnerText: z.string(),
   officialContactEmail: z.string(),
@@ -117,9 +126,21 @@ export function defaultCompetitionSettings(
     season: "2026",
     publicStatus: "PUBLISHED",
     shortDescription:
-      "Sân chơi quốc gia để sinh viên ứng dụng AI tạo sinh và kỹ năng prompting, xây dựng MVP bằng Gemini.",
+      "Sân chơi quốc gia để sinh viên ứng dụng prompting với Gemini và Google AI Studio, dựng proof of concept trong 5–10 phút.",
     fullDescription:
-      "Cuộc thi do Đại học Quốc gia Hà Nội triển khai, Trường Đại học Công nghệ làm đầu mối phối hợp, phối hợp cùng Google. Vòng tuyển chọn trực tuyến; vòng chung kết tổ chức trực tiếp tại ĐHQGHN, kết hợp livestream.",
+      "Cuộc thi do Đại học Quốc gia Hà Nội triển khai, Trường Đại học Công nghệ làm đầu mối phối hợp, phối hợp cùng Google. Vòng tuyển chọn trực tuyến; chung kết 8 đội thi trực tiếp trong nửa ngày tại ĐHQGHN (loại trực tiếp 8 → 4 → 2, không bye), kết hợp livestream. Công cụ chính thức: Gemini và Google AI Studio.",
+    landingFinalRoundTitle: "Vòng chung kết",
+    finalRoundSprintTitle: "The Sprint",
+    finalRoundSprintDescription:
+      "Hai đội nhận cùng một đề bài, có {thoi_luong} để xây dựng bản thử nghiệm bằng Google Gemini & Google AI Studio — tập trung vào tính khả thi.",
+    finalRoundPitchTitle: "The Pitch",
+    finalRoundPitchDescription:
+      "Thuyết trình {thoi_luong} theo phong cách YC: bài toán, ứng dụng AI và demo sản phẩm.",
+    finalRoundVerdictTitle: "The Verdict",
+    finalRoundVerdictDescription: "Ban Giám khảo chấm điểm, đánh giá và chọn đội đi tiếp.",
+    finalRoundTwistTitle: "On-stage Twist",
+    finalRoundTwistDescription:
+      "Ban Tổ chức có thể thêm yêu cầu ngay trên sân khấu để thử khả năng ứng biến.",
     organizerText: "Đại học Quốc gia Hà Nội — Trường Đại học Công nghệ (đầu mối phối hợp).",
     partnerText: "Đồng tổ chức: Đại học Quốc gia Hà Nội, Trường Đại học Công nghệ (đầu mối phối hợp) và Google.",
     officialContactEmail: "promptoff@example.edu.vn",
@@ -176,13 +197,13 @@ export function defaultCompetitionSettings(
     requireReviewComment: true,
     requireJudgeComment: true,
     judgesMaySeeOthersBeforeSubmit: false,
-    finalistCount: 10,
+    finalistCount: 8,
     bracketMode: "CUSTOM",
-    allowByes: true,
+    allowByes: false,
     currentRoundId: null,
     currentMatchId: null,
-    sprintDurationSeconds: 2700,
-    pitchDurationSeconds: 300,
+    sprintDurationSeconds: 300,
+    pitchDurationSeconds: 60,
     verdictDurationSeconds: 180,
     twistEnabled: true,
     rehearsalCompetitionId: null,
@@ -206,5 +227,6 @@ export function defaultCompetitionSettings(
 }
 
 export function parseCompetitionSettings(value: unknown): CompetitionSettings {
-  return competitionSettingsSchema.parse(value);
+  const record = typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {};
+  return competitionSettingsSchema.parse({ ...defaultCompetitionSettings(), ...record });
 }

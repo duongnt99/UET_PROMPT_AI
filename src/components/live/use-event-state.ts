@@ -16,6 +16,7 @@ export type LiveMatch = {
   competitorB?: { name: string } | null;
   timers?: LiveTimer[];
   twist?: { title: string; content: string } | null;
+  problem?: { title: string; prompt: string } | null;
 };
 
 export type LiveEventState = {

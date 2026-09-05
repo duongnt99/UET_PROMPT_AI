@@ -6,7 +6,7 @@ export default function Page() {
     <CmsArticle
       slug="the-le"
       fallbackTitle="Thể lệ"
-      fallback="Thể lệ chính thức đang được Ban Tổ chức hoàn thiện."
+      fallback="Thể lệ khung: chung kết 8 đội, không bye, Sprint 5 phút (có thể thử 10 phút), Pitch 60 giây, công cụ Gemini và Google AI Studio. Bản chính thức Ban Tổ chức đang hoàn thiện."
     />
   );
 }

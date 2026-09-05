@@ -70,6 +70,129 @@ async function upsertOrganizers(competitionId: string) {
   }
 }
 
+async function upsertPublicCopy(competitionId: string) {
+  const pages: [string, string, string][] = [
+    [
+      "gioi-thieu",
+      "Giới thiệu",
+      "Prompt-Off: Vietnam 2026 là sân chơi để sinh viên ứng dụng prompting với **Gemini** và **Google AI Studio**. Chung kết **8 đội**, loại trực tiếp 8 → 4 → 2, **không bye**, tổ chức trong **nửa ngày** tại ĐHQGHN.",
+    ],
+    [
+      "the-le",
+      "Thể lệ",
+      [
+        "Khung thể lệ theo họp 24/08/2026 (chưa thay thế văn bản pháp lý chính thức):",
+        "",
+        "- Chung kết: **8 đội**, tối đa 3 vòng (8 → 4 → 2), đấu trực tiếp, **không miễn đấu (bye)**.",
+        "- Công cụ: **Gemini** và **Google AI Studio**. Không dùng công cụ AI cạnh tranh.",
+        "- The Sprint: **5 phút** (có thể thử 10 phút). Kết quả kỳ vọng là **proof of concept/demo**, không cần backend hay người dùng thật.",
+        "- The Pitch: **60 giây**. Mỗi giám khảo hỏi tối đa một câu.",
+        "- Sự kiện chung kết trong **nửa ngày**, chủ yếu bằng tiếng Việt.",
+        "- Audition: sinh viên dùng Gemini / Google AI Studio (Google AI Plus). 8 đội chung kết được cấp Google AI Pro.",
+      ].join("\n"),
+    ],
+    [
+      "huong-dan-audition",
+      "Hướng dẫn Audition",
+      "Bài Audition gồm video giới thiệu ngắn và/hoặc thử thách vibe coding với **Gemini** và **Google AI Studio**. Kết quả kỳ vọng là proof of concept, không bắt buộc backend. Các trường bắt buộc do hệ thống cấu hình.",
+    ],
+  ];
+  for (const [slug, title, bodyMarkdown] of pages) {
+    const existing = await prisma.staticPage.findFirst({ where: { competitionId, slug } });
+    if (existing) {
+      await prisma.staticPage.update({ where: { id: existing.id }, data: { title, bodyMarkdown, status: "PUBLISHED" } });
+    } else {
+      await prisma.staticPage.create({
+        data: { competitionId, slug, title, bodyMarkdown, status: "PUBLISHED" },
+      });
+    }
+  }
+  const legacyFaq = await prisma.fAQ.findFirst({
+    where: { competitionId, question: "Có cần tài khoản Gemini API không?" },
+  });
+  if (legacyFaq) {
+    await prisma.fAQ.update({
+      where: { id: legacyFaq.id },
+      data: {
+        question: "Dùng công cụ AI nào?",
+        answerMarkdown:
+          "Công cụ chính thức là **Gemini** và **Google AI Studio**. Cổng không thu thập API key. Vòng audition dùng Google AI Plus; **8 đội chung kết** được cấp Google AI Pro với hạn mức ngang nhau.",
+        displayOrder: 4,
+        status: "PUBLISHED",
+      },
+    });
+  }
+  const faqs: [string, string, number][] = [
+    ["Ai được tham dự?", "Sinh viên các đại học, trường đại học trên toàn quốc.", 1],
+    [
+      "Thi cá nhân hay theo đội?",
+      "Cổng hiện cho phép đăng ký cá nhân hoặc đội. Ban Tổ chức sẽ chốt hình thức bắt buộc trước khi phát động chính thức.",
+      2,
+    ],
+    [
+      "Ngày chung kết khi nào?",
+      "Dự kiến **01/11/2026** hoặc **03/11/2026**. Chung kết diễn ra trong **nửa ngày**.",
+      3,
+    ],
+    [
+      "Dùng công cụ AI nào?",
+      "Công cụ chính thức là **Gemini** và **Google AI Studio**. Cổng không thu thập API key. Vòng audition dùng Google AI Plus; **8 đội chung kết** được cấp Google AI Pro với hạn mức ngang nhau.",
+      4,
+    ],
+    [
+      "Thể thức chung kết thế nào?",
+      "**8 đội**, loại trực tiếp 8 → 4 → 2, **không bye**. The Sprint bắt đầu **5 phút** (có thể thử 10 phút) để dựng proof of concept. The Pitch **60 giây**.",
+      5,
+    ],
+  ];
+  for (const [question, answerMarkdown, displayOrder] of faqs) {
+    const existing = await prisma.fAQ.findFirst({ where: { competitionId, question } });
+    if (existing) {
+      await prisma.fAQ.update({
+        where: { id: existing.id },
+        data: { answerMarkdown, displayOrder, status: "PUBLISHED" },
+      });
+    } else {
+      await prisma.fAQ.create({
+        data: { competitionId, question, answerMarkdown, displayOrder, status: "PUBLISHED" },
+      });
+    }
+  }
+  const finale = await prisma.timelineItem.findFirst({
+    where: { competitionId, title: "Chung kết trực tiếp tại ĐHQGHN" },
+  });
+  if (finale) {
+    await prisma.timelineItem.update({
+      where: { id: finale.id },
+      data: { description: "Dự kiến 01/11 hoặc 03/11/2026. Sự kiện nửa ngày, 8 đội, không bye." },
+    });
+  }
+}
+
+async function upsertSampleChallenge(competitionId: string) {
+  const title = "Trợ lý lịch học siêu địa phương";
+  const prompt =
+    "Trong 5 phút, dựng proof of concept trên Gemini và Google AI Studio giúp sinh viên ĐHQGHN sắp lịch học/thi theo tòa nhà và thời tiết. Không cần backend hay người dùng thật.";
+  const existing = await prisma.matchChallenge.findFirst({ where: { competitionId, title } });
+  const challenge = existing
+    ? await prisma.matchChallenge.update({ where: { id: existing.id }, data: { title, prompt } })
+    : await prisma.matchChallenge.create({ data: { competitionId, title, prompt } });
+  const empty = await prisma.match.findFirst({
+    where: { competitionId, problemTitle: "" },
+    orderBy: { code: "asc" },
+  });
+  if (empty) {
+    await prisma.match.update({
+      where: { id: empty.id },
+      data: {
+        challengeId: challenge.id,
+        problemTitle: challenge.title,
+        problemPrompt: challenge.prompt,
+      },
+    });
+  }
+}
+
 async function createRubric(
   competitionId: string,
   stage: "AUDITION" | "FINAL",
@@ -337,6 +460,8 @@ async function main() {
   }
 
   await upsertOrganizers(production.id);
+  await upsertPublicCopy(production.id);
+  await upsertSampleChallenge(production.id);
 
   const students = [];
   for (let i = 1; i <= 12; i += 1) {
@@ -604,8 +729,8 @@ async function main() {
         matchId: pi1.id,
         kind: "SPRINT",
         status: "PAUSED",
-        durationSeconds: 2700,
-        remainingSnapshot: 1200,
+        durationSeconds: 300,
+        remainingSnapshot: 300,
       },
     });
     for (const judge of judges) {
@@ -620,6 +745,22 @@ async function main() {
         title: "Yêu cầu thêm từ BTC",
         content: "Bổ sung một ràng buộc siêu địa phương do BTC công bố trên sân khấu.",
         status: "READY",
+      },
+    });
+    const challenge = await prisma.matchChallenge.create({
+      data: {
+        competitionId: production.id,
+        title: "Trợ lý lịch học siêu địa phương",
+        prompt:
+          "Trong 5 phút, dựng proof of concept trên Gemini và Google AI Studio giúp sinh viên ĐHQGHN sắp lịch học/thi theo tòa nhà và thời tiết. Không cần backend hay người dùng thật.",
+      },
+    });
+    await prisma.match.update({
+      where: { id: pi1.id },
+      data: {
+        challengeId: challenge.id,
+        problemTitle: challenge.title,
+        problemPrompt: challenge.prompt,
       },
     });
   }

@@ -20,6 +20,7 @@ import {
   MatchTimerForm,
   SetCurrentMatchForm,
   StopMatchForm,
+  MatchProblemForm,
 } from "@/components/admin/match-admin-forms";
 import { AdminDeleteForm } from "@/components/admin/delete-form";
 import { deleteMatchAction } from "@/server/actions/admin-delete-actions";
@@ -147,7 +148,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   });
   if (!match) notFound();
 
-  const [summary, rubric, competition, finalists, judges] = await Promise.all([
+  const [summary, rubric, competition, finalists, judges, challengeOptions] = await Promise.all([
     finalizeMatchIfReady(match.id),
     getActiveRubric(match.competitionId, "FINAL"),
     getProductionCompetition(),
@@ -160,6 +161,11 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       where: { role: "JUDGE", revokedAt: null },
       include: { user: true },
       orderBy: { createdAt: "asc" },
+    }),
+    prisma.matchChallenge.findMany({
+      where: { competitionId: match.competitionId },
+      orderBy: { updatedAt: "desc" },
+      select: { id: true, title: true },
     }),
   ]);
 
@@ -201,6 +207,29 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         <SideCard label="Đội A" finalist={match.competitorA} />
         <SideCard label="Đội B" finalist={match.competitorB} />
       </div>
+
+      {canManage ? (
+        <Card>
+          <h2 className="font-semibold">Đề thi chung cho cặp đấu</h2>
+          <p className="mt-1 text-sm text-slate-600">
+            Hai đội nhận cùng một đề. Nội dung này hiện trên sân khấu và overlay.
+          </p>
+          <div className="mt-3">
+            <MatchProblemForm
+              matchId={match.id}
+              title={match.problemTitle}
+              prompt={match.problemPrompt}
+              challenges={challengeOptions}
+            />
+          </div>
+        </Card>
+      ) : match.problemTitle || match.problemPrompt ? (
+        <Card>
+          <h2 className="font-semibold">Đề thi chung</h2>
+          <p className="mt-2 text-lg font-medium">{match.problemTitle}</p>
+          <p className="mt-2 whitespace-pre-wrap text-sm text-slate-700">{match.problemPrompt}</p>
+        </Card>
+      ) : null}
 
       <Card>
         <h2 className="font-semibold">Kết quả chấm</h2>

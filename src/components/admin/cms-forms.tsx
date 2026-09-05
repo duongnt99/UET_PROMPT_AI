@@ -6,7 +6,9 @@ import { Input, Label, Textarea } from "@/components/ui/form";
 import {
   saveAnnouncementAction,
   saveFaqAction,
+  saveLandingFinalRoundsAction,
   saveStaticPageAction,
+  saveTimelineItemAction,
   type ContentActionState,
 } from "@/server/actions/content-actions";
 
@@ -19,12 +21,12 @@ const STATUS_OPTIONS = [
   ["ARCHIVED", "Lưu trữ — ẩn khỏi website"],
 ] as const;
 
-function StatusSelect({ defaultValue }: { defaultValue?: string }) {
+function StatusSelect({ defaultValue, id = "status" }: { defaultValue?: string; id?: string }) {
   return (
     <div>
-      <Label htmlFor="status">Trạng thái</Label>
+      <Label htmlFor={id}>Trạng thái</Label>
       <select
-        id="status"
+        id={id}
         name="status"
         defaultValue={defaultValue ?? "DRAFT"}
         className="mt-1 h-11 w-full rounded-xl border px-3"
@@ -36,6 +38,189 @@ function StatusSelect({ defaultValue }: { defaultValue?: string }) {
         ))}
       </select>
     </div>
+  );
+}
+
+export function TimelineItemForm({
+  item,
+}: {
+  item?: {
+    id: string;
+    title: string;
+    description: string;
+    startAt: string;
+    endAt: string;
+    statusLabel: string;
+    displayOrder: number;
+    status: string;
+  };
+}) {
+  const [state, action, pending] = useActionState(saveTimelineItemAction, idle);
+  const prefix = item?.id ?? "timeline-new";
+
+  return (
+    <form action={action} className="space-y-4">
+      {item ? <input type="hidden" name="id" value={item.id} /> : null}
+      <div>
+        <Label htmlFor={`${prefix}-title`}>Tiêu đề</Label>
+        <Input
+          id={`${prefix}-title`}
+          name="title"
+          required
+          defaultValue={item?.title}
+          placeholder="Ví dụ: Phát động và mở đăng ký"
+          className="mt-1"
+        />
+      </div>
+      <div>
+        <Label htmlFor={`${prefix}-description`}>Mô tả</Label>
+        <Textarea
+          id={`${prefix}-description`}
+          name="description"
+          required
+          defaultValue={item?.description}
+          placeholder="Nội dung ngắn hiển thị trên thẻ lịch trình"
+          className="mt-1 min-h-24"
+        />
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div>
+          <Label htmlFor={`${prefix}-startAt`}>Bắt đầu</Label>
+          <Input
+            id={`${prefix}-startAt`}
+            name="startAt"
+            type="datetime-local"
+            defaultValue={item?.startAt}
+            className="mt-1"
+          />
+        </div>
+        <div>
+          <Label htmlFor={`${prefix}-endAt`}>Kết thúc</Label>
+          <Input
+            id={`${prefix}-endAt`}
+            name="endAt"
+            type="datetime-local"
+            defaultValue={item?.endAt}
+            className="mt-1"
+          />
+        </div>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div>
+          <Label htmlFor={`${prefix}-statusLabel`}>Nhãn trên thẻ</Label>
+          <Input
+            id={`${prefix}-statusLabel`}
+            name="statusLabel"
+            defaultValue={item?.statusLabel ?? "Dự kiến"}
+            placeholder="Dự kiến hoặc mốc ngày"
+            className="mt-1"
+          />
+        </div>
+        <div>
+          <Label htmlFor={`${prefix}-displayOrder`}>Thứ tự hiển thị</Label>
+          <Input
+            id={`${prefix}-displayOrder`}
+            name="displayOrder"
+            type="number"
+            defaultValue={item?.displayOrder ?? 0}
+            className="mt-1"
+          />
+        </div>
+      </div>
+      <StatusSelect id={`${prefix}-status`} defaultValue={item?.status} />
+      <p className="text-xs text-slate-500">Chỉ mốc có trạng thái Đã đăng mới xuất hiện trên website.</p>
+      <Button type="submit" disabled={pending}>
+        {pending ? "Đang lưu…" : item ? "Lưu mốc lịch trình" : "Tạo mốc lịch trình"}
+      </Button>
+      <Feedback state={state} pending={pending} />
+    </form>
+  );
+}
+
+type FinalRoundSettings = {
+  landingFinalRoundTitle: string;
+  finalRoundSprintTitle: string;
+  finalRoundSprintDescription: string;
+  finalRoundPitchTitle: string;
+  finalRoundPitchDescription: string;
+  finalRoundVerdictTitle: string;
+  finalRoundVerdictDescription: string;
+  finalRoundTwistTitle: string;
+  finalRoundTwistDescription: string;
+};
+
+const FINAL_ROUND_FIELDS = [
+  ["Sprint", "The Sprint"],
+  ["Pitch", "The Pitch"],
+  ["Verdict", "The Verdict"],
+  ["Twist", "On-stage Twist"],
+] as const;
+
+export function LandingFinalRoundsForm({ settings }: { settings: FinalRoundSettings }) {
+  const [state, action, pending] = useActionState(saveLandingFinalRoundsAction, idle);
+
+  return (
+    <form action={action} className="space-y-5">
+      <div>
+        <Label htmlFor="landing-final-round-title">Tiêu đề phần vòng chung kết</Label>
+        <Input
+          id="landing-final-round-title"
+          name="landingFinalRoundTitle"
+          required
+          defaultValue={settings.landingFinalRoundTitle}
+          className="mt-1"
+        />
+      </div>
+      {FINAL_ROUND_FIELDS.map(([key, fallbackTitle]) => {
+        const titleName = `finalRound${key}Title` as keyof FinalRoundSettings;
+        const descriptionName = `finalRound${key}Description` as keyof FinalRoundSettings;
+        const id = key.toLowerCase();
+        return (
+          <fieldset key={key} className="rounded-2xl border border-slate-200 p-4">
+            <legend className="px-2 text-sm font-semibold text-slate-900">{fallbackTitle}</legend>
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor={`${id}-title`}>Tiêu đề</Label>
+                <Input
+                  id={`${id}-title`}
+                  name={titleName}
+                  required
+                  defaultValue={settings[titleName]}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor={`${id}-description`}>Mô tả</Label>
+                <Textarea
+                  id={`${id}-description`}
+                  name={descriptionName}
+                  required
+                  defaultValue={settings[descriptionName]}
+                  className="mt-1 min-h-24"
+                />
+              </div>
+            </div>
+          </fieldset>
+        );
+      })}
+      <p className="text-xs text-slate-500">
+        Có thể dùng <code>{"{thoi_luong}"}</code> trong mô tả Sprint, Pitch hoặc Verdict; website sẽ tự thay bằng
+        thời lượng đang cấu hình trong Cài đặt.
+      </p>
+      <div>
+        <Label htmlFor="final-round-reason">Lý do thay đổi (tùy chọn)</Label>
+        <Input
+          id="final-round-reason"
+          name="reason"
+          placeholder="Ví dụ: cập nhật nội dung theo thể lệ mới"
+          className="mt-1"
+        />
+      </div>
+      <Button type="submit" disabled={pending}>
+        {pending ? "Đang lưu…" : "Lưu nội dung vòng chung kết"}
+      </Button>
+      <Feedback state={state} pending={pending} />
+    </form>
   );
 }
 

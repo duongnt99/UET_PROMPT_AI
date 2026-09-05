@@ -25,6 +25,15 @@ export function StageCurrentMatchScreen() {
             {match.competitorA?.name ?? "TBD"} vs {match.competitorB?.name ?? "TBD"}
           </h1>
           <p className="mt-6 text-2xl">{match.status}</p>
+          {match.problem?.title || match.problem?.prompt ? (
+            <div className="mx-auto mt-8 max-w-4xl rounded-3xl border border-white/15 bg-white/5 p-6 text-left">
+              <p className="text-sm uppercase tracking-wide text-[#C9A227]">Đề thi chung</p>
+              {match.problem?.title ? <h2 className="mt-2 text-3xl font-semibold">{match.problem.title}</h2> : null}
+              {match.problem?.prompt ? (
+                <p className="mt-3 whitespace-pre-wrap text-lg text-white/80">{match.problem.prompt}</p>
+              ) : null}
+            </div>
+          ) : null}
           {timer ? (
             <div className="mt-8">
               <p className="font-mono text-8xl tabular-nums">{formatTimerClock(timer.remainingSeconds)}</p>

@@ -118,4 +118,4 @@ Xem `docs/DEPLOYMENT.md`. Migration production: `pnpm db:migrate:deploy` có ki�
 - CAPTCHA/Turnstile chỉ bật khi có credential.
 - Gemini API không bắt buộc; cổng chỉ quản lý hồ sơ/artifact.
 - Logo Google/ĐHQGHN chính thức chưa được cung cấp — dùng placeholder trung tính và ô upload trong admin.
-- Livestream, giải thưởng, ngày chính thức, bracket 10 đội và hình thức cá nhân/đội chưa chốt — cấu hình trong Competition Settings.
+- Livestream, giải thưởng, ngày chính thức và hình thức cá nhân/đội có thể còn treo — cấu hình trong Cài đặt. Chung kết mặc định 8 đội, không bye, Sprint 5:00 (có thể thử 10:00), Pitch 1:00.

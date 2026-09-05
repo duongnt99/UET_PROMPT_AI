@@ -18,6 +18,12 @@ function OverlayCurrentMatchInner() {
         <div className={compact ? "text-xl" : "text-4xl font-semibold"}>
           {match.competitorA?.name} vs {match.competitorB?.name}
           {timer ? <span className="ml-4 font-mono tabular-nums">{formatTimerClock(timer.remainingSeconds)}</span> : null}
+          {match.problem?.title ? (
+            <p className={compact ? "mt-2 text-sm text-white/80" : "mt-3 text-xl text-white/85"}>{match.problem.title}</p>
+          ) : null}
+          {!compact && match.problem?.prompt ? (
+            <p className="mt-2 max-w-4xl whitespace-pre-wrap text-lg text-white/75">{match.problem.prompt}</p>
+          ) : null}
         </div>
       )}
     </div>

@@ -106,6 +106,64 @@ export async function saveFaq(params: {
   return faq;
 }
 
+export async function saveTimelineItem(params: {
+  actorUserId: string;
+  id?: string;
+  title: string;
+  description: string;
+  startAt: Date | null;
+  endAt: Date | null;
+  statusLabel: string;
+  displayOrder: number;
+  status: ContentStatus;
+}) {
+  const competition = await requireProductionCompetition();
+  const title = params.title.trim();
+  const description = params.description.trim();
+  const statusLabel = params.statusLabel.trim() || "Dự kiến";
+  if (!title) throw new Error("Cần tiêu đề mốc lịch trình.");
+  if (!description) throw new Error("Cần mô tả mốc lịch trình.");
+  if (params.startAt && params.endAt && params.endAt < params.startAt) {
+    throw new Error("Thời điểm kết thúc phải sau thời điểm bắt đầu.");
+  }
+
+  const item = params.id
+    ? await prisma.timelineItem.update({
+        where: { id: params.id, competitionId: competition.id },
+        data: {
+          title,
+          description,
+          startAt: params.startAt,
+          endAt: params.endAt,
+          statusLabel,
+          displayOrder: params.displayOrder,
+          status: params.status,
+        },
+      })
+    : await prisma.timelineItem.create({
+        data: {
+          competitionId: competition.id,
+          title,
+          description,
+          startAt: params.startAt,
+          endAt: params.endAt,
+          statusLabel,
+          displayOrder: params.displayOrder,
+          status: params.status,
+        },
+      });
+
+  await writeAuditLog({
+    actorUserId: params.actorUserId,
+    competitionId: competition.id,
+    action: params.id ? "content.timeline.update" : "content.timeline.create",
+    entityType: "TimelineItem",
+    entityId: item.id,
+    after: { title, status: params.status, displayOrder: params.displayOrder },
+  });
+  return item;
+}
+
 export async function saveAnnouncement(params: {
   actorUserId: string;
   id?: string;

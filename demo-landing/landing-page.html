@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Prompt-Off: Vietnam 2026 — Bản xem UI</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: "#0B1F3A",
+            gold: "#C9A227",
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --background: #f6f3ec; --foreground: #0b1f3a; --accent: #c9a227; }
+    html, body { background: var(--background); color: var(--foreground); }
+    body { font-family: "Be Vietnam Pro", sans-serif; }
+    .display { font-family: "Space Grotesk", "Be Vietnam Pro", sans-serif; }
+    a { color: inherit; }
+    :focus-visible { outline: 2px solid #c9a227; outline-offset: 2px; }
+  </style>
+</head>
+<body class="min-h-full bg-[var(--background)] text-[var(--foreground)]">
+  <div class="flex min-h-screen flex-col">
+    <header class="sticky top-0 z-40 border-b border-white/10 bg-[#0B1F3A]/95 text-white backdrop-blur">
+      <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
+        <a class="font-semibold tracking-tight" href="#">Prompt-Off: Vietnam 2026</a>
+        <nav class="hidden items-center gap-5 text-sm md:flex">
+          <a class="text-white/80 hover:text-white" href="#">Giới thiệu</a>
+          <a class="text-white/80 hover:text-white" href="#">Thể lệ</a>
+          <a class="text-white/80 hover:text-white" href="#">Lịch trình</a>
+          <a class="text-white/80 hover:text-white" href="#">Tiêu chí chấm</a>
+          <a class="text-white/80 hover:text-white" href="#">Tin tức</a>
+          <a class="text-white/80 hover:text-white" href="#">Liên hệ</a>
+        </nav>
+        <div class="hidden items-center gap-2 md:flex">
+          <a class="inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-semibold text-white hover:bg-white/10" href="#">Đăng nhập</a>
+          <a class="inline-flex h-11 items-center justify-center rounded-full bg-[#C9A227] px-5 text-sm font-semibold text-[#0B1F3A] hover:bg-[#dbb43a]" href="#">Đăng ký ngay</a>
+        </div>
+        <button id="menu-btn" class="md:hidden" aria-label="Mở menu" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16"/><path d="M4 12h16"/><path d="M4 19h16"/></svg>
+        </button>
+      </div>
+      <div id="mobile-nav" class="hidden space-y-2 px-4 pb-4 md:hidden">
+        <a href="#" class="block py-1 text-white/90">Giới thiệu</a>
+        <a href="#" class="block py-1 text-white/90">Thể lệ</a>
+        <a href="#" class="block py-1 text-white/90">Lịch trình</a>
+        <a href="#" class="block py-1 text-white/90">Tiêu chí chấm</a>
+        <a href="#" class="block py-1 text-white/90">Tin tức</a>
+        <a href="#" class="block py-1 text-white/90">Liên hệ</a>
+        <a href="#" class="block py-1 font-semibold text-[#C9A227]">Đăng ký ngay</a>
+      </div>
+      <div class="border-t border-white/10 bg-white">
+        <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2">
+          <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Đồng tổ chức</p>
+          <ul class="flex flex-nowrap items-center gap-2">
+            <li>
+              <a href="https://www.vnu.edu.vn/" target="_blank" rel="noreferrer" title="Đại học Quốc gia Hà Nội" class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-white ring-1 ring-slate-200/80 transition hover:ring-[#C9A227]">
+                <img src="partners/vnu-mini.png" alt="Đại học Quốc gia Hà Nội" class="h-7 w-7 object-contain" />
+              </a>
+            </li>
+            <li>
+              <a href="https://uet.vnu.edu.vn/" target="_blank" rel="noreferrer" title="Trường Đại học Công nghệ — ĐHQGHN" class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-white ring-1 ring-slate-200/80 transition hover:ring-[#C9A227]">
+                <img src="partners/uet-mini.jpg" alt="Trường Đại học Công nghệ — ĐHQGHN" class="h-7 w-7 object-contain" />
+              </a>
+            </li>
+            <li>
+              <a href="https://about.google/" target="_blank" rel="noreferrer" title="Google" class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-white ring-1 ring-slate-200/80 transition hover:ring-[#C9A227]">
+                <img src="partners/google-mini.jpg" alt="Google" class="h-7 w-7 object-contain" />
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1">
+      <section class="bg-[#0B1F3A] text-white">
+        <div class="mx-auto grid max-w-6xl gap-10 px-4 py-16 md:grid-cols-2 md:py-24">
+          <div>
+            <p class="text-sm uppercase tracking-[0.2em] text-[#C9A227]">ĐHQGHN · UET · Google</p>
+            <h1 class="display mt-4 text-4xl font-semibold leading-tight md:text-6xl">Prompt-Off: Vietnam 2026</h1>
+            <p class="mt-5 max-w-xl text-lg text-white/80">
+              Sân chơi quốc gia để sinh viên ứng dụng prompting với Gemini và Google AI Studio, dựng proof of concept trong 5–10 phút.
+            </p>
+            <div class="mt-8 flex flex-wrap gap-3">
+              <a class="inline-flex h-11 items-center justify-center rounded-full bg-[#C9A227] px-5 text-sm font-semibold text-[#0B1F3A] hover:bg-[#dbb43a]" href="#">Đăng ký ngay</a>
+              <a class="inline-flex h-11 items-center justify-center rounded-full border border-white/30 bg-transparent px-5 text-sm font-semibold text-white hover:bg-white/10" href="#">Nộp bài Audition</a>
+              <a class="inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-semibold text-white hover:bg-white/10" href="#">Xem thể lệ</a>
+            </div>
+          </div>
+          <div class="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-sm">
+            <p class="text-sm text-[#C9A227]">Thông tin sự kiện</p>
+            <dl class="mt-4 space-y-3 text-sm">
+              <div>
+                <dt class="text-white/60">Ngày chung kết</dt>
+                <dd class="text-lg font-medium">Dự kiến: 01/11/2026</dd>
+              </div>
+              <div>
+                <dt class="text-white/60">Địa điểm</dt>
+                <dd>Dự kiến: Hội trường tầng 1, Trung tâm Văn hóa ULIS - Jonathan KS. Choi, ĐHQGHN</dd>
+              </div>
+              <div>
+                <dt class="text-white/60">Quy mô chung kết</dt>
+                <dd>8 đội, loại trực tiếp 8 → 4 → 2, không bye. Sự kiện nửa ngày.</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section class="mx-auto max-w-6xl px-4 py-16">
+        <h2 class="display text-3xl">Mục tiêu cuộc thi</h2>
+        <p class="mt-4 max-w-3xl text-slate-700">
+          Cuộc thi do Đại học Quốc gia Hà Nội triển khai, Trường Đại học Công nghệ làm đầu mối phối hợp, phối hợp cùng Google. Vòng tuyển chọn trực tuyến; chung kết 8 đội thi trực tiếp trong nửa ngày tại ĐHQGHN (loại trực tiếp 8 → 4 → 2, không bye), kết hợp livestream. Công cụ chính thức: Gemini và Google AI Studio.
+        </p>
+        <div class="mt-8 grid gap-4 md:grid-cols-3">
+          <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h3 class="font-semibold">Đối tượng</h3>
+            <p class="mt-2 text-sm text-slate-600">Sinh viên các đại học, trường đại học trên toàn quốc.</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h3 class="font-semibold">Vòng tuyển chọn</h3>
+            <p class="mt-2 text-sm text-slate-600">Đăng ký trực tuyến, nộp video giới thiệu và/hoặc thử thách vibe coding với Gemini và Google AI Studio.</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h3 class="font-semibold">Chung kết trực tiếp</h3>
+            <p class="mt-2 text-sm text-slate-600">The Sprint, The Pitch, The Verdict trong nửa ngày tại ĐHQGHN. Công cụ: Gemini và Google AI Studio.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-white py-16">
+        <div class="mx-auto max-w-6xl px-4">
+          <h2 class="display text-3xl">Lịch trình</h2>
+          <ol class="mt-8 grid gap-4 md:grid-cols-2">
+            <li class="rounded-2xl border border-slate-200 p-5">
+              <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800">Dự kiến</span>
+              <h3 class="mt-2 font-semibold">Phát động và mở đăng ký</h3>
+              <p class="mt-1 text-sm text-slate-600">Dự kiến 15/09/2026.</p>
+              <p class="mt-2 text-xs text-slate-500">15/09/2026 07:00</p>
+            </li>
+            <li class="rounded-2xl border border-slate-200 p-5">
+              <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800">Dự kiến</span>
+              <h3 class="mt-2 font-semibold">Tiếp nhận đăng ký và bài Audition</h3>
+              <p class="mt-1 text-sm text-slate-600">Dự kiến 15/09–05/10/2026.</p>
+              <p class="mt-2 text-xs text-slate-500">15/09/2026 07:00</p>
+            </li>
+            <li class="rounded-2xl border border-slate-200 p-5">
+              <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800">Dự kiến</span>
+              <h3 class="mt-2 font-semibold">Chấm và lựa chọn vào chung kết</h3>
+              <p class="mt-1 text-sm text-slate-600">Dự kiến 06–14/10/2026.</p>
+            </li>
+            <li class="rounded-2xl border border-slate-200 p-5">
+              <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800">Dự kiến</span>
+              <h3 class="mt-2 font-semibold">Công bố finalist</h3>
+              <p class="mt-1 text-sm text-slate-600">Dự kiến 15/10/2026.</p>
+            </li>
+            <li class="rounded-2xl border border-slate-200 p-5 md:col-span-2">
+              <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800">Dự kiến</span>
+              <h3 class="mt-2 font-semibold">Chung kết trực tiếp tại ĐHQGHN</h3>
+              <p class="mt-1 text-sm text-slate-600">Dự kiến 01/11 hoặc 03/11/2026. Sự kiện nửa ngày, 8 đội, không bye.</p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="mx-auto max-w-6xl px-4 py-16">
+        <h2 class="display text-3xl">Vòng chung kết</h2>
+        <div class="mt-8 grid gap-4 md:grid-cols-2">
+          <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h3 class="font-semibold">The Sprint</h3>
+            <p class="mt-2 text-sm text-slate-600">Hai đội nhận cùng một đề và dựng proof of concept bằng Gemini + Google AI Studio trong 5 phút (có thể thử 10 phút). Không cần backend hay người dùng thật.</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h3 class="font-semibold">The Pitch</h3>
+            <p class="mt-2 text-sm text-slate-600">Trình bày 1 phút theo kiểu Y Combinator: bài toán, cách dùng AI và demo.</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h3 class="font-semibold">The Verdict</h3>
+            <p class="mt-2 text-sm text-slate-600">Ban Giám khảo chấm và quyết định đội đi tiếp. Mỗi giám khảo hỏi tối đa một câu.</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h3 class="font-semibold">On-stage Twist</h3>
+            <p class="mt-2 text-sm text-slate-600">BTC có thể thêm yêu cầu trên sân. Không bắt buộc với mọi trận.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-[#0B1F3A] py-16 text-white">
+        <div class="mx-auto max-w-6xl px-4">
+          <h2 class="display text-3xl">Tiêu chí chấm</h2>
+          <p class="mt-3 max-w-3xl text-white/80">Rubric mặc định: Tính khả thi 40%, Tính sáng tạo 30%, Tiềm năng tác động 30%. Ban Tổ chức có thể phát hành phiên bản rubric mới.</p>
+          <div class="mt-8 grid gap-4 md:grid-cols-3">
+            <div class="rounded-2xl border border-white/10 bg-white/5 p-6 text-white">
+              <p class="text-sm text-[#C9A227]">40%</p>
+              <h3 class="mt-1 text-xl font-semibold">Tính khả thi</h3>
+              <p class="mt-2 text-sm text-white/70">Mức độ hoạt động của sản phẩm; tính hoàn thiện; khả năng sử dụng và trải nghiệm.</p>
+            </div>
+            <div class="rounded-2xl border border-white/10 bg-white/5 p-6 text-white">
+              <p class="text-sm text-[#C9A227]">30%</p>
+              <h3 class="mt-1 text-xl font-semibold">Tính sáng tạo</h3>
+              <p class="mt-2 text-sm text-white/70">Tính mới của ý tưởng và cách khai thác AI.</p>
+            </div>
+            <div class="rounded-2xl border border-white/10 bg-white/5 p-6 text-white">
+              <p class="text-sm text-[#C9A227]">30%</p>
+              <h3 class="mt-1 text-xl font-semibold">Tiềm năng tác động</h3>
+              <p class="mt-2 text-sm text-white/70">Mức độ giải quyết đúng bài toán và khả năng mở rộng.</p>
+            </div>
+          </div>
+          <div class="mt-8">
+            <a class="inline-flex h-11 items-center justify-center rounded-full border border-white/30 bg-transparent px-5 text-sm font-semibold text-white hover:bg-white/10" href="#">Xem đầy đủ tiêu chí</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="mx-auto max-w-6xl px-4 py-16">
+        <h2 class="display text-3xl">Câu hỏi thường gặp</h2>
+        <div class="mt-6 space-y-4">
+          <details class="rounded-2xl border border-slate-200 bg-white p-5">
+            <summary class="cursor-pointer font-semibold">Ai được tham dự?</summary>
+            <p class="mt-2 text-sm text-slate-600">Sinh viên các đại học, trường đại học trên toàn quốc.</p>
+          </details>
+          <details class="rounded-2xl border border-slate-200 bg-white p-5">
+            <summary class="cursor-pointer font-semibold">Thi cá nhân hay theo đội?</summary>
+            <p class="mt-2 text-sm text-slate-600">Cổng hiện cho phép đăng ký cá nhân hoặc đội. Ban Tổ chức sẽ chốt hình thức bắt buộc trước khi phát động chính thức.</p>
+          </details>
+          <details class="rounded-2xl border border-slate-200 bg-white p-5">
+            <summary class="cursor-pointer font-semibold">Ngày chung kết khi nào?</summary>
+            <p class="mt-2 text-sm text-slate-600">Dự kiến 01/11/2026 hoặc 03/11/2026. Chung kết diễn ra trong nửa ngày.</p>
+          </details>
+          <details class="rounded-2xl border border-slate-200 bg-white p-5">
+            <summary class="cursor-pointer font-semibold">Dùng công cụ AI nào?</summary>
+            <p class="mt-2 text-sm text-slate-600">Công cụ chính thức là Gemini và Google AI Studio. Cổng không thu thập API key. Vòng audition dùng Google AI Plus; 8 đội chung kết được cấp Google AI Pro với hạn mức ngang nhau.</p>
+          </details>
+          <details class="rounded-2xl border border-slate-200 bg-white p-5">
+            <summary class="cursor-pointer font-semibold">Thể thức chung kết thế nào?</summary>
+            <p class="mt-2 text-sm text-slate-600">8 đội, loại trực tiếp 8 → 4 → 2, không bye. The Sprint bắt đầu 5 phút (có thể thử 10 phút) để dựng proof of concept. The Pitch 60 giây.</p>
+          </details>
+        </div>
+      </section>
+
+      <section class="bg-white py-16">
+        <div class="mx-auto max-w-6xl px-4">
+          <h2 class="display text-3xl">Tin tức</h2>
+          <div class="mt-6 grid gap-4 md:grid-cols-3">
+            <a href="#" class="block">
+              <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-[#C9A227]">
+                <h3 class="font-semibold">Hệ thống đăng ký đang được hoàn thiện</h3>
+                <p class="mt-2 text-sm text-slate-600">Cổng thông tin Prompt-Off: Vietnam 2026 đã sẵn sàng cho giai đoạn thử nghiệm nội bộ.</p>
+              </div>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="mx-auto max-w-6xl px-4 py-16">
+        <h2 class="display text-3xl">Đơn vị đồng tổ chức</h2>
+        <p class="mt-2 max-w-3xl text-slate-600">
+          Đại học Quốc gia Hà Nội triển khai cuộc thi, Trường Đại học Công nghệ là đầu mối phối hợp, phối hợp cùng Google.
+        </p>
+        <ul class="mt-8 grid gap-4 sm:grid-cols-3">
+          <li>
+            <a href="https://www.vnu.edu.vn/" target="_blank" rel="noreferrer" class="flex h-full flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-6 text-center shadow-sm transition hover:border-[#C9A227]">
+              <img src="partners/vnu.png" alt="" class="h-16 w-auto max-w-[220px] object-contain md:h-20" />
+              <span class="text-sm font-medium text-slate-800">Đại học Quốc gia Hà Nội</span>
+            </a>
+          </li>
+          <li>
+            <a href="https://uet.vnu.edu.vn/" target="_blank" rel="noreferrer" class="flex h-full flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-6 text-center shadow-sm transition hover:border-[#C9A227]">
+              <img src="partners/uet.jpg" alt="" class="h-16 w-auto max-w-[220px] object-contain md:h-20" />
+              <span class="text-sm font-medium text-slate-800">Trường Đại học Công nghệ — ĐHQGHN</span>
+            </a>
+          </li>
+          <li>
+            <a href="https://about.google/" target="_blank" rel="noreferrer" class="flex h-full flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-6 text-center shadow-sm transition hover:border-[#C9A227]">
+              <img src="partners/google-wordmark.png" alt="" class="h-16 w-auto max-w-[220px] object-contain md:h-20" />
+              <span class="text-sm font-medium text-slate-800">Google</span>
+            </a>
+          </li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="mt-auto border-t border-slate-200 bg-slate-50">
+      <div class="mx-auto grid max-w-6xl items-start gap-6 px-4 py-6 md:grid-cols-3">
+        <div>
+          <p class="font-semibold text-[#0B1F3A]">Prompt-Off: Vietnam 2026</p>
+          <p class="mt-1 text-sm text-slate-600">Đồng tổ chức: ĐHQGHN, Trường Đại học Công nghệ và Google.</p>
+          <div class="mt-3">
+            <ul class="flex flex-nowrap items-center gap-2">
+              <li>
+                <a href="https://www.vnu.edu.vn/" target="_blank" rel="noreferrer" title="Đại học Quốc gia Hà Nội" class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-white ring-1 ring-slate-200/80 transition hover:ring-[#C9A227]">
+                  <img src="partners/vnu-mini.png" alt="Đại học Quốc gia Hà Nội" class="h-7 w-7 object-contain" />
+                </a>
+              </li>
+              <li>
+                <a href="https://uet.vnu.edu.vn/" target="_blank" rel="noreferrer" title="Trường Đại học Công nghệ — ĐHQGHN" class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-white ring-1 ring-slate-200/80 transition hover:ring-[#C9A227]">
+                  <img src="partners/uet-mini.jpg" alt="Trường Đại học Công nghệ — ĐHQGHN" class="h-7 w-7 object-contain" />
+                </a>
+              </li>
+              <li>
+                <a href="https://about.google/" target="_blank" rel="noreferrer" title="Google" class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-white ring-1 ring-slate-200/80 transition hover:ring-[#C9A227]">
+                  <img src="partners/google-mini.jpg" alt="Google" class="h-7 w-7 object-contain" />
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="text-sm">
+          <p class="font-semibold">Thông tin</p>
+          <div class="mt-2 flex flex-col gap-1">
+            <a href="#">Thể lệ</a>
+            <a href="#">FAQ</a>
+            <a href="#">Chính sách bảo mật</a>
+            <a href="#">Điều khoản</a>
+          </div>
+        </div>
+        <div class="text-sm">
+          <p class="font-semibold">Theo dõi sự kiện</p>
+          <div class="mt-2 flex flex-col gap-1">
+            <a href="#">Livestream</a>
+            <a href="#">Scoreboard</a>
+            <a href="#">Finalists</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+  <script>
+    const btn = document.getElementById("menu-btn");
+    const nav = document.getElementById("mobile-nav");
+    if (btn && nav) {
+      btn.addEventListener("click", () => nav.classList.toggle("hidden"));
+    }
+  </script>
+</body>
+</html>

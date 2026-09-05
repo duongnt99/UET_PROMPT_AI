@@ -58,3 +58,12 @@ export function formatTimerClock(totalSeconds: number) {
   const seconds = safe % 60;
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
+
+export function formatDurationLabel(totalSeconds: number) {
+  const safe = Math.max(0, Math.floor(totalSeconds));
+  if (safe % 60 === 0) return `${safe / 60} phút`;
+  const minutes = Math.floor(safe / 60);
+  const seconds = safe % 60;
+  if (minutes === 0) return `${seconds} giây`;
+  return `${minutes} phút ${seconds} giây`;
+}

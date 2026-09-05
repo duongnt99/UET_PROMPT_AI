@@ -363,6 +363,7 @@ model Competition {
   finalists        Finalist[]
   rounds           FinalRound[]
   matches          Match[]
+  matchChallenges  MatchChallenge[]
   twists           OnStageTwist[]
   announcements    Announcement[]
   faqs             FAQ[]
@@ -865,6 +866,9 @@ model Match {
   isBye             Boolean     @default(false)
   bracketLocked     Boolean     @default(false)
   version           Int         @default(1)
+  problemTitle      String      @default("")
+  problemPrompt     String      @default("")
+  challengeId       String?
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
 
@@ -879,12 +883,29 @@ model Match {
   twists      OnStageTwist[]
   judgeAssignments JudgeAssignment[]
   judgeScores JudgeScore[]
+  challenge   MatchChallenge? @relation(fields: [challengeId], references: [id], onDelete: SetNull)
 
   @@unique([competitionId, code])
   @@index([competitionId, status])
   @@index([roundId])
   @@index([competitorAId])
   @@index([competitorBId])
+  @@index([challengeId])
+}
+
+model MatchChallenge {
+  id            String   @id @default(cuid())
+  competitionId String
+  title         String
+  prompt        String
+  notes         String   @default("")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  competition Competition @relation(fields: [competitionId], references: [id])
+  matches     Match[]
+
+  @@index([competitionId])
 }
 
 model JudgeAssignment {

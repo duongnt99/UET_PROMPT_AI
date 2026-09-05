@@ -6,7 +6,7 @@ export default function Page() {
     <CmsArticle
       slug="huong-dan-audition"
       fallbackTitle="Hướng dẫn Audition"
-      fallback="Nộp video giới thiệu và/hoặc thử thách vibe coding cơ bản sử dụng Gemini."
+      fallback="Nộp video giới thiệu và/hoặc thử thách vibe coding với Gemini và Google AI Studio. Kết quả kỳ vọng là proof of concept, không cần backend."
     />
   );
 }

@@ -32,6 +32,19 @@ export async function saveSettingsAction(formData: FormData) {
     submissionEnabled: formData.get("submissionEnabled") === "on",
     publicScoreboardEnabled: formData.get("publicScoreboardEnabled") === "on",
     livestreamEnabled: formData.get("livestreamEnabled") === "on",
+    finalistCount: competitionSettingsSchema.shape.finalistCount.parse(
+      Number(formData.get("finalistCount") ?? competition.settings.finalistCount),
+    ),
+    allowByes: formData.get("allowByes") === "on",
+    sprintDurationSeconds: competitionSettingsSchema.shape.sprintDurationSeconds.parse(
+      Number(formData.get("sprintDurationSeconds") ?? competition.settings.sprintDurationSeconds),
+    ),
+    pitchDurationSeconds: competitionSettingsSchema.shape.pitchDurationSeconds.parse(
+      Number(formData.get("pitchDurationSeconds") ?? competition.settings.pitchDurationSeconds),
+    ),
+    verdictDurationSeconds: competitionSettingsSchema.shape.verdictDurationSeconds.parse(
+      Number(formData.get("verdictDurationSeconds") ?? competition.settings.verdictDurationSeconds),
+    ),
   };
   await updateCompetitionSettings({
     competitionId: competition.id,
@@ -39,6 +52,10 @@ export async function saveSettingsAction(formData: FormData) {
     settings: next,
     reason: String(formData.get("reason") ?? "Admin updated settings"),
   });
+  revalidatePath("/");
+  revalidatePath("/admin/settings");
+  revalidatePath("/the-le");
+  revalidatePath("/faq");
   return { ok: true };
 }
 

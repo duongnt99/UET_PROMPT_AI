@@ -13,6 +13,11 @@ import {
   advanceWinner,
   controlTimer,
 } from "@/server/services/match-service";
+import {
+  assignChallengeToMatch,
+  clearMatchProblem,
+  saveMatchProblem,
+} from "@/server/services/match-challenge-service";
 
 export type MatchSetupState = { ok: boolean; message: string };
 
@@ -25,9 +30,12 @@ function revalidateMatch(matchId: string) {
   revalidatePath(`/admin/bracket/${matchId}`);
   revalidatePath("/admin/scoring");
   revalidatePath("/admin/operations");
+  revalidatePath("/admin/challenges");
   revalidatePath("/judge");
   revalidatePath(`/judge/matches/${matchId}`);
   revalidatePath("/stage/current-match");
+  revalidatePath("/stage/problem");
+  revalidatePath("/overlay/current-match");
 }
 
 export async function createScoringMatchAction(
@@ -46,6 +54,9 @@ export async function createScoringMatchAction(
       code: String(formData.get("code") ?? "").trim() || undefined,
       setAsCurrent: formData.get("setAsCurrent") === "on",
       reason: String(formData.get("reason") ?? ""),
+      problemTitle: String(formData.get("problemTitle") ?? ""),
+      problemPrompt: String(formData.get("problemPrompt") ?? ""),
+      challengeId: String(formData.get("challengeId") ?? "").trim() || undefined,
     });
     revalidateMatch(match.id);
     redirectTo = `/admin/bracket/${match.id}`;
@@ -191,6 +202,67 @@ export async function matchTimerAction(
     });
     revalidateMatch(matchId);
     return { ok: true, message: "Đã cập nhật timer." };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function saveMatchProblemAction(
+  _prev: MatchSetupState,
+  formData: FormData,
+): Promise<MatchSetupState> {
+  const user = await requirePermission("bracket:manage");
+  const matchId = String(formData.get("matchId") ?? "");
+  try {
+    await saveMatchProblem({
+      actorUserId: user.id,
+      matchId,
+      title: String(formData.get("problemTitle") ?? ""),
+      prompt: String(formData.get("problemPrompt") ?? ""),
+      saveToLibrary: formData.get("saveToLibrary") === "on",
+      reason: String(formData.get("reason") ?? ""),
+    });
+    revalidateMatch(matchId);
+    return { ok: true, message: "Đã lưu đề thi cho cặp đấu." };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function assignChallengeToMatchAction(
+  _prev: MatchSetupState,
+  formData: FormData,
+): Promise<MatchSetupState> {
+  const user = await requirePermission("bracket:manage");
+  const matchId = String(formData.get("matchId") ?? "");
+  try {
+    await assignChallengeToMatch({
+      actorUserId: user.id,
+      matchId,
+      challengeId: String(formData.get("challengeId") ?? ""),
+      reason: String(formData.get("reason") ?? ""),
+    });
+    revalidateMatch(matchId);
+    return { ok: true, message: "Đã gán đề từ kho vào trận." };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function clearMatchProblemAction(
+  _prev: MatchSetupState,
+  formData: FormData,
+): Promise<MatchSetupState> {
+  const user = await requirePermission("bracket:manage");
+  const matchId = String(formData.get("matchId") ?? "");
+  try {
+    await clearMatchProblem({
+      actorUserId: user.id,
+      matchId,
+      reason: String(formData.get("reason") ?? ""),
+    });
+    revalidateMatch(matchId);
+    return { ok: true, message: "Đã xóa đề thi khỏi cặp đấu." };
   } catch (error) {
     return fail(error);
   }

@@ -25,7 +25,8 @@ export const metadata: Metadata = {
     "Cuộc thi Prompt-Off: Vietnam 2026 do ĐHQGHN triển khai, Trường Đại học Công nghệ làm đầu mối phối hợp, phối hợp cùng Google.",
   openGraph: {
     title: "Prompt-Off: Vietnam 2026",
-    description: "Sân chơi quốc gia về prompting và xây dựng MVP bằng Gemini.",
+    description:
+      "Sân chơi quốc gia về prompting với Gemini và Google AI Studio. Chung kết 8 đội, proof of concept 5–10 phút.",
     locale: "vi_VN",
     type: "website",
   },
@@ -34,7 +35,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="vi" className={`${beVietnam.variable} ${spaceGrotesk.variable} h-full antialiased`}>
+    <html
+      lang="vi"
+      data-scroll-behavior="smooth"
+      className={`${beVietnam.variable} ${spaceGrotesk.variable} h-full antialiased`}
+    >
       <body className="min-h-full bg-[var(--background)] font-sans text-[var(--foreground)]">
         {children}
         <ToastProvider />

@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input, Label } from "@/components/ui/form";
+import { Input, Label, Textarea } from "@/components/ui/form";
 import { createScoringMatchAction, type MatchSetupState } from "@/server/actions/admin-match-actions";
 
 const idle: MatchSetupState = { ok: true, message: "" };
@@ -12,11 +12,13 @@ export function CreateScoringMatchForm({
   judges,
   rounds,
   judgesPerMatch,
+  challenges,
 }: {
   finalists: { id: string; label: string }[];
   judges: { id: string; label: string }[];
   rounds: { id: string; label: string }[];
   judgesPerMatch: number;
+  challenges: { id: string; title: string }[];
 }) {
   const [state, action, pending] = useActionState(createScoringMatchAction, idle);
   if (finalists.length < 2) {
@@ -94,8 +96,27 @@ export function CreateScoringMatchForm({
         Đặt làm trận hiện tại (sân khấu / overlay)
       </label>
       <div>
+        <Label htmlFor="challengeId">Đề thi từ kho (tuỳ chọn)</Label>
+        <select id="challengeId" name="challengeId" className="mt-1 h-11 w-full rounded-xl border px-3">
+          <option value="">— Không chọn / nhập đề mới bên dưới —</option>
+          {challenges.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.title}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <Label htmlFor="problemTitle">Tiêu đề đề thi (cả hai đội)</Label>
+        <Input id="problemTitle" name="problemTitle" placeholder="Bỏ trống nếu đã chọn từ kho" className="mt-1" />
+      </div>
+      <div>
+        <Label htmlFor="problemPrompt">Nội dung đề thi</Label>
+        <Textarea id="problemPrompt" name="problemPrompt" className="mt-1" placeholder="Đề chung hiển thị trên sân khấu và overlay" />
+      </div>
+      <div>
         <Label htmlFor="match-reason">Lý do (audit)</Label>
-        <Input id="match-reason" name="reason" required placeholder="Ví dụ: trận thử 2 đội vòng play-in" className="mt-1" />
+        <Input id="match-reason" name="reason" required placeholder="Ví dụ: tứ kết 1 — cùng đề cho hai đội" className="mt-1" />
       </div>
       <Button type="submit" disabled={pending}>
         {pending ? "Đang tạo…" : "Tạo trận và mở SCORING"}
