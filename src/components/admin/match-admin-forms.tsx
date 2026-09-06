@@ -17,6 +17,7 @@ import {
   clearMatchProblemAction,
   type MatchSetupState,
 } from "@/server/actions/admin-match-actions";
+import { matchStatusLabel } from "@/lib/status-labels";
 
 const idle: MatchSetupState = { ok: true, message: "" };
 
@@ -110,11 +111,11 @@ export function MatchStatusForm({
         <Label htmlFor="status">Trạng thái mới</Label>
         <select id="status" name="status" required className="mt-1 h-11 w-full rounded-xl border px-3" defaultValue="">
           <option value="" disabled>
-            Hiện tại: {currentStatus}
+            Hiện tại: {matchStatusLabel(currentStatus)}
           </option>
           {nextStatuses.map((status) => (
             <option key={status} value={status}>
-              {status}
+              {matchStatusLabel(status)}
             </option>
           ))}
         </select>
@@ -141,7 +142,7 @@ export function StopMatchForm({ matchId }: { matchId: string }) {
         <Input id="stop-reason" name="reason" required placeholder="Hủy vì sự cố / đổi lịch…" className="mt-1" />
       </div>
       <Button type="submit" variant="destructive" disabled={pending}>
-        {pending ? "Đang dừng…" : "Dừng trận (CANCELLED)"}
+        {pending ? "Đang dừng…" : "Dừng và hủy trận"}
       </Button>
       <Feedback state={state} pending={pending} />
     </form>
@@ -251,13 +252,13 @@ export function MatchTimerForm({
       <input type="hidden" name="matchId" value={matchId} />
       <input type="hidden" name="kind" value={kind} />
       <Button name="action" value="start" size="sm" disabled={pending}>
-        Start
+        Bắt đầu
       </Button>
       <Button name="action" value="pause" size="sm" variant="outline" disabled={pending}>
-        Pause
+        Tạm dừng
       </Button>
       <Button name="action" value="resume" size="sm" variant="outline" disabled={pending}>
-        Resume
+        Tiếp tục
       </Button>
       <Feedback state={state} pending={pending} />
     </form>

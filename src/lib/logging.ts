@@ -10,8 +10,6 @@ const SECRET_KEYS = [
   "cookie",
   "AUTH_SECRET",
   "S3_SECRET_ACCESS_KEY",
-  "SMTP_PASSWORD",
-  "CRON_SECRET",
 ];
 
 function redact(value: unknown): unknown {

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, Badge } from "@/components/ui/form";
 import { requirePermission } from "@/lib/auth/guards";
 import { AssignReviewerForm, UnassignReviewerForm } from "@/components/admin/review-assign-form";
+import { reviewStatusLabel } from "@/lib/status-labels";
 
 export default async function Page() {
   await requirePermission("review:assign");
@@ -33,7 +34,7 @@ export default async function Page() {
       <div>
         <h1 className="display text-3xl">Phân công chấm</h1>
         <p className="mt-2 text-sm text-slate-600">
-          Gán tay reviewer cho từng đội/hồ sơ có bài Audition, hoặc bấm tự động cân bằng tải.
+          Gán người chấm cho từng đội/hồ sơ có bài vòng loại, hoặc tự động cân bằng tải.
         </p>
       </div>
       <Card>
@@ -67,7 +68,7 @@ export default async function Page() {
               <p className="text-sm text-slate-600">{item.submission.currentVersion?.submissionTitle || item.submission.registration.code}</p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Badge>{item.status}</Badge>
+              <Badge>{reviewStatusLabel(item.status)}</Badge>
               {item.status !== "SUBMITTED" && item.status !== "LOCKED" ? (
                 <UnassignReviewerForm assignmentId={item.id} />
               ) : null}

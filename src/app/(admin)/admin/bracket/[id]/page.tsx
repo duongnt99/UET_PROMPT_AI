@@ -24,6 +24,7 @@ import {
 } from "@/components/admin/match-admin-forms";
 import { AdminDeleteForm } from "@/components/admin/delete-form";
 import { deleteMatchAction } from "@/server/actions/admin-delete-actions";
+import { matchStatusLabel, reviewStatusLabel, timerKindLabel, timerStatusLabel } from "@/lib/status-labels";
 
 const finalistInclude = {
   registration: {
@@ -67,7 +68,7 @@ function SideCard({
     return (
       <Card>
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
-        <p className="mt-2 text-slate-500">Chưa gán (TBD)</p>
+        <p className="mt-2 text-slate-500">Chưa gán</p>
       </Card>
     );
   }
@@ -181,7 +182,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     <div className="space-y-6">
       <p className="text-sm">
         <Link href="/admin/bracket" className="text-slate-600 underline">
-          ← Bracket
+          ← Bảng đấu
         </Link>
         {" · "}
         <Link href="/admin/scoring" className="text-slate-600 underline">
@@ -193,7 +194,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
           {match.round.displayName} · {match.code}
         </h1>
         <Badge tone={match.status === "SCORING" ? "gold" : match.status === "COMPLETED" ? "green" : match.status === "CANCELLED" ? "red" : "slate"}>
-          {match.status}
+          {matchStatusLabel(match.status)}
         </Badge>
         {isCurrent ? <Badge tone="blue">Trận hiện tại</Badge> : null}
         {match.winner ? <Badge tone="green">Thắng: {match.winner.displayName}</Badge> : null}
@@ -270,7 +271,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                 return (
                   <tr key={assignment.id} className="border-b border-slate-100 align-top">
                     <td className="py-2 pr-3">{assignment.judge.name || assignment.judge.email}</td>
-                    <td className="py-2 pr-3">{assignment.status}</td>
+                    <td className="py-2 pr-3">{reviewStatusLabel(assignment.status)}</td>
                     <td className="py-2 pr-3">
                       {scoreA ? formatScoreDisplay(scoreA.totalNormalized.toString()) : "—"}
                       {scoreA?.overallComment ? (
@@ -322,16 +323,16 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       </Card>
 
       <Card>
-        <h2 className="font-semibold">Timer</h2>
+        <h2 className="font-semibold">Đồng hồ thi đấu</h2>
         {match.timers.length === 0 ? (
-          <p className="mt-2 text-sm text-slate-600">Chưa có timer. Đổi trạng thái sang READY/SCORING để tạo.</p>
+          <p className="mt-2 text-sm text-slate-600">Chưa có đồng hồ. Chuyển trận sang “Sẵn sàng” hoặc “Đang chấm điểm” để tạo.</p>
         ) : (
           <div className="mt-3 space-y-3">
             {match.timers.map((timer) => (
               <div key={timer.id} className="rounded-xl border p-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="font-medium">
-                    {timer.kind} · {formatTimerClock(
+                    {timerKindLabel(timer.kind)} · {formatTimerClock(
                       remainingTimerSeconds({
                         now,
                         status: timer.status,
@@ -342,7 +343,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                         accumulatedPausedMs: timer.accumulatedPausedMs,
                       }),
                     )}{" "}
-                    <Badge>{timer.status}</Badge>
+                    <Badge>{timerStatusLabel(timer.status)}</Badge>
                   </p>
                   {canStage ? <MatchTimerForm matchId={match.id} kind={timer.kind} /> : null}
                 </div>
@@ -388,7 +389,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             <Card>
               <h2 className="font-semibold">Dừng trận</h2>
               <p className="mt-1 text-sm text-slate-600">
-                Chuyển CANCELLED, tạm dừng timer, gỡ khỏi sân khấu nếu đây là trận hiện tại. Điểm đã nộp được giữ.
+                Hủy trận, tạm dừng đồng hồ và gỡ khỏi sân khấu nếu đây là trận hiện tại. Điểm đã nộp được giữ.
               </p>
               <div className="mt-3">
                 <StopMatchForm matchId={match.id} />
@@ -398,7 +399,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
           <Card>
             <h2 className="font-semibold">Công bố thắng cuộc</h2>
             <p className="mt-1 text-sm text-slate-600">
-              Trận → COMPLETED. Nếu có trận tiếp theo, đội thắng được đẩy vào slot đã cấu hình.
+              Kết thúc trận. Nếu có trận tiếp theo, đội thắng được đưa vào vị trí đã cấu hình.
             </p>
             <div className="mt-3">
               <AdvanceWinnerForm
@@ -451,7 +452,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 
       {match.twists.length ? (
         <Card>
-          <h2 className="font-semibold">Twist</h2>
+          <h2 className="font-semibold">Yêu cầu bất ngờ trên sân khấu</h2>
           <ul className="mt-2 text-sm">
             {match.twists.map((twist) => (
               <li key={twist.id}>

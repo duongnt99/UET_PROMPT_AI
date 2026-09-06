@@ -1,8 +1,9 @@
 import { getProductionCompetition } from "@/server/services/competition-service";
 import { prisma } from "@/lib/db/prisma";
-import { Badge, Card } from "@/components/ui/form";
+import { Card } from "@/components/ui/form";
+import { TournamentBracket, type PublicBracketData } from "@/components/live/tournament-bracket";
 import type { Metadata } from "next";
-export const metadata: Metadata = { title: "Scoreboard" };
+export const metadata: Metadata = { title: "Bảng đấu trực tiếp" };
 export const dynamic = "force-dynamic";
 
 export default async function Page() {
@@ -10,35 +11,37 @@ export default async function Page() {
   if (!competition?.settings.publicScoreboardEnabled) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-12">
-        <h1 className="display text-4xl">Scoreboard</h1>
+        <h1 className="display text-4xl">Bảng đấu trực tiếp</h1>
         <Card className="mt-6">Bảng điểm chưa được mở công khai.</Card>
       </div>
     );
   }
-  const matches = await prisma.match.findMany({
-    where: { competitionId: competition.id },
-    include: { competitorA: true, competitorB: true, round: true },
-    orderBy: { code: "asc" },
+  const rounds = await prisma.finalRound.findMany({
+    where: { competitionId: competition.id, matches: { some: { publicStatus: { not: "ARCHIVED" } } } },
+    include: { matches: { where: { publicStatus: { not: "ARCHIVED" } }, include: { competitorA: true, competitorB: true, winner: true }, orderBy: { code: "asc" } } },
+    orderBy: { order: "asc" },
   });
+  const initialData: PublicBracketData = {
+    enabled: true,
+    updatedAt: new Date().toISOString(),
+    rounds: rounds.map((round) => ({
+      id: round.id,
+      name: round.displayName,
+      matches: round.matches.map((match) => ({
+        id: match.id,
+        code: match.code,
+        status: match.status,
+        competitorA: match.competitorA?.displayName ?? null,
+        competitorB: match.competitorB?.displayName ?? null,
+        winner: match.winner?.displayName ?? null,
+      })),
+    })),
+  };
   return (
-    <div className="mx-auto max-w-5xl px-4 py-12">
-      <h1 className="display text-4xl">Scoreboard</h1>
-      <div className="mt-8 space-y-3">
-        {matches.length === 0 ? <p>Chưa có trận đấu.</p> : null}
-        {matches.map((match) => (
-          <Card key={match.id} className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-xs text-slate-500">
-                {match.round.displayName} · {match.code}
-              </p>
-              <p className="font-semibold">
-                {match.competitorA?.displayName ?? "TBD"} vs {match.competitorB?.displayName ?? "TBD"}
-              </p>
-            </div>
-            <Badge>{match.status}</Badge>
-          </Card>
-        ))}
-      </div>
+    <div className="mx-auto max-w-7xl px-4 py-12">
+      <h1 className="display text-4xl">Bảng đấu trực tiếp</h1>
+      <p className="mt-2 text-slate-600">Theo dõi hành trình từ tứ kết đến đội vô địch. Kết quả tự động hiện khi Ban Tổ chức chốt đội thắng.</p>
+      <div className="mt-8"><TournamentBracket initialData={initialData} /></div>
     </div>
   );
 }

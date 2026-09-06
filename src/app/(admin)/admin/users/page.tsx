@@ -4,6 +4,8 @@ import { requirePermission } from "@/lib/auth/guards";
 import { AdminDeleteForm } from "@/components/admin/delete-form";
 import { disableUserAction } from "@/server/actions/admin-delete-actions";
 import { hardDeleteUserAction } from "@/server/actions/admin-staff-actions";
+import { AccountPasswordResetForm } from "@/components/admin/account-password-reset-form";
+import { accountStatusLabel } from "@/lib/status-labels";
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   await requirePermission("users:manage");
@@ -54,14 +56,15 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
                     <Badge key={role}>{role}</Badge>
                   ))}
                   <Badge tone={user.deletedAt || user.status === "DISABLED" ? "red" : "slate"}>
-                    {user.deletedAt ? "ĐÃ XÓA MỀM" : user.status}
+                    {user.deletedAt ? "Đã xóa" : accountStatusLabel(user.status)}
                   </Badge>
                 </div>
               </div>
               {protectedAccount ? (
-                <p className="text-xs text-slate-500">Không xóa SUPER_ADMIN.</p>
+                <p className="text-xs text-slate-500">Không thể xóa tài khoản quản trị viên cấp cao.</p>
               ) : (
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 md:grid-cols-3">
+                  <AccountPasswordResetForm userId={user.id} />
                   <AdminDeleteForm
                     idPrefix={`purge-${user.id}`}
                     action={hardDeleteUserAction}

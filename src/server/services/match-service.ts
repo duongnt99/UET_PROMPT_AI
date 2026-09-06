@@ -15,7 +15,82 @@ import { assertTransition, MATCH_TRANSITIONS } from "@/server/domain/status-tran
 export async function validateBracket(competitionId: string) {
   const matches = await prisma.match.findMany({ where: { competitionId } });
   const cycle = detectBracketCycle(matches.map((m) => ({ id: m.id, nextMatchId: m.nextMatchId })));
-  if (cycle) throw new Error(`Bracket contains a cycle: ${cycle.join(" -> ")}`);
+  if (cycle) throw new Error(`Liên kết bảng đấu tạo thành vòng lặp: ${cycle.join(" → ")}`);
+}
+
+export async function createEightTeamBracket(params: {
+  actorUserId: string;
+  competitionId: string;
+  reason: string;
+}) {
+  const reason = params.reason.trim();
+  if (reason.length < 3) throw new Error("Cần ghi lý do khi khởi tạo bảng đấu.");
+  const existingCount = await prisma.match.count({ where: { competitionId: params.competitionId } });
+  if (existingCount > 0) {
+    throw new Error("Cuộc thi đã có trận đấu. Không thể khởi tạo chồng lên bảng hiện tại.");
+  }
+  const finalists = await prisma.finalist.findMany({
+    where: { competitionId: params.competitionId, registration: { status: "SELECTED" } },
+    orderBy: [{ seed: "asc" }, { createdAt: "asc" }],
+  });
+  if (finalists.length !== 8) {
+    throw new Error(`Cần đúng 8 đội đã được chọn vào chung kết; hiện có ${finalists.length}.`);
+  }
+
+  const createdIds = await prisma.$transaction(async (tx) => {
+    const quarter = await tx.finalRound.upsert({
+      where: { competitionId_order: { competitionId: params.competitionId, order: 1 } },
+      create: { competitionId: params.competitionId, name: "quarter-final", displayName: "Tứ kết", order: 1, status: "SCHEDULED" },
+      update: { name: "quarter-final", displayName: "Tứ kết", status: "SCHEDULED" },
+    });
+    const semi = await tx.finalRound.upsert({
+      where: { competitionId_order: { competitionId: params.competitionId, order: 2 } },
+      create: { competitionId: params.competitionId, name: "semi-final", displayName: "Bán kết", order: 2, status: "DRAFT" },
+      update: { name: "semi-final", displayName: "Bán kết", status: "DRAFT" },
+    });
+    const finale = await tx.finalRound.upsert({
+      where: { competitionId_order: { competitionId: params.competitionId, order: 3 } },
+      create: { competitionId: params.competitionId, name: "final", displayName: "Chung kết", order: 3, status: "DRAFT" },
+      update: { name: "final", displayName: "Chung kết", status: "DRAFT" },
+    });
+    const finalMatch = await tx.match.create({
+      data: { competitionId: params.competitionId, roundId: finale.id, code: "CK", status: "DRAFT", publicStatus: "PUBLISHED" },
+    });
+    const sf1 = await tx.match.create({
+      data: { competitionId: params.competitionId, roundId: semi.id, code: "BK1", status: "DRAFT", publicStatus: "PUBLISHED", nextMatchId: finalMatch.id, nextSlot: "A" },
+    });
+    const sf2 = await tx.match.create({
+      data: { competitionId: params.competitionId, roundId: semi.id, code: "BK2", status: "DRAFT", publicStatus: "PUBLISHED", nextMatchId: finalMatch.id, nextSlot: "B" },
+    });
+    const pairs = [[0, 7], [3, 4], [1, 6], [2, 5]] as const;
+    const quarterMatches = [];
+    for (const [index, pair] of pairs.entries()) {
+      quarterMatches.push(await tx.match.create({
+        data: {
+          competitionId: params.competitionId,
+          roundId: quarter.id,
+          code: `TK${index + 1}`,
+          status: "SCHEDULED",
+          publicStatus: "PUBLISHED",
+          competitorAId: finalists[pair[0]]!.id,
+          competitorBId: finalists[pair[1]]!.id,
+          nextMatchId: index < 2 ? sf1.id : sf2.id,
+          nextSlot: index % 2 === 0 ? "A" : "B",
+        },
+      }));
+    }
+    return [finalMatch.id, sf1.id, sf2.id, ...quarterMatches.map((match) => match.id)];
+  });
+  await writeAuditLog({
+    actorUserId: params.actorUserId,
+    competitionId: params.competitionId,
+    action: "bracket.create_eight_team",
+    entityType: "Competition",
+    entityId: params.competitionId,
+    reason,
+    after: { matchIds: createdIds },
+  });
+  return { matchCount: createdIds.length };
 }
 
 export async function advanceWinner(params: {
@@ -28,7 +103,7 @@ export async function advanceWinner(params: {
   await prisma.$transaction(async (tx) => {
     const match = await tx.match.findUniqueOrThrow({ where: { id: params.matchId } });
     if (match.version !== params.expectedVersion) {
-      throw new Error("Match was updated by another operator. Reload and retry.");
+      throw new Error("Trận vừa được một quản trị viên khác cập nhật. Hãy tải lại trang và thử lại.");
     }
     const advancement = buildWinnerAdvancement({
       winnerId: params.winnerId,
@@ -75,7 +150,7 @@ export async function controlTimer(params: {
   const timer = await prisma.timerSession.findUnique({
     where: { matchId_kind: { matchId: params.matchId, kind: params.kind } },
   });
-  if (!timer) throw new Error("Timer session missing");
+  if (!timer) throw new Error("Không tìm thấy đồng hồ của phần thi này.");
   const now = new Date();
   if (params.action === "start") {
     await prisma.timerSession.update({
@@ -364,17 +439,17 @@ export async function createAndOpenScoringMatch(params: {
     prisma.finalist.findUnique({ where: { id: params.competitorAId }, include: { registration: true } }),
     prisma.finalist.findUnique({ where: { id: params.competitorBId }, include: { registration: true } }),
   ]);
-  if (!competitorA || !competitorB) throw new Error("Không tìm thấy finalist.");
+  if (!competitorA || !competitorB) throw new Error("Không tìm thấy đội vào chung kết.");
   if (competitorA.competitionId !== competitorB.competitionId) {
-    throw new Error("Hai finalist không thuộc cùng một cuộc thi.");
+    throw new Error("Hai đội không thuộc cùng một cuộc thi.");
   }
   if (competitorA.registration.status !== "SELECTED" || competitorB.registration.status !== "SELECTED") {
-    throw new Error("Chỉ ghép trận được với finalist đang ở trạng thái SELECTED.");
+    throw new Error("Chỉ ghép trận được với đội đã được chọn vào chung kết.");
   }
 
   const competition = await prisma.competition.findUniqueOrThrow({ where: { id: competitorA.competitionId } });
   const settings = parseCompetitionSettings(competition.settings);
-  if (settings.bracketLocked) throw new Error("Bracket đang khóa. SUPER_ADMIN cần mở khóa trước khi tạo trận mới.");
+  if (settings.bracketLocked) throw new Error("Bảng đấu đang khóa. Quản trị viên cấp cao cần mở khóa trước khi tạo trận mới.");
 
   const busy = await prisma.match.findMany({
     where: {

@@ -4,9 +4,9 @@ import { Card } from "@/components/ui/form";
 
 export default async function Page() {
   const competition = await getProductionCompetition();
-  const [users, verified, registrations, submissions] = await Promise.all([
+  const [users, activeUsers, registrations, submissions] = await Promise.all([
     prisma.user.count(),
-    prisma.user.count({ where: { emailVerifiedAt: { not: null } } }),
+    prisma.user.count({ where: { status: "ACTIVE", deletedAt: null } }),
     prisma.registration.groupBy({ by: ["status"], _count: true }),
     prisma.submission.groupBy({ by: ["status"], _count: true }),
   ]);
@@ -16,7 +16,7 @@ export default async function Page() {
       <p className="mt-1 text-sm text-slate-600">{competition?.name} {competition?.isRehearsal ? "(Rehearsal)" : ""}</p>
       <div className="mt-6 grid gap-4 md:grid-cols-4">
         <Card>Tài khoản: {users}</Card>
-        <Card>Đã xác minh email: {verified}</Card>
+        <Card>Tài khoản hoạt động: {activeUsers}</Card>
         <Card>Hồ sơ: {registrations.reduce((s, i) => s + i._count, 0)}</Card>
         <Card>Bài nộp: {submissions.reduce((s, i) => s + i._count, 0)}</Card>
       </div>

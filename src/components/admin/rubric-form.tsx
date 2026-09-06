@@ -88,7 +88,14 @@ export function RubricEditorForm({
   return (
     <form action={action} className="space-y-4">
       {rubric ? <input type="hidden" name="id" value={rubric.id} /> : null}
-      <input type="hidden" name="criteriaJson" value={JSON.stringify(rows.map(({ key: _key, ...item }) => item))} />
+      <input
+        type="hidden"
+        name="criteriaJson"
+        value={JSON.stringify(rows.map(({ key, ...item }) => {
+          void key;
+          return item;
+        }))}
+      />
       <div className="grid gap-3 md:grid-cols-2">
         <div>
           <Label htmlFor="name">Tên rubric</Label>

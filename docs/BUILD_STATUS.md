@@ -6,7 +6,7 @@ Repository ban đầu chỉ có kế hoạch tổ chức (`Ke_hoach_to_chuc_Prom
 
 - [x] Project setup (pnpm, Next.js, Tailwind, TypeScript)
 - [x] Database Prisma + PostgreSQL
-- [x] Authentication email/password + verify + reset
+- [x] Authentication email/password; tài khoản hoạt động ngay, không xác minh email
 - [x] Public landing
 - [x] Competition Settings
 - [x] Participant profile
@@ -17,7 +17,7 @@ Repository ban đầu chỉ có kế hoạch tổ chức (`Ke_hoach_to_chuc_Prom
 - [x] Participant dashboard
 - [x] Admin registrations/submissions
 - [x] CSV export
-- [x] Email confirmation (outbox + Mailpit)
+- [x] Thông báo nội bộ cho lời mời đội, biên nhận và kết quả
 - [x] Deadline enforcement
 - [x] Audit cơ bản
 - [x] Backup/restore scripts

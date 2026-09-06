@@ -1,36 +1,24 @@
 "use server";
 
-import { z } from "zod";
 import { redirect } from "next/navigation";
 import { auth, signIn, signOut } from "@/lib/auth";
-import {
-  registerAccount,
-  requestPasswordReset,
-  resetPassword,
-  verifyEmailToken,
-} from "@/server/services/auth-service";
-import { processEmailOutbox } from "@/lib/email";
+import { registerAccount } from "@/server/services/auth-service";
 import { resolvePostLoginPath } from "@/server/domain/permissions";
 import { normalizePasswordInput } from "@/lib/auth/password";
 import { normalizeEmail } from "@/lib/utils";
 import { AuthError } from "next-auth";
-
-const registerSchema = z.object({
-  fullName: z.string().trim().min(2),
-  email: z.string().transform(normalizeEmail).pipe(z.string().email()),
-  password: z.string().transform(normalizePasswordInput).pipe(z.string().min(10)),
-});
+import { registrationCredentialsSchema } from "@/server/domain/auth-registration";
 
 export async function registerAction(formData: FormData) {
-  const parsed = registerSchema.safeParse({
-    fullName: formData.get("fullName"),
-    email: formData.get("email"),
-    password: formData.get("password"),
+  const parsed = registrationCredentialsSchema.safeParse({
+    email: String(formData.get("email") ?? ""),
+    password: String(formData.get("password") ?? ""),
+    confirmPassword: String(formData.get("confirmPassword") ?? ""),
   });
-  if (!parsed.success) return { ok: false, message: "Dữ liệu không hợp lệ." };
-  const result = await registerAccount(parsed.data);
-  if (result.ok) void processEmailOutbox();
-  return result;
+  if (!parsed.success) {
+    return { ok: false, message: parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ." };
+  }
+  return registerAccount({ email: parsed.data.email, password: parsed.data.password });
 }
 
 export async function loginAction(formData: FormData) {
@@ -55,24 +43,4 @@ export async function loginAction(formData: FormData) {
 
 export async function logoutAction() {
   await signOut({ redirectTo: "/" });
-}
-
-export async function forgotPasswordAction(formData: FormData) {
-  const email = normalizeEmail(String(formData.get("email") ?? ""));
-  await requestPasswordReset(email);
-  void processEmailOutbox();
-  return {
-    ok: true,
-    message: "Nếu email tồn tại trong hệ thống, chúng tôi đã gửi hướng dẫn đặt lại mật khẩu.",
-  };
-}
-
-export async function resetPasswordAction(formData: FormData) {
-  const token = String(formData.get("token") ?? "");
-  const password = normalizePasswordInput(String(formData.get("password") ?? ""));
-  return resetPassword(token, password);
-}
-
-export async function verifyEmailAction(token: string) {
-  return verifyEmailToken(token);
 }

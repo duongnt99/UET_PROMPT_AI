@@ -5,7 +5,6 @@
 - Node 20.9+
 - PostgreSQL 16
 - S3-compatible bucket
-- SMTP (hoặc Resend qua SMTP)
 
 ## Steps
 
@@ -15,12 +14,11 @@
 4. `pnpm db:migrate:deploy` — **có kiểm soát**, chạy trong cửa sổ bảo trì, backup trước.
 5. **Không** chạy `pnpm db:seed` trên production.
 6. `pnpm build && pnpm start`
-7. Cron mỗi phút: `POST /api/cron/email` header `Authorization: Bearer $CRON_SECRET`
-8. Health: `GET /api/health`
+7. Health: `GET /api/health`
 
 ## Docker
 
-`Dockerfile` build standalone Next.js. Compose local chỉ hạ tầng (DB/MinIO/Mailpit); app chạy trên host cho DX, hoặc containerize khi deploy.
+`Dockerfile` build standalone Next.js. Compose local có DB/MinIO; app chạy trên host cho DX, hoặc containerize khi deploy.
 
 ## GitHub Actions
 

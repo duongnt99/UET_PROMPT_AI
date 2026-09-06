@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { loginAction, registerAction, forgotPasswordAction, resetPasswordAction } from "@/server/actions/auth-actions";
+import { loginAction, registerAction } from "@/server/actions/auth-actions";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Card } from "@/components/ui/form";
 import Link from "next/link";
@@ -19,15 +19,11 @@ export function RegisterForm() {
         className="mt-6 space-y-4"
         action={async (formData) => {
           const result = await registerAction(formData);
-          setMessage(result.ok ? "Đã tạo tài khoản. Kiểm tra email để xác minh." : result.message);
+          setMessage(result.ok ? "Đã tạo tài khoản. Bạn có thể đăng nhập ngay." : result.message);
         }}
       >
         <div>
-          <Label htmlFor="fullName">Họ và tên</Label>
-          <Input id="fullName" name="fullName" required className="mt-1" />
-        </div>
-        <div>
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">Tên đăng nhập (email)</Label>
           <Input
             id="email"
             name="email"
@@ -46,6 +42,18 @@ export function RegisterForm() {
           <Input
             id="password"
             name="password"
+            type="password"
+            minLength={10}
+            required
+            autoComplete="new-password"
+            className="mt-1"
+          />
+        </div>
+        <div>
+          <Label htmlFor="confirmPassword">Xác nhận mật khẩu</Label>
+          <Input
+            id="confirmPassword"
+            name="confirmPassword"
             type="password"
             minLength={10}
             required
@@ -108,72 +116,6 @@ export function LoginForm({ from = "" }: { from?: string }) {
       <p className="mt-4 text-sm">
         <Link href="/quen-mat-khau" className="underline">Quên mật khẩu</Link>
       </p>
-    </Card>
-  );
-}
-
-export function ForgotForm() {
-  const [message, setMessage] = useState<string | null>(null);
-  return (
-    <Card className="mx-auto max-w-md">
-      <h1 className="display text-2xl">Quên mật khẩu</h1>
-      <form
-        className="mt-6 space-y-4"
-        action={async (formData) => {
-          const result = await forgotPasswordAction(formData);
-          setMessage(result.message);
-        }}
-      >
-        <div>
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            required
-            autoComplete="email"
-            autoCapitalize="none"
-            autoCorrect="off"
-            spellCheck={false}
-            className="mt-1"
-            onBlur={trimOnBlur}
-          />
-        </div>
-        {message ? <p className="text-sm">{message}</p> : null}
-        <Button type="submit" className="w-full">Gửi hướng dẫn</Button>
-      </form>
-    </Card>
-  );
-}
-
-export function ResetForm({ token }: { token: string }) {
-  const [message, setMessage] = useState<string | null>(null);
-  return (
-    <Card className="mx-auto max-w-md">
-      <h1 className="display text-2xl">Đặt lại mật khẩu</h1>
-      <form
-        className="mt-6 space-y-4"
-        action={async (formData) => {
-          formData.set("token", token);
-          const result = await resetPasswordAction(formData);
-          setMessage(result.ok ? "Đã đổi mật khẩu. Hãy đăng nhập lại." : result.message ?? "Không thành công.");
-        }}
-      >
-        <div>
-          <Label htmlFor="password">Mật khẩu mới</Label>
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            minLength={10}
-            required
-            autoComplete="new-password"
-            className="mt-1"
-          />
-        </div>
-        {message ? <p className="text-sm">{message}</p> : null}
-        <Button type="submit" className="w-full">Cập nhật mật khẩu</Button>
-      </form>
     </Card>
   );
 }

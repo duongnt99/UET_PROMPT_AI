@@ -8,13 +8,11 @@ import {
 import { validateTeamSize } from "@/server/domain/team-rules";
 import { isDeadlinePassed } from "@/server/domain/deadlines";
 import { assertTransition, REGISTRATION_TRANSITIONS } from "@/server/domain/status-transitions";
-import { enqueueEmail } from "@/lib/email";
 import { writeAuditLog } from "@/lib/audit";
 import { generateCode, normalizeEmail } from "@/lib/utils";
 import { createRawToken, hashToken } from "@/lib/auth/password";
-import { getEnv } from "@/config/env";
-import { formatDateTime } from "@/lib/dates";
 import { upsertFinalistFromRegistration } from "@/server/services/finalist-service";
+import { notifyUser } from "@/lib/notifications";
 
 export async function getMyRegistration(userId: string, competitionId: string) {
   const seat = await prisma.registrationSeat.findUnique({
@@ -128,36 +126,104 @@ export async function inviteTeamMember(params: {
   if (!competition.settings.allowTeamInvitations) {
     throw new Error("Ban Tổ chức chưa cho phép mời thành viên.");
   }
+  const email = normalizeEmail(params.email);
+  const invitee = await prisma.user.findUnique({ where: { emailNormalized: email } });
+  if (!invitee || invitee.deletedAt || invitee.status !== "ACTIVE") {
+    throw new Error("Email này chưa có tài khoản đang hoạt động trong hệ thống.");
+  }
+  if (invitee.id === params.actorUserId) {
+    throw new Error("Bạn đã là nhóm trưởng của đội này.");
+  }
+  const occupiedSeat = await prisma.registrationSeat.findUnique({
+    where: { userId_competitionId: { userId: invitee.id, competitionId: competition.id } },
+  });
+  if (occupiedSeat) {
+    throw new Error("Tài khoản này đã thuộc một hồ sơ dự thi khác trong cùng cuộc thi.");
+  }
+  const pending = await prisma.teamInvitation.findFirst({
+    where: {
+      teamId: registration.team.id,
+      status: "PENDING",
+      OR: [
+        { inviteeId: invitee.id },
+        { inviteeId: null, email: { equals: email, mode: "insensitive" } },
+      ],
+    },
+  });
+  if (pending) {
+    if (!pending.inviteeId) {
+      await prisma.teamInvitation.update({ where: { id: pending.id }, data: { inviteeId: invitee.id } });
+    }
+    await notifyUser({
+      id: `team-invitation:${pending.id}`,
+      userId: invitee.id,
+      title: "Lời mời tham gia đội",
+      body: `Bạn được mời tham gia đội ${registration.team.teamName}.`,
+      href: "/dashboard/doi-thi",
+    });
+    return pending;
+  }
   const token = createRawToken();
   const invitation = await prisma.teamInvitation.create({
     data: {
       teamId: registration.team.id,
-      email: normalizeEmail(params.email),
+      email,
       tokenHash: hashToken(token),
       invitedById: params.actorUserId,
+      inviteeId: invitee.id,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     },
   });
-  await enqueueEmail({
-    toEmail: params.email,
-    templateCode: "team_invite",
-    payload: {
-      teamName: registration.team.teamName,
-      inviteUrl: `${getEnv().APP_URL}/loi-moi-doi?token=${token}`,
-    },
-    idempotencyKey: `team_invite:${invitation.id}`,
+  await notifyUser({
+    id: `team-invitation:${invitation.id}`,
+    userId: invitee.id,
+    title: "Lời mời tham gia đội",
+    body: `Bạn được mời tham gia đội ${registration.team.teamName}.`,
+    href: "/dashboard/doi-thi",
   });
   return invitation;
 }
 
-export async function acceptTeamInvitation(params: { userId: string; token: string }) {
-  const invitation = await prisma.teamInvitation.findUnique({
-    where: { tokenHash: hashToken(params.token) },
-    include: { team: { include: { registration: true } } },
+export async function getPendingTeamInvitations(userId: string) {
+  const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
+  return prisma.teamInvitation.findMany({
+    where: {
+      status: "PENDING",
+      expiresAt: { gt: new Date() },
+      OR: [
+        { inviteeId: userId },
+        { inviteeId: null, email: { equals: user.emailNormalized, mode: "insensitive" } },
+      ],
+    },
+    include: {
+      team: { include: { competition: true, registration: true } },
+      invitedBy: { select: { email: true, name: true } },
+    },
+    orderBy: { createdAt: "desc" },
   });
-  if (!invitation || invitation.status !== "PENDING" || invitation.expiresAt < new Date()) {
+}
+
+async function requireTeamInvitationForUser(userId: string, invitationId: string) {
+  const [user, invitation] = await Promise.all([
+    prisma.user.findUniqueOrThrow({ where: { id: userId } }),
+    prisma.teamInvitation.findUnique({
+      where: { id: invitationId },
+      include: { team: { include: { registration: true } } },
+    }),
+  ]);
+  if (
+    !invitation ||
+    invitation.status !== "PENDING" ||
+    invitation.expiresAt < new Date() ||
+    (invitation.inviteeId !== userId && normalizeEmail(invitation.email) !== user.emailNormalized)
+  ) {
     throw new Error("Lời mời không hợp lệ hoặc đã hết hạn.");
   }
+  return invitation;
+}
+
+export async function acceptTeamInvitation(params: { userId: string; invitationId: string }) {
+  const invitation = await requireTeamInvitationForUser(params.userId, params.invitationId);
   const competitionId = invitation.team.competitionId;
   const existing = await prisma.registrationSeat.findUnique({
     where: { userId_competitionId: { userId: params.userId, competitionId } },
@@ -187,7 +253,41 @@ export async function acceptTeamInvitation(params: { userId: string; token: stri
         },
       });
     }
+    await tx.notification.updateMany({
+      where: { id: `team-invitation:${invitation.id}`, userId: params.userId },
+      data: { readAt: new Date() },
+    });
   });
+  await notifyUser({
+    id: `team-invitation-response:${invitation.id}`,
+    userId: invitation.invitedById,
+    title: "Lời mời đội đã được chấp nhận",
+    body: `Thành viên ${invitation.email} đã tham gia đội ${invitation.team.teamName}.`,
+    href: "/dashboard/doi-thi",
+  });
+  return { teamName: invitation.team.teamName };
+}
+
+export async function declineTeamInvitation(params: { userId: string; invitationId: string }) {
+  const invitation = await requireTeamInvitationForUser(params.userId, params.invitationId);
+  await prisma.$transaction([
+    prisma.teamInvitation.update({
+      where: { id: invitation.id },
+      data: { status: "DECLINED", inviteeId: params.userId },
+    }),
+    prisma.notification.updateMany({
+      where: { id: `team-invitation:${invitation.id}`, userId: params.userId },
+      data: { readAt: new Date() },
+    }),
+  ]);
+  await notifyUser({
+    id: `team-invitation-response:${invitation.id}`,
+    userId: invitation.invitedById,
+    title: "Lời mời đội đã bị từ chối",
+    body: `Tài khoản ${invitation.email} đã từ chối tham gia đội ${invitation.team.teamName}.`,
+    href: "/dashboard/doi-thi",
+  });
+  return { teamName: invitation.team.teamName };
 }
 
 export async function submitRegistration(params: {
@@ -259,7 +359,6 @@ export async function submitRegistration(params: {
       data: {
         status: "SUBMITTED",
         submittedAt,
-        confirmationEmailKey: registration.confirmationEmailKey ?? `reg:${registration.id}`,
         version: { increment: 1 },
         statusHistory: {
           create: { fromStatus: registration.status, toStatus: "SUBMITTED", actorUserId: params.userId },
@@ -288,17 +387,17 @@ export async function submitRegistration(params: {
         },
       ],
     });
-    if (!registration.confirmationEmailKey) {
-      await enqueueEmail({
-        toEmail: (await tx.user.findUniqueOrThrow({ where: { id: params.userId } })).email,
-        templateCode: "registration_confirm",
-        payload: {
-          code: updated.code,
-          submittedAt: formatDateTime(submittedAt),
-        },
-        idempotencyKey: `registration_confirm:${updated.id}`,
-      });
-    }
+    await tx.notification.upsert({
+      where: { id: `registration-submitted:${updated.id}` },
+      update: {},
+      create: {
+        id: `registration-submitted:${updated.id}`,
+        userId: params.userId,
+        title: "Đã nhận hồ sơ đăng ký",
+        body: `Hồ sơ ${updated.code} đã được nộp thành công.`,
+        href: "/dashboard/bien-nhan",
+      },
+    });
     await tx.idempotencyKey.create({
       data: {
         userId: params.userId,
@@ -346,12 +445,11 @@ export async function adminChangeRegistrationStatus(params: {
     },
   });
   if (params.toStatus === "NEEDS_UPDATE") {
-    const owner = await prisma.user.findUniqueOrThrow({ where: { id: registration.ownerUserId } });
-    await enqueueEmail({
-      toEmail: owner.email,
-      templateCode: "registration_update_request",
-      payload: { reason: params.reason },
-      idempotencyKey: `reg_update:${registration.id}:${Date.now()}`,
+    await notifyUser({
+      userId: registration.ownerUserId,
+      title: "Hồ sơ cần cập nhật",
+      body: `Ban Tổ chức yêu cầu cập nhật hồ sơ. Lý do: ${params.reason}`,
+      href: "/dashboard/dang-ky",
     });
   }
   await writeAuditLog({

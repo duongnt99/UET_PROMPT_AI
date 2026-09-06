@@ -6,10 +6,12 @@ import { Badge, Card } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import {
   LandingFinalRoundsForm,
+  LandingOverviewForm,
   TimelineItemForm,
 } from "@/components/admin/cms-forms";
 import { requirePermission } from "@/lib/auth/guards";
 import { getProductionCompetition } from "@/server/services/competition-service";
+import { contentStatusLabel } from "@/lib/status-labels";
 
 function tone(status: string) {
   if (status === "PUBLISHED") return "green" as const;
@@ -55,7 +57,14 @@ export default async function Page() {
         </Button>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-4">
+        <Card className="p-4">
+          <p className="font-semibold">Giới thiệu trang chủ</p>
+          <p className="mt-1 text-sm text-slate-600">Tiêu đề, mô tả, đối tượng và công cụ.</p>
+          <Link href="#gioi-thieu-trang-chu" className="mt-3 inline-block text-sm font-semibold text-blue-700 underline">
+            Chỉnh nội dung
+          </Link>
+        </Card>
         <Card className="p-4">
           <p className="font-semibold">Lịch trình</p>
           <p className="mt-1 text-sm text-slate-600">{timeline.length} mốc đang được quản lý.</p>
@@ -78,6 +87,18 @@ export default async function Page() {
           </Link>
         </Card>
       </div>
+
+      <section id="gioi-thieu-trang-chu" className="scroll-mt-24 space-y-4">
+        <div>
+          <h2 className="display text-2xl">Giới thiệu trên trang chủ</h2>
+          <p className="mt-1 text-sm text-slate-600">
+            Đây là các nội dung ở phần đầu trang và khối “Thông tin cuộc thi” mà người xem nhìn thấy đầu tiên.
+          </p>
+        </div>
+        {competition ? <Card><LandingOverviewForm settings={competition.settings} /></Card> : (
+          <Card><p className="text-sm text-red-700">Chưa có cuộc thi production để lưu nội dung.</p></Card>
+        )}
+      </section>
 
       <section id="lich-trinh" className="scroll-mt-24 space-y-4">
         <div>
@@ -107,7 +128,7 @@ export default async function Page() {
                   <span className="font-semibold">{item.title}</span>
                   <span className="ml-2 text-xs text-slate-500">Thứ tự {item.displayOrder}</span>
                 </span>
-                <Badge tone={tone(item.status)}>{item.status}</Badge>
+                <Badge tone={tone(item.status)}>{contentStatusLabel(item.status)}</Badge>
               </summary>
               <div className="border-t border-slate-200 p-5">
                 <TimelineItemForm
@@ -132,14 +153,14 @@ export default async function Page() {
         <div>
           <h2 className="display text-2xl">Vòng chung kết</h2>
           <p className="mt-1 text-sm text-slate-600">
-            Chỉnh tiêu đề và mô tả của The Sprint, The Pitch, The Verdict và On-stage Twist.
+            Chỉnh tiêu đề và mô tả của phần thi thực hành, thuyết trình, quyết định kết quả và yêu cầu bất ngờ.
           </p>
         </div>
         {competition ? (
           <Card>
             <LandingFinalRoundsForm settings={competition.settings} />
             <p className="mt-5 border-t border-slate-200 pt-4 text-sm text-slate-600">
-              Thời lượng thi và trạng thái bật/tắt Twist đã có ở{" "}
+              Thời lượng thi và trạng thái bật/tắt yêu cầu bất ngờ đã có ở{" "}
               <Link href="/admin/settings" className="font-semibold text-blue-700 underline">
                 Cài đặt cuộc thi
               </Link>
@@ -200,7 +221,7 @@ export default async function Page() {
                   <p className="font-semibold">{page.title}</p>
                   <p className="text-sm text-slate-600">/{page.slug}</p>
                 </div>
-                <Badge tone={tone(page.status)}>{page.status}</Badge>
+                <Badge tone={tone(page.status)}>{contentStatusLabel(page.status)}</Badge>
               </Card>
             </Link>
           ))}

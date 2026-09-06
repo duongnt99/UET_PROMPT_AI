@@ -6,6 +6,7 @@ import { Input, Label, Textarea } from "@/components/ui/form";
 import {
   saveAnnouncementAction,
   saveFaqAction,
+  saveLandingOverviewAction,
   saveLandingFinalRoundsAction,
   saveStaticPageAction,
   saveTimelineItemAction,
@@ -13,6 +14,65 @@ import {
 } from "@/server/actions/content-actions";
 
 const idle: ContentActionState = { ok: true, message: "" };
+
+type LandingOverviewSettings = {
+  competitionName: string;
+  landingHeroTitle: string;
+  landingHeroHighlight: string;
+  shortDescription: string;
+  fullDescription: string;
+  landingAudienceText: string;
+  landingToolsText: string;
+};
+
+export function LandingOverviewForm({ settings }: { settings: LandingOverviewSettings }) {
+  const [state, action, pending] = useActionState(saveLandingOverviewAction, idle);
+  return (
+    <form action={action} className="space-y-4">
+      <div>
+        <Label htmlFor="competitionName">Tên cuộc thi trong hệ thống</Label>
+        <Input id="competitionName" name="competitionName" required defaultValue={settings.competitionName} className="mt-1" />
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div>
+          <Label htmlFor="landingHeroTitle">Tiêu đề chính</Label>
+          <Input id="landingHeroTitle" name="landingHeroTitle" required defaultValue={settings.landingHeroTitle} className="mt-1" />
+        </div>
+        <div>
+          <Label htmlFor="landingHeroHighlight">Dòng tiêu đề màu xanh</Label>
+          <Input id="landingHeroHighlight" name="landingHeroHighlight" required defaultValue={settings.landingHeroHighlight} className="mt-1" />
+        </div>
+      </div>
+      <div>
+        <Label htmlFor="shortDescription">Mô tả ngắn dưới tiêu đề</Label>
+        <Textarea id="shortDescription" name="shortDescription" required defaultValue={settings.shortDescription} className="mt-1 min-h-24" />
+      </div>
+      <div>
+        <Label htmlFor="fullDescription">Đoạn “Thông tin cuộc thi”</Label>
+        <Textarea id="fullDescription" name="fullDescription" required defaultValue={settings.fullDescription} className="mt-1 min-h-44" />
+        <p className="mt-1 text-xs text-slate-500">
+          Nên viết 2–3 đoạn ngắn. Nhấn Enter hai lần để tách đoạn; trang chủ sẽ tự giữ khoảng cách và căn chữ dễ đọc.
+        </p>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div>
+          <Label htmlFor="landingAudienceText">Đối tượng</Label>
+          <Textarea id="landingAudienceText" name="landingAudienceText" required defaultValue={settings.landingAudienceText} className="mt-1" />
+        </div>
+        <div>
+          <Label htmlFor="landingToolsText">Công cụ</Label>
+          <Textarea id="landingToolsText" name="landingToolsText" required defaultValue={settings.landingToolsText} className="mt-1" />
+        </div>
+      </div>
+      <div>
+        <Label htmlFor="landing-overview-reason">Lý do thay đổi (tùy chọn)</Label>
+        <Input id="landing-overview-reason" name="reason" placeholder="Ví dụ: cập nhật thông tin theo kế hoạch tổ chức" className="mt-1" />
+      </div>
+      <Button type="submit" disabled={pending}>{pending ? "Đang lưu…" : "Lưu nội dung giới thiệu"}</Button>
+      <Feedback state={state} pending={pending} />
+    </form>
+  );
+}
 
 const STATUS_OPTIONS = [
   ["DRAFT", "Nháp — chưa hiện công khai"],
@@ -274,7 +334,7 @@ export function StaticPageForm({
         {page?.slug === "tieu-chi-cham" ? (
           <p className="mt-1 text-xs text-slate-500">
             Đoạn này hiện trên trang chủ (phần Tiêu chí chấm) và trang /tieu-chi-cham. Các thẻ trọng số
-            (40/30/30…) lấy từ menu <strong>Rubric</strong> đang kích hoạt, không lấy từ ô nội dung này.
+            (40/30/30…) lấy từ menu <strong>Bộ tiêu chí chấm</strong> đang kích hoạt, không lấy từ ô nội dung này.
           </p>
         ) : null}
       </div>

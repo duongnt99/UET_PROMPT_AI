@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requirePermission } from "@/lib/auth/guards";
+import { getProductionCompetition } from "@/server/services/competition-service";
+import { matchStatusLabel } from "@/lib/status-labels";
 import {
   assignMatchJudges,
   createAndOpenScoringMatch,
@@ -12,6 +14,7 @@ import {
   updateMatchPairing,
   advanceWinner,
   controlTimer,
+  createEightTeamBracket,
 } from "@/server/services/match-service";
 import {
   assignChallengeToMatch,
@@ -23,6 +26,27 @@ export type MatchSetupState = { ok: boolean; message: string };
 
 function fail(error: unknown): MatchSetupState {
   return { ok: false, message: error instanceof Error ? error.message : "Không thực hiện được." };
+}
+
+export async function createEightTeamBracketAction(
+  _prev: MatchSetupState,
+  formData: FormData,
+): Promise<MatchSetupState> {
+  const user = await requirePermission("bracket:manage");
+  const competition = await getProductionCompetition();
+  if (!competition) return { ok: false, message: "Chưa có cuộc thi chính thức." };
+  try {
+    const result = await createEightTeamBracket({
+      actorUserId: user.id,
+      competitionId: competition.id,
+      reason: String(formData.get("reason") ?? ""),
+    });
+    revalidatePath("/admin/bracket");
+    revalidatePath("/scoreboard");
+    return { ok: true, message: `Đã tạo bảng đấu loại trực tiếp gồm ${result.matchCount} trận.` };
+  } catch (error) {
+    return fail(error);
+  }
 }
 
 function revalidateMatch(matchId: string) {
@@ -101,7 +125,7 @@ export async function stopMatchAction(
       reason: String(formData.get("reason") ?? ""),
     });
     revalidateMatch(matchId);
-    return { ok: true, message: `Đã dừng trận ${result.code} (CANCELLED). Timer tạm dừng.` };
+    return { ok: true, message: `Đã hủy trận ${result.code}. Đồng hồ đã tạm dừng.` };
   } catch (error) {
     return fail(error);
   }
@@ -121,7 +145,7 @@ export async function setMatchStatusAction(
       reason: String(formData.get("reason") ?? ""),
     });
     revalidateMatch(matchId);
-    return { ok: true, message: `Trận ${result.code} → ${result.status}.` };
+    return { ok: true, message: `Trận ${result.code} → ${matchStatusLabel(result.status)}.` };
   } catch (error) {
     return fail(error);
   }
@@ -181,7 +205,7 @@ export async function advanceMatchWinnerAction(
       expectedVersion: Number(formData.get("version") ?? 1),
     });
     revalidateMatch(matchId);
-    return { ok: true, message: "Đã công bố thắng cuộc. Trận chuyển COMPLETED." };
+    return { ok: true, message: "Đã công bố đội thắng và kết thúc trận." };
   } catch (error) {
     return fail(error);
   }
@@ -201,7 +225,7 @@ export async function matchTimerAction(
       action: String(formData.get("action")) as "start" | "pause" | "resume",
     });
     revalidateMatch(matchId);
-    return { ok: true, message: "Đã cập nhật timer." };
+    return { ok: true, message: "Đã cập nhật đồng hồ." };
   } catch (error) {
     return fail(error);
   }

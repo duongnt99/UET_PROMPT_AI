@@ -4,9 +4,7 @@ import { getMyRegistration } from "@/server/services/registration-service";
 import { isDeadlinePassed } from "@/server/domain/deadlines";
 import { validateSubmissionRequiredFields } from "@/server/domain/submission-rules";
 import { assertTransition, SUBMISSION_TRANSITIONS } from "@/server/domain/status-transitions";
-import { enqueueEmail } from "@/lib/email";
 import { writeAuditLog } from "@/lib/audit";
-import { formatDateTime } from "@/lib/dates";
 
 const draftDefaults = {
   submissionTitle: "",
@@ -141,7 +139,6 @@ export async function submitAudition(params: { userId: string; idempotencyKey: s
       data: {
         status: "SUBMITTED",
         submittedAt,
-        confirmationEmailKey: submission.confirmationEmailKey ?? `sub:${submission.id}`,
         version: { increment: 1 },
       },
     });
@@ -153,13 +150,17 @@ export async function submitAudition(params: { userId: string; idempotencyKey: s
         responseJson: { ok: true, id: submission.id },
       },
     });
-  });
-  const owner = await prisma.user.findUniqueOrThrow({ where: { id: params.userId } });
-  await enqueueEmail({
-    toEmail: owner.email,
-    templateCode: "submission_confirm",
-    payload: { submittedAt: formatDateTime(submittedAt) },
-    idempotencyKey: `submission_confirm:${submission.id}`,
+    await tx.notification.upsert({
+      where: { id: `submission-submitted:${submission.id}` },
+      update: {},
+      create: {
+        id: `submission-submitted:${submission.id}`,
+        userId: params.userId,
+        title: "Đã nhận bài Audition",
+        body: "Bài Audition của bạn đã được nộp thành công.",
+        href: "/dashboard/bien-nhan",
+      },
+    });
   });
   await writeAuditLog({
     actorUserId: params.userId,

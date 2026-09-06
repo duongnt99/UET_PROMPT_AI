@@ -18,4 +18,4 @@ Match: DRAFT → SCHEDULED → CHECK_IN → READY → SPRINT → PITCH → SCORI
 - `Registration.code` unique
 - `ReviewAssignment (submissionVersionId, reviewerId)`
 - `JudgeScore (assignmentId, competitorId)`
-- Email outbox `idempotencyKey`
+- Notification nội bộ gắn với `userId`; lời mời đội gắn trực tiếp với `inviteeId`

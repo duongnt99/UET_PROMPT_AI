@@ -135,6 +135,38 @@ export async function saveLandingFinalRoundsAction(
   }
 }
 
+export async function saveLandingOverviewAction(
+  _prev: ContentActionState,
+  formData: FormData,
+): Promise<ContentActionState> {
+  const user = await requirePermission("content:manage");
+  try {
+    const competition = await getProductionCompetition();
+    if (!competition) throw new Error("Chưa có cuộc thi production.");
+
+    await updateCompetitionSettings({
+      competitionId: competition.id,
+      actorUserId: user.id,
+      settings: {
+        ...competition.settings,
+        competitionName: requiredText(formData, "competitionName", "tên cuộc thi"),
+        landingHeroTitle: requiredText(formData, "landingHeroTitle", "dòng tiêu đề chính"),
+        landingHeroHighlight: requiredText(formData, "landingHeroHighlight", "dòng tiêu đề nổi bật"),
+        shortDescription: requiredText(formData, "shortDescription", "mô tả ngắn"),
+        fullDescription: requiredText(formData, "fullDescription", "nội dung giới thiệu cuộc thi"),
+        landingAudienceText: requiredText(formData, "landingAudienceText", "đối tượng dự thi"),
+        landingToolsText: requiredText(formData, "landingToolsText", "công cụ sử dụng"),
+      },
+      reason: String(formData.get("reason") ?? "").trim() || "Cập nhật phần giới thiệu trang chủ",
+    });
+    revalidateSite();
+    revalidatePath("/admin/settings");
+    return { ok: true, message: "Đã cập nhật phần đầu và thông tin cuộc thi trên trang chủ." };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
 export async function saveStaticPageAction(
   _prev: ContentActionState,
   formData: FormData,

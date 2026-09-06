@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db/prisma";
 import { pagination } from "@/lib/utils";
 import { Badge, Card } from "@/components/ui/form";
 import Link from "next/link";
+import { registrationStatusLabel } from "@/lib/status-labels";
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ q?: string; page?: string }> }) {
   const { q, page } = await searchParams;
@@ -45,7 +46,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
                   {item.owner.profile?.fullName} · {item.owner.email} · {item.team?.teamName ?? "Cá nhân"}
                 </p>
               </div>
-              <Badge>{item.status}</Badge>
+              <Badge>{registrationStatusLabel(item.status)}</Badge>
             </Card>
           </Link>
         ))}

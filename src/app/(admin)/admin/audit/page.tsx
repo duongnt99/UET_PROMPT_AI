@@ -8,7 +8,7 @@ export default async function Page() {
   const items = await prisma.auditLog.findMany({ orderBy: { createdAt: "desc" }, take: 100 });
   return (
     <div>
-      <h1 className="display text-3xl">Audit log</h1>
+      <h1 className="display text-3xl">Nhật ký hệ thống</h1>
       <div className="mt-4 space-y-2">
         {items.map((item) => (
           <Card key={item.id}>

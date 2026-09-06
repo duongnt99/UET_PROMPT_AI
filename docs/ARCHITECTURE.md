@@ -8,12 +8,12 @@ Modular monolith, Next.js App Router.
 - `src/server/actions` — Server Actions (auth + permission + zod)
 - `src/server/services` — business use-cases
 - `src/server/domain` — pure rules (scoring, deadlines, RBAC)
-- `src/lib` — auth, db, email, storage, dates, logging
+- `src/lib` — auth, db, notification, storage, dates, logging
 - `prisma` — schema, migrations, seed
 
 ## Auth
 
-Auth.js v5 Credentials + JWT. Password bcrypt. Tokens SHA-256 hashed. Proxy (`src/proxy.ts`) gates private prefixes; layouts re-check roles. SUPER_ADMIN bypasses permission map.
+Auth.js v5 Credentials + JWT. Password bcrypt. Tài khoản người tham gia được kích hoạt ngay sau khi đăng ký bằng email và mật khẩu, không có bước xác minh email. Proxy (`src/proxy.ts`) gates private prefixes; layouts re-check roles. SUPER_ADMIN bypasses permission map.
 
 ## Settings
 
@@ -23,9 +23,9 @@ Auth.js v5 Credentials + JWT. Password bcrypt. Tokens SHA-256 hashed. Proxy (`sr
 
 S3-compatible (MinIO local). Private objects, signed GET, MIME/size/executable checks.
 
-## Email
+## Notification
 
-Outbox table + `processEmailOutbox`. Not sent inside a failing business transaction as the only commit path; idempotency keys prevent duplicates.
+Các sự kiện nghiệp vụ được ghi vào `Notification` và hiển thị trong dashboard. Lời mời đội chỉ gửi tới tài khoản đang hoạt động, được chấp nhận hoặc từ chối trực tiếp trong hệ thống.
 
 ## Scoring
 
@@ -37,4 +37,4 @@ Append-only `AuditLog`. Secrets redacted by logger.
 
 ## Deployment
 
-Single web process + PostgreSQL + object storage + SMTP. Cron hits `/api/cron/email` with `CRON_SECRET`.
+Single web process + PostgreSQL + object storage. Không cần SMTP, nhà cung cấp email hay email cron.

@@ -3,7 +3,7 @@
 1. Checklist mở hệ thống: DNS, TLS, `APP_URL`, `AUTH_SECRET`, health 200.
 2. Database: `GET /api/health` database=ok; kết nối Prisma.
 3. Object storage: health storage=ok; thử upload 1 file PDF.
-4. Email: gửi test qua outbox, xem Mailpit/SMTP production.
+4. Thông báo: tạo thử một thông báo/lời mời đội và kiểm tra tại `/dashboard/thong-bao`.
 5. Tài khoản judge: đăng nhập 3 judge seed/production, mở `/judge`.
 6. Stage/overlay: `/stage/current-match`, OBS browser source `/overlay/current-match`.
 7. Backup: `bash scripts/backup-db.sh` + storage mirror.

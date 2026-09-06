@@ -93,6 +93,38 @@ export async function adminSetUserPassword(params: {
   return { ok: true as const };
 }
 
+export async function adminResetUserPassword(params: {
+  actorUserId: string;
+  userId: string;
+  password: string;
+  reason: string;
+}) {
+  const reason = params.reason.trim();
+  if (reason.length < 3) throw new Error("Cần ghi lý do để lưu audit.");
+  const password = normalizePasswordInput(params.password);
+  if (password.length < 10) throw new Error("Mật khẩu mới cần tối thiểu 10 ký tự.");
+  await assertCanEditTarget(params.actorUserId, params.userId);
+  const target = await prisma.user.findUniqueOrThrow({ where: { id: params.userId } });
+  if (target.deletedAt) throw new Error("Không thể đặt mật khẩu cho tài khoản đã xóa.");
+  await prisma.user.update({
+    where: { id: params.userId },
+    data: {
+      passwordHash: await hashPassword(password),
+      failedLoginCount: 0,
+      lockedUntil: null,
+    },
+  });
+  await writeAuditLog({
+    actorUserId: params.actorUserId,
+    action: "user.admin_reset_password",
+    entityType: "User",
+    entityId: params.userId,
+    after: { password: "[redacted]" },
+    reason,
+  });
+  return { ok: true as const, email: target.email };
+}
+
 export async function adminChangeUserEmail(params: {
   actorUserId: string;
   registrationId: string;

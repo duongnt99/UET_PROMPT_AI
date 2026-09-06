@@ -7,7 +7,6 @@ declare module "next-auth" {
       email: string;
       name?: string | null;
       roles: Role[];
-      emailIsVerified: boolean;
     };
   }
 }
@@ -16,7 +15,6 @@ declare module "next-auth/jwt" {
   interface JWT {
     userId?: string;
     roles?: Role[];
-    isEmailVerified?: boolean;
   }
 }
 

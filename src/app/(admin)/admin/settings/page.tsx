@@ -44,7 +44,7 @@ export default async function Page() {
           </select>
         </div>
         <div>
-          <Label htmlFor="livestreamUrl">Livestream URL</Label>
+          <Label htmlFor="livestreamUrl">Đường dẫn phát trực tiếp</Label>
           <Input id="livestreamUrl" name="livestreamUrl" defaultValue={s?.livestreamUrl} className="mt-1" />
         </div>
         <div>
@@ -70,7 +70,7 @@ export default async function Page() {
             Cho phép bye (miễn đấu). Để trống = không bye.
           </label>
           <div>
-            <Label htmlFor="sprintDurationSeconds">The Sprint (giây)</Label>
+            <Label htmlFor="sprintDurationSeconds">Phần thi thực hành (giây)</Label>
             <Input
               id="sprintDurationSeconds"
               name="sprintDurationSeconds"
@@ -91,7 +91,7 @@ export default async function Page() {
             </p>
           </div>
           <div>
-            <Label htmlFor="pitchDurationSeconds">The Pitch (giây)</Label>
+            <Label htmlFor="pitchDurationSeconds">Phần thuyết trình (giây)</Label>
             <Input
               id="pitchDurationSeconds"
               name="pitchDurationSeconds"
@@ -105,7 +105,7 @@ export default async function Page() {
             </p>
           </div>
           <div>
-            <Label htmlFor="verdictDurationSeconds">The Verdict (giây)</Label>
+            <Label htmlFor="verdictDurationSeconds">Phần quyết định kết quả (giây)</Label>
             <Input
               id="verdictDurationSeconds"
               name="verdictDurationSeconds"
@@ -118,11 +118,11 @@ export default async function Page() {
         </fieldset>
         <label className="flex gap-2 text-sm"><input type="checkbox" name="registrationEnabled" defaultChecked={s?.registrationEnabled} /> Mở đăng ký</label>
         <label className="flex gap-2 text-sm"><input type="checkbox" name="submissionEnabled" defaultChecked={s?.submissionEnabled} /> Mở nộp bài</label>
-        <label className="flex gap-2 text-sm"><input type="checkbox" name="publicScoreboardEnabled" defaultChecked={s?.publicScoreboardEnabled} /> Scoreboard công khai</label>
-        <label className="flex gap-2 text-sm"><input type="checkbox" name="livestreamEnabled" defaultChecked={s?.livestreamEnabled} /> Bật livestream</label>
+        <label className="flex gap-2 text-sm"><input type="checkbox" name="publicScoreboardEnabled" defaultChecked={s?.publicScoreboardEnabled} /> Công khai bảng đấu trực tiếp</label>
+        <label className="flex gap-2 text-sm"><input type="checkbox" name="livestreamEnabled" defaultChecked={s?.livestreamEnabled} /> Bật phát trực tiếp</label>
         <label className="flex gap-2 text-sm"><input type="checkbox" name="maintenanceMode" defaultChecked={s?.maintenanceMode} /> Bảo trì</label>
         <div>
-          <Label htmlFor="reason">Lý do thay đổi (audit)</Label>
+          <Label htmlFor="reason">Lý do thay đổi (ghi vào nhật ký)</Label>
           <Input id="reason" name="reason" required className="mt-1" />
         </div>
         <Button type="submit">Lưu cài đặt</Button>

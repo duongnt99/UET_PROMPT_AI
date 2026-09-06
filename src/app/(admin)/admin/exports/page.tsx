@@ -5,9 +5,9 @@ import { Card } from "@/components/ui/form";
 export default function Page() {
   return (
     <div>
-      <h1 className="display text-3xl">Export</h1>
+      <h1 className="display text-3xl">Xuất dữ liệu</h1>
       <Card className="mt-4">
-        <p className="text-sm">CSV UTF-8 BOM. Mọi export PII được ghi audit.</p>
+        <p className="text-sm">Tệp CSV UTF-8. Mọi lần xuất dữ liệu cá nhân đều được ghi vào nhật ký hệ thống.</p>
         <form
           className="mt-4"
           action={async () => {
@@ -17,7 +17,7 @@ export default function Page() {
             redirect(`/api/admin/export-registrations?inline=1&n=${csv.length}`);
           }}
         >
-          <Button type="submit">Export đăng ký (qua API)</Button>
+          <Button type="submit">Xuất danh sách đăng ký</Button>
         </form>
       </Card>
     </div>

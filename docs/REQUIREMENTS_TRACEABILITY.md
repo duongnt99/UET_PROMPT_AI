@@ -3,7 +3,7 @@
 | Requirement | Module | Route | Entities | Tests | Status |
 | --- | --- | --- | --- | --- | --- |
 | Public site | content | `/` and public pages | Competition, FAQ, Timeline, Announcement, StaticPage | unit content via settings | implemented |
-| Auth | auth-service | `/dang-ky` `/dang-nhap` | User, tokens | integration (if DB) | implemented |
+| Auth | auth-service | `/dang-ky` `/dang-nhap` | User | unit credentials + integration (if DB) | implemented; no email verification |
 | Registration | registration-service | `/dashboard/dang-ky` | Registration, Team, Seat | unit registration-rules | implemented |
 | Submission | submission-service | `/dashboard/audition` | Submission, SubmissionVersion | unit submission-rules | implemented |
 | Admin PII export | admin-actions | `/admin/exports` `/api/admin/export-registrations` | Registration, AuditLog | audit write | implemented |

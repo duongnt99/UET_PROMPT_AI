@@ -19,11 +19,11 @@ export default async function Page() {
   const close = remainingMs({ now: new Date(), closeAt: competition?.settings.registrationCloseAt });
   return (
     <div className="space-y-6">
-      <h1 className="display text-3xl">Xin chào {dbUser.profile?.fullName || dbUser.name}</h1>
+      <h1 className="display text-3xl">Xin chào {dbUser.profile?.fullName || dbUser.name || dbUser.email}</h1>
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
-          <p className="text-sm text-slate-500">Email</p>
-          <p className="font-semibold">{dbUser.emailVerifiedAt ? "Đã xác minh" : "Chưa xác minh"}</p>
+          <p className="text-sm text-slate-500">Tài khoản</p>
+          <p className="font-semibold">Đang hoạt động</p>
         </Card>
         <Card>
           <p className="text-sm text-slate-500">Đăng ký</p>
@@ -38,7 +38,6 @@ export default async function Page() {
       <Card>
         <h2 className="font-semibold">Việc cần làm</h2>
         <ul className="mt-3 list-disc space-y-1 pl-5 text-sm">
-          {!dbUser.emailVerifiedAt ? <li>Xác minh email</li> : null}
           {!dbUser.profile?.studentId ? <li>Hoàn thiện mã sinh viên và trường</li> : null}
           {!registration ? <li>Tạo hồ sơ đăng ký</li> : null}
           {registration && registration.status === "DRAFT" ? <li>Nộp hồ sơ đăng ký</li> : null}

@@ -13,7 +13,7 @@ export default async function Page() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="display text-3xl">Reviewer</h1>
+        <h1 className="display text-3xl">Người chấm vòng loại</h1>
         <p className="mt-2 text-sm text-slate-600">
           Tài khoản chấm vòng Audition. Sau khi tạo, gán bài tại Phân công chấm.
         </p>

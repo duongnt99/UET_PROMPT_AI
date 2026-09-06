@@ -35,7 +35,7 @@ export function AssignReviewerForm({
   if (!reviewers.length) {
     return (
       <p className="text-sm text-amber-700">
-        Chưa có reviewer. Thêm tại <a className="underline" href="/admin/reviewers">Reviewer</a>.
+        Chưa có người chấm vòng loại. Thêm tại <a className="underline" href="/admin/reviewers">Người chấm vòng loại</a>.
       </p>
     );
   }
@@ -54,7 +54,7 @@ export function AssignReviewerForm({
           </select>
         </div>
         <div>
-          <Label htmlFor="reviewerId">Reviewer</Label>
+          <Label htmlFor="reviewerId">Người chấm vòng loại</Label>
           <select id="reviewerId" name="reviewerId" required className="mt-1 h-11 w-full rounded-xl border px-3">
             <option value="">— Chọn —</option>
             {reviewers.map((item) => (

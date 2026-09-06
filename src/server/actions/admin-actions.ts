@@ -10,7 +10,6 @@ import { prisma } from "@/lib/db/prisma";
 import { writeAuditLog } from "@/lib/audit";
 import { controlTimer, advanceWinner } from "@/server/services/match-service";
 import { revalidatePath } from "next/cache";
-import { processEmailOutbox } from "@/lib/email";
 
 export async function saveSettingsAction(formData: FormData) {
   const user = await requirePermission("settings:write");
@@ -76,6 +75,7 @@ export async function lockFinalistsAction(
   _prev: { ok: boolean; message: string },
   formData: FormData,
 ): Promise<{ ok: boolean; message: string }> {
+  void _prev;
   const user = await requirePermission("finalist:manage");
   const competition = await getProductionCompetition();
   if (!competition) return { ok: false, message: "Chưa có cuộc thi production." };
@@ -101,18 +101,20 @@ export async function lockFinalistsAction(
 }
 
 export async function publishFinalistsAction(
-  _prev: { ok: boolean; message: string } = { ok: true, message: "" },
-  _formData?: FormData,
+  prev: { ok: boolean; message: string } = { ok: true, message: "" },
+  formData?: FormData,
 ): Promise<{ ok: boolean; message: string }> {
+  void prev;
+  void formData;
   const user = await requirePermission("finalist:manage");
   const competition = await getProductionCompetition();
   if (!competition) return { ok: false, message: "Chưa có cuộc thi production." };
   try {
     await publishFinalists({ actorUserId: user.id, competitionId: competition.id });
-    void processEmailOutbox();
     revalidatePath("/admin/finalists");
     revalidatePath("/finalists");
-    return { ok: true, message: "Đã công bố finalist đang SELECTED lên /finalists và gửi email." };
+    revalidatePath("/dashboard/thong-bao");
+    return { ok: true, message: "Đã công bố finalist đang SELECTED và gửi thông báo trong hệ thống." };
   } catch (error) {
     return { ok: false, message: error instanceof Error ? error.message : "Không công bố được." };
   }

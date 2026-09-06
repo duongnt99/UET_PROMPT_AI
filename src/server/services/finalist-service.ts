@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
 import { writeAuditLog } from "@/lib/audit";
-import { enqueueEmail } from "@/lib/email";
+import { notifyUser } from "@/lib/notifications";
 import { rankSubmissions } from "@/server/services/review-service";
 import { getActiveRubric } from "@/server/services/review-service";
 import { canTransition, REGISTRATION_TRANSITIONS } from "@/server/domain/status-transitions";
@@ -236,19 +236,12 @@ export async function publishFinalists(params: {
       where: { id: finalist.registrationId },
       include: { owner: true },
     });
-    await enqueueEmail({
-      toEmail: registration.owner.email,
-      templateCode: "finalist_notice",
-      payload: {},
-      idempotencyKey: `finalist_notice:${finalist.id}`,
-    });
-    await prisma.notification.create({
-      data: {
-        userId: registration.ownerUserId,
-        title: "Bạn vào vòng chung kết",
-        body: "Ban Tổ chức đã công bố danh sách thí sinh/đội vào chung kết.",
-        href: "/dashboard",
-      },
+    await notifyUser({
+      id: `finalist-published:${finalist.id}`,
+      userId: registration.ownerUserId,
+      title: "Bạn vào vòng chung kết",
+      body: "Ban Tổ chức đã công bố danh sách thí sinh/đội vào chung kết.",
+      href: "/dashboard",
     });
   }
   await writeAuditLog({

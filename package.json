@@ -18,7 +18,6 @@
     "db:reset": "prisma migrate reset --force",
     "db:studio": "prisma studio",
     "create-super-admin": "tsx scripts/create-super-admin.ts",
-    "email:outbox": "tsx scripts/process-email-outbox.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -55,7 +54,6 @@
     "next": "16.3.1",
     "next-auth": "5.0.0-beta.32",
     "next-themes": "^0.4.6",
-    "nodemailer": "^8.0.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-hook-form": "^7.85.0",
@@ -72,7 +70,6 @@
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^20",
-    "@types/nodemailer": "^8.0.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.0.5",

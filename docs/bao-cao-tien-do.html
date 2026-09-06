@@ -141,7 +141,7 @@
     <div class="badge-row">
       <span class="badge">Phiên bản phần mềm 1.0.0</span>
       <span class="badge">Next.js 16.3.1</span>
-      <span class="badge">Cập nhật: 25/08/2026</span>
+      <span class="badge">Cập nhật: 06/09/2026</span>
     </div>
   </div>
   <div>
@@ -167,9 +167,9 @@
       <li><a href="#sec-5">Hướng dẫn theo vai trò</a></li>
       <li><a href="#sec-6">Danh mục trang và chức năng</a></li>
       <li><a href="#sec-7">API và Server Actions</a></li>
-      <li><a href="#sec-8">Email, upload file, trạng thái nghiệp vụ</a></li>
+      <li><a href="#sec-8">Thông báo, upload file, trạng thái nghiệp vụ</a></li>
       <li><a href="#sec-9">Cài đặt cuộc thi (Admin)</a></li>
-      <li><a href="#sec-10">Vận hành, cron, backup, deploy</a></li>
+      <li><a href="#sec-10">Vận hành, backup, deploy</a></li>
       <li><a href="#sec-11">Lưu ý quan trọng</a></li>
       <li><a href="#sec-12">Phụ lục — sơ đồ luồng</a></li>
     </ol>
@@ -189,8 +189,7 @@
     <tr><td>Ứng dụng web</td><td><span class="mono">pnpm dev</span> hoặc <span class="mono">pnpm start</span></td><td>Node 20.9+, sau Nginx/HTTPS cổng 3000</td></tr>
     <tr><td>PostgreSQL 16</td><td>Docker <span class="mono">:5433</span> hoặc Homebrew <span class="mono">:5432</span></td><td>Managed Postgres hoặc VPS</td></tr>
     <tr><td>Object storage</td><td>MinIO <span class="mono">:9000</span></td><td>S3 / R2 / MinIO riêng</td></tr>
-    <tr><td>Email</td><td>Mailpit SMTP <span class="mono">:1025</span>, UI <span class="mono">:8025</span></td><td>SMTP trường hoặc Resend</td></tr>
-    <tr><td>Cron email</td><td><span class="mono">pnpm email:outbox</span></td><td>Mỗi phút <span class="mono">POST /api/cron/email</span></td></tr>
+    <tr><td>Thông báo</td><td>Thông báo trực tiếp trong tài khoản</td><td>Không cần dịch vụ email</td></tr>
   </table>
   <h3>1.2. Lớp mã nguồn</h3>
   <table>
@@ -218,11 +217,11 @@
   <h3>2.2. Các bước</h3>
   <ol>
     <li><span class="mono">corepack enable && pnpm install</span></li>
-    <li><span class="mono">docker compose up -d postgres minio minio-init mailpit</span></li>
+    <li><span class="mono">docker compose up -d postgres minio minio-init</span></li>
     <li><span class="mono">cp .env.example .env</span> — đổi <span class="mono">AUTH_SECRET</span> ≥ 32 ký tự</li>
     <li><span class="mono">pnpm db:generate && pnpm db:migrate && pnpm db:seed</span> (seed chỉ dev)</li>
     <li><span class="mono">pnpm dev</span> → mở <span class="mono">http://localhost:3000</span></li>
-    <li>Email dev xem tại Mailpit <span class="mono">http://localhost:8025</span></li>
+    <li>Thông báo nghiệp vụ xem trực tiếp trong mục Thông báo của tài khoản</li>
   </ol>
   <h3>2.3. Lệnh hữu ích</h3>
   <table>
@@ -234,7 +233,7 @@
     <tr><td><span class="mono">pnpm build && pnpm start</span></td><td>Build production local</td></tr>
     <tr><td><span class="mono">pnpm db:studio</span></td><td>Giao diện xem/sửa DB</td></tr>
     <tr><td><span class="mono">pnpm create-super-admin</span></td><td>Tạo SUPER_ADMIN (production)</td></tr>
-    <tr><td><span class="mono">pnpm email:outbox</span></td><td>Gửi mail đang chờ trong outbox</td></tr>
+    <tr><td>Mục Thông báo</td><td>Kiểm tra lời mời đội và thông báo nghiệp vụ trong tài khoản</td></tr>
   </table>
 </section>
 
@@ -299,8 +298,8 @@
     <tr><th>Mục</th><th>Chi tiết</th></tr>
     <tr><td>Đăng ký</td><td>4 cá nhân + 4 đội; một số đã SUBMITTED/SELECTED</td></tr>
     <tr><td>Finalist</td><td>10 finalist, đã publish mẫu</td></tr>
-    <tr><td>Bracket</td><td>Play-in (PI1, PI2) → Tứ kết (QF1–4) → Bán kết → Chung kết</td></tr>
-    <tr><td>Trận PI1</td><td>Status SCORING; 3 giám khảo đã gán; timer SPRINT pause 300s; có đề + twist READY</td></tr>
+    <tr><td>Bảng đấu</td><td>8 đội: Tứ kết (QF1–4) → Bán kết → Chung kết, không play-in</td></tr>
+    <tr><td>Trận QF1</td><td>Đang chấm điểm; 3 giám khảo đã gán; đồng hồ phần thi tạm dừng 300 giây; có đề và yêu cầu bất ngờ</td></tr>
     <tr><td>Rubric</td><td>AUDITION và FINAL: Khả thi 40%, Sáng tạo 30%, Tác động 30%</td></tr>
     <tr><td>Rehearsal</td><td>Bản sao cuộc thi rehearsal (email tắt trừ ALLOW_EMAIL_IN_REHEARSAL)</td></tr>
   </table>
@@ -314,8 +313,7 @@
   <table>
     <tr><th>Việc cần làm</th><th>URL / cách thực hiện</th></tr>
     <tr><td>Xem thông tin cuộc thi</td><td>/, /gioi-thieu, /the-le, /lich-trinh, /tieu-chi-cham, /huong-dan-audition, /faq, /tin-tuc</td></tr>
-    <tr><td>Tạo tài khoản</td><td>/dang-ky — họ tên, email, mật khẩu ≥ 10 ký tự</td></tr>
-    <tr><td>Xác minh email</td><td>Link trong email → /xac-minh-email?token=…</td></tr>
+    <tr><td>Tạo tài khoản</td><td>/dang-ky — email, mật khẩu ≥ 10 ký tự và xác nhận mật khẩu; tài khoản hoạt động ngay</td></tr>
     <tr><td>Đăng nhập / quên mật khẩu</td><td>/dang-nhap, /quen-mat-khau, /dat-lai-mat-khau</td></tr>
     <tr><td>Xem finalist</td><td>/finalists (khi BTC bật finalistPublicationEnabled + đã publish)</td></tr>
     <tr><td>Xem bảng điểm trận</td><td>/scoreboard (khi publicScoreboardEnabled)</td></tr>
@@ -330,7 +328,7 @@
     <tr><th>Bước</th><th>Trang</th><th>Chi tiết</th></tr>
     <tr><td>1. Hồ sơ</td><td>/dashboard/ho-so</td><td>Bắt buộc: họ tên, trường, mã SV trước khi nộp đăng ký</td></tr>
     <tr><td>2. Tạo đăng ký</td><td>/dashboard/dang-ky</td><td>Chọn Cá nhân hoặc Đội (theo registrationMode). Một người một hồ sơ/cuộc thi</td></tr>
-    <tr><td>3. Mời đội</td><td>/dashboard/doi-thi</td><td>Nhóm trưởng gửi email mời; thành viên cần tài khoản + chấp nhận tại /loi-moi-doi</td></tr>
+    <tr><td>3. Mời đội</td><td>/dashboard/doi-thi</td><td>Nhóm trưởng gửi lời mời nội bộ; thành viên chấp nhận hoặc từ chối ngay trong tài khoản</td></tr>
     <tr><td>4. Nộp hồ sơ</td><td>/dashboard/dang-ky</td><td>Đồng ý thể lệ + xử lý dữ liệu → mã PO26… + email xác nhận</td></tr>
     <tr><td>5. Biên nhận</td><td>/dashboard/bien-nhan</td><td>In/lưu biên nhận đăng ký và Audition</td></tr>
     <tr><td>6. Audition</td><td>/dashboard/audition</td><td>Autosave khi rời ô. Chỉ nhóm trưởng nộp. Khóa bản khi submit</td></tr>
@@ -440,7 +438,6 @@
     <tr><td>GET</td><td>/api/public/event-state</td><td>Không</td><td>Trận hiện tại, timer, đề, twist REVEALED — Cache-Control: no-store</td></tr>
     <tr><td>POST</td><td>/api/uploads</td><td>Đăng nhập</td><td>multipart field <span class="mono">file</span> → { id: assetId }</td></tr>
     <tr><td>GET</td><td>/api/admin/export-registrations</td><td>ADMIN + export:pii</td><td>CSV UTF-8 BOM (PII)</td></tr>
-    <tr><td>POST</td><td>/api/cron/email</td><td>Header Authorization: Bearer CRON_SECRET</td><td>Xử lý tối đa 50 email outbox</td></tr>
   </table>
   <h3>7.2. Chi tiết POST /api/uploads</h3>
   <table>
@@ -455,7 +452,7 @@
   <h3>7.3. Server Actions (theo file)</h3>
   <table>
     <tr><th>File</th><th>Actions</th></tr>
-    <tr><td>auth-actions</td><td>register, login, logout, forgotPassword, resetPassword, verifyEmail</td></tr>
+    <tr><td>auth-actions</td><td>register, login, logout, forgotPassword, resetPassword</td></tr>
     <tr><td>participant-actions</td><td>createRegistration, saveProfile, inviteMember, submitRegistration, autosaveAudition, submitAudition</td></tr>
     <tr><td>review-actions</td><td>saveReview, submitReview</td></tr>
     <tr><td>judge-actions</td><td>saveJudgeDraft, submitJudgeScore</td></tr>
@@ -471,23 +468,18 @@
 </section>
 
 <section id="sec-8">
-  <h2>8. Email, upload, trạng thái nghiệp vụ</h2>
-  <h3>8.1. Email template (outbox)</h3>
-  <p>Mail được xếp hàng trong bảng <span class="mono">EmailOutbox</span>, gửi bởi cron hoặc <span class="mono">pnpm email:outbox</span>.</p>
+  <h2>8. Thông báo, upload, trạng thái nghiệp vụ</h2>
+  <h3>8.1. Thông báo trực tiếp trong tài khoản</h3>
+  <p>Các lời mời đội và thông báo nghiệp vụ được lưu trực tiếp trong hệ thống, không phụ thuộc dịch vụ email.</p>
   <table>
-    <tr><th>Mã template</th><th>Khi nào gửi</th><th>Đã triển khai</th></tr>
-    <tr><td>verify_email</td><td>Đăng ký tài khoản</td><td class="ok">Có</td></tr>
-    <tr><td>reset_password</td><td>Yêu cầu quên mật khẩu</td><td class="ok">Có</td></tr>
-    <tr><td>team_invite</td><td>Nhóm trưởng mời thành viên</td><td class="ok">Có</td></tr>
-    <tr><td>registration_confirm</td><td>Nộp hồ sơ đăng ký</td><td class="ok">Có</td></tr>
-    <tr><td>registration_update_request</td><td>Admin đặt NEEDS_UPDATE</td><td class="ok">Có</td></tr>
-    <tr><td>submission_confirm</td><td>Nộp bài Audition</td><td class="ok">Có</td></tr>
-    <tr><td>finalist_notice</td><td>Admin publish finalist</td><td class="ok">Có</td></tr>
-    <tr><td>reviewer_invite / judge_invite</td><td>Mời staff</td><td class="ok">Có</td></tr>
-    <tr><td>submission_reopened</td><td>Mở lại bài nộp</td><td class="partial">Template only</td></tr>
-    <tr><td>audition_result</td><td>Kết quả vòng tuyển</td><td class="partial">Template only</td></tr>
-    <tr><td>review_reminder</td><td>Nhắc reviewer</td><td class="partial">Template only</td></tr>
-    <tr><td>schedule_change</td><td>Đổi lịch</td><td class="partial">Template only</td></tr>
+    <tr><th>Nghiệp vụ</th><th>Cách xử lý</th><th>Trạng thái</th></tr>
+    <tr><td>Đăng ký tài khoản</td><td>Kích hoạt ngay, không xác minh email</td><td class="ok">Đã triển khai</td></tr>
+    <tr><td>Mời thành viên đội</td><td>Hiện tại Đội thi và Thông báo</td><td class="ok">Đã triển khai</td></tr>
+    <tr><td>Xác nhận nộp hồ sơ / bài thi</td><td>Tạo thông báo nội bộ</td><td class="ok">Đã triển khai</td></tr>
+    <tr><td>Yêu cầu bổ sung hồ sơ</td><td>Tạo thông báo kèm đường dẫn hồ sơ</td><td class="ok">Đã triển khai</td></tr>
+    <tr><td>Công bố đội vào chung kết</td><td>Tạo thông báo nội bộ</td><td class="ok">Đã triển khai</td></tr>
+    <tr><td>Quên mật khẩu</td><td>Quản trị viên đặt lại tại trang Tài khoản</td><td class="ok">Đã triển khai</td></tr>
+    <tr><td>Tài khoản nhân sự</td><td>Tạo tài khoản và phân quyền trực tiếp</td><td class="ok">Đã triển khai</td></tr>
   </table>
   <h3>8.2. Trạng thái đăng ký</h3>
   <p class="flow">DRAFT → SUBMITTED → NEEDS_UPDATE | UNDER_REVIEW | ELIGIBLE | INELIGIBLE
@@ -534,14 +526,13 @@ COMPLETED → có thể PUBLISHED (điểm công khai nếu bật cờ)</p>
 </section>
 
 <section id="sec-10">
-  <h2>10. Vận hành, cron, backup, deploy</h2>
-  <h3>10.1. Cron email (bắt buộc production)</h3>
-  <p class="mono">* * * * * curl -fsS -X POST https://DOMAIN/api/cron/email -H "Authorization: Bearer CRON_SECRET"</p>
-  <p>Dev: <span class="mono">pnpm email:outbox</span> hoặc xem Mailpit <span class="mono">:8025</span>.</p>
+  <h2>10. Vận hành, backup, deploy</h2>
+  <h3>10.1. Thông báo nghiệp vụ</h3>
+  <p>Không cần cấu hình cron gửi email. Người dùng nhận thông báo tại mục Thông báo sau khi đăng nhập.</p>
   <h3>10.2. Health &amp; monitoring</h3>
   <ul>
     <li><span class="mono">GET /api/health</span> — uptime check</li>
-    <li><span class="mono">/admin/operations</span> — DB, storage, email failed, incidents</li>
+    <li><span class="mono">/admin/operations</span> — cơ sở dữ liệu, kho tệp, thông báo và sự cố</li>
     <li><span class="mono">/admin/audit</span> — nhật ký thao tác nhạy cảm</li>
   </ul>
   <h3>10.3. Backup</h3>
@@ -553,22 +544,22 @@ COMPLETED → có thể PUBLISHED (điểm công khai nếu bật cờ)</p>
   </table>
   <h3>10.4. Deploy production (tóm tắt)</h3>
   <ol>
-    <li>Server: Node 20, PostgreSQL 16, S3, SMTP, Nginx + HTTPS</li>
+    <li>Server: Node 20, PostgreSQL 16, S3, Nginx + HTTPS</li>
     <li><span class="mono">git pull && pnpm install --frozen-lockfile</span></li>
     <li><span class="mono">pnpm db:migrate:deploy</span> (backup trước, không seed)</li>
     <li><span class="mono">pnpm create-super-admin</span> — tạo admin thật</li>
     <li><span class="mono">pnpm build && pm2 start pnpm --name promptoff -- start</span></li>
-    <li>Cấu hình cron email. Chi tiết: <span class="mono">docs/DEPLOYMENT.md</span></li>
+    <li>Kiểm tra health, kho tệp và thông báo nội bộ. Chi tiết: <span class="mono">docs/DEPLOYMENT.md</span></li>
   </ol>
   <h3>10.5. Rehearsal</h3>
-  <p>Cuộc thi rehearsal (<span class="mono">isRehearsal=true</span>) dùng tập dry-run. Email bị chặn trừ khi <span class="mono">ALLOW_EMAIL_IN_REHEARSAL=true</span>.</p>
+  <p>Cuộc thi diễn tập (<span class="mono">isRehearsal=true</span>) dùng để kiểm thử quy trình trước ngày thi và tách biệt với dữ liệu cuộc thi chính thức.</p>
 </section>
 
 <section class="break" id="sec-11">
   <h2>11. Lưu ý quan trọng</h2>
   <ol>
     <li><strong>Không seed production</strong> — lộ mật khẩu demo và dữ liệu giả.</li>
-    <li>Email xác minh / mời đội cần SMTP + cron. Local thiếu Mailpit → lỗi kết nối :1025.</li>
+    <li>Đăng ký, lời mời đội và thông báo nghiệp vụ không cần SMTP. Đặt lại mật khẩu do quản trị viên hỗ trợ trong trang Tài khoản.</li>
     <li>HTTPS bắt buộc trên production cho cookie session an toàn.</li>
     <li>Giám khảo: Lưu nháp <strong>cả hai bên</strong> trước khi Nộp phiếu.</li>
     <li>Overlay tự refresh; màn <span class="mono">/stage/*</span> cần F5 thủ công.</li>
@@ -587,8 +578,7 @@ COMPLETED → có thể PUBLISHED (điểm công khai nếu bật cờ)</p>
   <h2>12. Phụ lục — sơ đồ luồng</h2>
   <h3>12.1. Luồng thí sinh</h3>
   <div class="flow">Tạo tài khoản (/dang-ky)
-→ Xác minh email
-→ Đăng nhập → /dashboard
+→ Đăng nhập ngay → /dashboard
 → Điền hồ sơ SV (/dashboard/ho-so)
 → Tạo đăng ký cá nhân | đội (/dashboard/dang-ky)
    → nếu đội: mời 2–4 thành viên (/dashboard/doi-thi, /loi-moi-doi)
@@ -605,7 +595,7 @@ COMPLETED → có thể PUBLISHED (điểm công khai nếu bật cờ)</p>
 → /admin/scoring theo dõi 3/3 phiếu
 → Advance winner → trận tiếp theo
 → Publish điểm (nếu bật publicScoresEnabled)</div>
-  <p class="footer-note">Hết tài liệu. File: docs/bao-cao-tien-do.html — Hướng dẫn sử dụng Prompt-Off: Vietnam 2026. Cập nhật 25/08/2026.</p>
+  <p class="footer-note">Hết tài liệu. File: docs/bao-cao-tien-do.html — Hướng dẫn sử dụng Prompt-Off: Vietnam 2026. Cập nhật 06/09/2026.</p>
 </section>
 
 </body>

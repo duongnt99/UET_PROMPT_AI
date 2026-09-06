@@ -157,6 +157,9 @@ function withDuration(template: string, seconds: number) {
 export default async function HomePage() {
   const data = await getPublicHomeData();
   const settings = data?.competition.settings;
+  const competitionDescription =
+    settings?.fullDescription ??
+    "Cuộc thi công nghệ do Đại học Quốc gia Hà Nội (ĐHQGHN) triển khai, Trường Đại học Công nghệ (VNU-UET) làm đầu mối phối hợp cùng Google tổ chức, mở ra cơ hội thực chiến giải quyết bài toán công nghệ trên nền tảng hai công cụ chính thức là Google Gemini và Google AI Studio.";
   const criteriaIntro = data?.pages.find((page) => page.slug === "tieu-chi-cham");
 
   const rubricCriteria = (data?.rubric?.criteria ?? []).map((criterion) => ({
@@ -244,8 +247,10 @@ export default async function HomePage() {
               <Image src="/partners/uet-mini.jpg" alt="Trường Đại học Công nghệ" width={28} height={28} className="h-7 w-7 rounded-full object-contain" />
             </div>
             <h1 className="display mt-7 text-[2.75rem] font-bold leading-[0.98] tracking-[-0.055em] text-[#17181c] sm:text-6xl lg:text-[4.6rem]">
-              Prompt-Off:
-              <span className="mt-2 block text-[#4285F4]">Vietnam 2026</span>
+              {settings?.landingHeroTitle ?? "Prompt-Off:"}
+              <span className="mt-2 block text-[#4285F4]">
+                {settings?.landingHeroHighlight ?? "Vietnam 2026"}
+              </span>
             </h1>
             <p className="mt-7 max-w-xl text-base leading-8 text-slate-600 md:text-[1.05rem]">
               {settings?.shortDescription ??
@@ -288,18 +293,29 @@ export default async function HomePage() {
         <div className="pointer-events-none absolute right-[7%] top-16 text-[7rem] font-black leading-none text-[#4285F4]/7">◇</div>
         <div className="relative mx-auto max-w-4xl">
           <h2 className="display text-3xl font-bold tracking-[-0.04em] text-[#17181c] md:text-5xl">Thông tin cuộc thi</h2>
-          <p className="mx-auto mt-7 max-w-3xl text-base leading-8 text-slate-700">
-            {settings?.fullDescription ??
-              "Cuộc thi công nghệ do Đại học Quốc gia Hà Nội (ĐHQGHN) triển khai, Trường Đại học Công nghệ (VNU-UET) làm đầu mối phối hợp cùng Google tổ chức, mở ra cơ hội thực chiến giải quyết bài toán công nghệ trên nền tảng hai công cụ chính thức là Google Gemini và Google AI Studio."}
-          </p>
+          <div className="mx-auto mt-7 max-w-3xl space-y-4 text-left text-base leading-8 text-slate-700">
+            {competitionDescription
+              .split(/\n\s*\n/)
+              .map((paragraph) => paragraph.trim())
+              .filter(Boolean)
+              .map((paragraph, index) => (
+                <p key={`${index}-${paragraph.slice(0, 24)}`} className="text-pretty">
+                  {paragraph}
+                </p>
+              ))}
+          </div>
           <div className="mt-10 grid gap-5 sm:grid-cols-2">
             <div className="overflow-hidden rounded-[1.4rem] bg-white shadow-[0_14px_30px_rgba(15,23,42,0.08)]">
               <p className="bg-[#169C55] px-5 py-2.5 font-semibold text-white">Đối tượng</p>
-              <p className="px-5 py-4 text-sm text-slate-600">Sinh viên các trường đại học trên toàn quốc</p>
+              <p className="px-5 py-4 text-sm text-slate-600">
+                {settings?.landingAudienceText ?? "Sinh viên các trường đại học trên toàn quốc"}
+              </p>
             </div>
             <div className="overflow-hidden rounded-[1.4rem] bg-white shadow-[0_14px_30px_rgba(15,23,42,0.08)]">
               <p className="bg-[#F5AA28] px-5 py-2.5 font-semibold text-white">Công cụ</p>
-              <p className="px-5 py-4 text-sm text-slate-600">Google AI Studio và Google Gemini</p>
+              <p className="px-5 py-4 text-sm text-slate-600">
+                {settings?.landingToolsText ?? "Google AI Studio và Google Gemini"}
+              </p>
             </div>
           </div>
         </div>

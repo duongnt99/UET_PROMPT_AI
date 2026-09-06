@@ -561,7 +561,7 @@ async function main() {
 
   const selectedRegs = await prisma.registration.findMany({
     where: { competitionId: production.id },
-    take: 10,
+    take: 8,
     orderBy: { createdAt: "asc" },
   });
   const finalistCount = await prisma.finalist.count({ where: { competitionId: production.id } });
@@ -582,7 +582,7 @@ async function main() {
         }),
       );
     }
-    while (createdFinalists.length < 10) {
+    while (createdFinalists.length < 8) {
       const nextIndex = createdFinalists.length + 1;
       const extraUser = await upsertUser({
         email: `finalist${nextIndex}@promptoff.local`,
@@ -615,22 +615,12 @@ async function main() {
       );
     }
 
-    const playIn = await prisma.finalRound.create({
-      data: {
-        competitionId: production.id,
-        name: "play-in",
-        displayName: "Vòng play-in",
-        order: 1,
-        stageType: "MIXED",
-        status: "SCHEDULED",
-      },
-    });
     const quarter = await prisma.finalRound.create({
       data: {
         competitionId: production.id,
         name: "quarter",
         displayName: "Tứ kết",
-        order: 2,
+        order: 1,
         stageType: "MIXED",
         status: "DRAFT",
       },
@@ -640,7 +630,7 @@ async function main() {
         competitionId: production.id,
         name: "semi",
         displayName: "Bán kết",
-        order: 3,
+        order: 2,
         stageType: "MIXED",
         status: "DRAFT",
       },
@@ -650,64 +640,13 @@ async function main() {
         competitionId: production.id,
         name: "final",
         displayName: "Chung kết",
-        order: 4,
+        order: 3,
         stageType: "MIXED",
         status: "DRAFT",
       },
     });
 
     const f = createdFinalists;
-    const qf1 = await prisma.match.create({
-      data: { competitionId: production.id, roundId: quarter.id, code: "QF1", status: "DRAFT", competitorAId: f[0]!.id },
-    });
-    const qf2 = await prisma.match.create({
-      data: { competitionId: production.id, roundId: quarter.id, code: "QF2", status: "DRAFT", competitorAId: f[1]!.id },
-    });
-    const qf3 = await prisma.match.create({
-      data: {
-        competitionId: production.id,
-        roundId: quarter.id,
-        code: "QF3",
-        status: "DRAFT",
-        competitorAId: f[2]!.id,
-        competitorBId: f[5]!.id,
-      },
-    });
-    const qf4 = await prisma.match.create({
-      data: {
-        competitionId: production.id,
-        roundId: quarter.id,
-        code: "QF4",
-        status: "DRAFT",
-        competitorAId: f[3]!.id,
-        competitorBId: f[4]!.id,
-      },
-    });
-    const pi1 = await prisma.match.create({
-      data: {
-        competitionId: production.id,
-        roundId: playIn.id,
-        code: "PI1",
-        status: "SCORING",
-        competitorAId: f[6]!.id,
-        competitorBId: f[9]!.id,
-        nextMatchId: qf1.id,
-        nextSlot: "B",
-        actualStartedAt: new Date(),
-      },
-    });
-    await prisma.match.create({
-      data: {
-        competitionId: production.id,
-        roundId: playIn.id,
-        code: "PI2",
-        status: "SCHEDULED",
-        competitorAId: f[7]!.id,
-        competitorBId: f[8]!.id,
-        nextMatchId: qf2.id,
-        nextSlot: "B",
-      },
-    });
     const sf1 = await prisma.match.create({
       data: { competitionId: production.id, roundId: semi.id, code: "SF1", status: "DRAFT" },
     });
@@ -717,16 +656,30 @@ async function main() {
     const finalMatch = await prisma.match.create({
       data: { competitionId: production.id, roundId: finale.id, code: "FINAL", status: "DRAFT" },
     });
-    await prisma.match.update({ where: { id: qf1.id }, data: { nextMatchId: sf1.id, nextSlot: "A" } });
-    await prisma.match.update({ where: { id: qf2.id }, data: { nextMatchId: sf1.id, nextSlot: "B" } });
-    await prisma.match.update({ where: { id: qf3.id }, data: { nextMatchId: sf2.id, nextSlot: "A" } });
-    await prisma.match.update({ where: { id: qf4.id }, data: { nextMatchId: sf2.id, nextSlot: "B" } });
+    const quarterPairs = [[0, 7], [3, 4], [1, 6], [2, 5]] as const;
+    const quarterMatches = [];
+    for (const [index, pair] of quarterPairs.entries()) {
+      quarterMatches.push(await prisma.match.create({
+        data: {
+          competitionId: production.id,
+          roundId: quarter.id,
+          code: `QF${index + 1}`,
+          status: index === 0 ? "SCORING" : "SCHEDULED",
+          competitorAId: f[pair[0]]!.id,
+          competitorBId: f[pair[1]]!.id,
+          nextMatchId: index < 2 ? sf1.id : sf2.id,
+          nextSlot: index % 2 === 0 ? "A" : "B",
+          actualStartedAt: index === 0 ? new Date() : null,
+        },
+      }));
+    }
+    const qf1 = quarterMatches[0]!;
     await prisma.match.update({ where: { id: sf1.id }, data: { nextMatchId: finalMatch.id, nextSlot: "A" } });
     await prisma.match.update({ where: { id: sf2.id }, data: { nextMatchId: finalMatch.id, nextSlot: "B" } });
 
     await prisma.timerSession.create({
       data: {
-        matchId: pi1.id,
+        matchId: qf1.id,
         kind: "SPRINT",
         status: "PAUSED",
         durationSeconds: 300,
@@ -735,13 +688,13 @@ async function main() {
     });
     for (const judge of judges) {
       await prisma.judgeAssignment.create({
-        data: { competitionId: production.id, matchId: pi1.id, judgeId: judge.id, status: "ASSIGNED" },
+        data: { competitionId: production.id, matchId: qf1.id, judgeId: judge.id, status: "ASSIGNED" },
       });
     }
     await prisma.onStageTwist.create({
       data: {
         competitionId: production.id,
-        matchId: pi1.id,
+        matchId: qf1.id,
         title: "Yêu cầu thêm từ BTC",
         content: "Bổ sung một ràng buộc siêu địa phương do BTC công bố trên sân khấu.",
         status: "READY",
@@ -756,7 +709,7 @@ async function main() {
       },
     });
     await prisma.match.update({
-      where: { id: pi1.id },
+      where: { id: qf1.id },
       data: {
         challengeId: challenge.id,
         problemTitle: challenge.title,

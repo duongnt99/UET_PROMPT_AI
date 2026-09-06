@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button";
 import { getProductionCompetition } from "@/server/services/competition-service";
 import { requirePermission } from "@/lib/auth/guards";
 import Link from "next/link";
+import { matchStatusLabel } from "@/lib/status-labels";
 
 export default async function Page() {
   await requirePermission("operations:control");
   const competition = await getProductionCompetition();
-  const [emailFail, incidents, dbOk] = await Promise.all([
-    prisma.emailOutbox.count({ where: { status: "FAILED" } }),
+  const [notifications, incidents, dbOk] = await Promise.all([
+    prisma.notification.count(),
     prisma.incident.count({ where: { status: { in: ["OPEN", "INVESTIGATING"] } } }),
     prisma.$queryRaw`SELECT 1`.then(() => "ok").catch(() => "error"),
   ]);
@@ -29,19 +30,19 @@ export default async function Page() {
     <div className="space-y-4">
       <h1 className="display text-3xl">Vận hành kỹ thuật</h1>
       {competition?.isRehearsal ? (
-        <p className="text-amber-700">Đang ở competition rehearsal</p>
+        <p className="text-amber-700">Đang ở cuộc thi diễn tập</p>
       ) : (
-        <p>Chế độ: Production</p>
+        <p>Chế độ: Cuộc thi chính thức</p>
       )}
       <div className="grid gap-3 md:grid-cols-4">
-        <Card>DB: {String(dbOk)}</Card>
+        <Card>Cơ sở dữ liệu: {dbOk === "ok" ? "Hoạt động" : "Lỗi"}</Card>
         <Card>
-          Storage: {storage}
+          Kho tệp: {storage === "ok" ? "Hoạt động" : "Lỗi"}
           {storage === "error" ? (
             <p className="mt-1 text-xs text-slate-500">MinIO/S3 chưa kết nối được. Local chưa bắt buộc nếu chỉ dùng URL video.</p>
           ) : null}
         </Card>
-        <Card>Email lỗi: {emailFail}</Card>
+        <Card>Thông báo nội bộ: {notifications}</Card>
         <Card>Sự cố mở: {incidents}</Card>
       </div>
       {match ? (
@@ -50,7 +51,7 @@ export default async function Page() {
             Trận hiện tại: {match.round.displayName} · {match.code}
           </p>
           <p className="text-sm text-slate-600">
-            {match.competitorA?.displayName ?? "TBD"} vs {match.competitorB?.displayName ?? "TBD"} · {match.status}
+            {match.competitorA?.displayName ?? "Chưa xác định"} gặp {match.competitorB?.displayName ?? "Chưa xác định"} · {matchStatusLabel(match.status)}
           </p>
           <p className="mt-2 text-sm">
             <Link href={`/admin/bracket/${match.id}`} className="underline">
@@ -61,18 +62,18 @@ export default async function Page() {
             <input type="hidden" name="matchId" value={match.id} />
             <input type="hidden" name="kind" value="SPRINT" />
             <Button name="action" value="start">
-              Start timer
+              Bắt đầu đồng hồ
             </Button>
             <Button name="action" value="pause" variant="outline">
-              Pause
+              Tạm dừng
             </Button>
             <Button name="action" value="resume" variant="outline">
-              Resume
+              Tiếp tục
             </Button>
           </form>
         </Card>
       ) : (
-        <Card>Chưa có trận ở trạng thái READY / SPRINT / PITCH / SCORING.</Card>
+        <Card>Chưa có trận đang sẵn sàng, thi thực hành, thuyết trình hoặc chấm điểm.</Card>
       )}
     </div>
   );

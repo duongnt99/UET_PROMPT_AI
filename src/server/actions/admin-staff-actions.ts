@@ -11,6 +11,8 @@ import {
 } from "@/server/services/admin-staff-service";
 import { hardDeleteUser } from "@/server/services/admin-delete-service";
 import { assignReviewerManually, unassignReviewer } from "@/server/services/review-service";
+import { adminResetUserPassword } from "@/server/services/admin-account-service";
+import { normalizePasswordInput } from "@/lib/auth/password";
 
 export type StaffActionState = { ok: boolean; message: string };
 
@@ -136,6 +138,28 @@ export async function hardDeleteUserAction(
     revalidatePath("/admin/registrations");
     revalidatePath("/admin/submissions");
     return { ok: true, message: `Đã xóa hẳn ${result.email}.` };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function resetUserPasswordAction(
+  _prev: StaffActionState,
+  formData: FormData,
+): Promise<StaffActionState> {
+  const user = await requirePermission("users:manage");
+  const password = normalizePasswordInput(String(formData.get("password") ?? ""));
+  const confirmPassword = normalizePasswordInput(String(formData.get("confirmPassword") ?? ""));
+  if (password !== confirmPassword) return { ok: false, message: "Mật khẩu nhập lại không khớp." };
+  try {
+    const result = await adminResetUserPassword({
+      actorUserId: user.id,
+      userId: String(formData.get("userId") ?? ""),
+      password,
+      reason: String(formData.get("reason") ?? ""),
+    });
+    revalidatePath("/admin/users");
+    return { ok: true, message: `Đã đặt mật khẩu mới cho ${result.email}.` };
   } catch (error) {
     return fail(error);
   }

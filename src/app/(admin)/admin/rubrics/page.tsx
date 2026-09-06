@@ -20,7 +20,7 @@ export default async function Page() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="display text-3xl">Rubric</h1>
+          <h1 className="display text-3xl">Bộ tiêu chí chấm</h1>
           <p className="mt-1 text-sm text-slate-600">
             Trọng số các tiêu chí phải tổng 100%. Phiên bản đang kích hoạt dùng cho phiếu chấm mới và trang tiêu chí
             công khai. Phiên bản đã gán cho reviewer/giám khảo thì sửa bằng cách tạo bản mới.

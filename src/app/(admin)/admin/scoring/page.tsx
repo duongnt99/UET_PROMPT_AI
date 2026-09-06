@@ -3,6 +3,7 @@ import { Card, Badge } from "@/components/ui/form";
 import { finalizeMatchIfReady } from "@/server/services/match-service";
 import { formatScoreDisplay } from "@/server/domain/scoring";
 import Link from "next/link";
+import { matchStatusLabel } from "@/lib/status-labels";
 
 export default async function Page() {
   const matches = await prisma.match.findMany({
@@ -23,12 +24,12 @@ export default async function Page() {
             <Card>
               <div className="flex justify-between">
                 <p className="font-semibold">
-                  {match.code}: {match.competitorA?.displayName ?? "TBD"} vs {match.competitorB?.displayName ?? "TBD"}
+                  {match.code}: {match.competitorA?.displayName ?? "Chưa xác định"} gặp {match.competitorB?.displayName ?? "Chưa xác định"}
                 </p>
-                <Badge>{match.status}</Badge>
+                <Badge>{matchStatusLabel(match.status)}</Badge>
               </div>
               <p className="text-sm">
-                Judge đã nộp: {match.judgeAssignments.filter((a) => a.status === "SUBMITTED").length}/
+                Giám khảo đã nộp: {match.judgeAssignments.filter((a) => a.status === "SUBMITTED").length}/
                 {match.judgeAssignments.length}
               </p>
               {summary.ready ? (

@@ -3,9 +3,26 @@
 import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/form";
-import { createScoringMatchAction, type MatchSetupState } from "@/server/actions/admin-match-actions";
+import { createEightTeamBracketAction, createScoringMatchAction, type MatchSetupState } from "@/server/actions/admin-match-actions";
 
 const idle: MatchSetupState = { ok: true, message: "" };
+
+export function CreateEightTeamBracketForm() {
+  const [state, action, pending] = useActionState(createEightTeamBracketAction, idle);
+  return (
+    <form action={action} className="space-y-3">
+      <p className="text-sm text-slate-600">
+        Tự ghép đúng 8 đội theo thứ tự hạt giống thành 4 trận tứ kết, 2 trận bán kết và 1 trận chung kết. Đội thắng sẽ tự điền vào vòng kế tiếp.
+      </p>
+      <div>
+        <Label htmlFor="bracket-reason">Lý do khởi tạo</Label>
+        <Input id="bracket-reason" name="reason" required defaultValue="Khởi tạo bảng đấu chung kết 8 đội" className="mt-1" />
+      </div>
+      <Button type="submit" disabled={pending}>{pending ? "Đang khởi tạo…" : "Khởi tạo bảng đấu 8 đội"}</Button>
+      {state.message ? <p role="status" className={state.ok ? "text-sm text-emerald-700" : "text-sm text-red-700"}>{state.message}</p> : null}
+    </form>
+  );
+}
 
 export function CreateScoringMatchForm({
   finalists,
@@ -24,7 +41,7 @@ export function CreateScoringMatchForm({
   if (finalists.length < 2) {
     return (
       <p className="text-sm text-amber-700">
-        Cần ít nhất hai finalist đang SELECTED. Vào <a className="underline" href="/admin/finalists">Finalist</a> để
+        Cần ít nhất hai đội đã được chọn vào chung kết. Vào <a className="underline" href="/admin/finalists">Đội vào chung kết</a> để
         chọn đội.
       </p>
     );
@@ -32,7 +49,7 @@ export function CreateScoringMatchForm({
   if (!judges.length) {
     return (
       <p className="text-sm text-amber-700">
-        Chưa có tài khoản vai trò JUDGE. Thêm giám khảo trước khi mở trận.
+        Chưa có tài khoản giám khảo. Thêm giám khảo trước khi mở trận.
       </p>
     );
   }
@@ -119,7 +136,7 @@ export function CreateScoringMatchForm({
         <Input id="match-reason" name="reason" required placeholder="Ví dụ: tứ kết 1 — cùng đề cho hai đội" className="mt-1" />
       </div>
       <Button type="submit" disabled={pending}>
-        {pending ? "Đang tạo…" : "Tạo trận và mở SCORING"}
+        {pending ? "Đang tạo…" : "Tạo trận và mở chấm điểm"}
       </Button>
       {pending ? <p className="text-sm text-slate-600">Đang lưu…</p> : null}
       {state.message ? (

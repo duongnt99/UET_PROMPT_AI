@@ -6,7 +6,7 @@ Hệ thống modular monolith (Next.js) cho đăng ký, nộp bài Audition, ch�
 
 - Node.js 20.9+
 - pnpm 10+
-- Docker (PostgreSQL, MinIO, Mailpit)
+- Docker (PostgreSQL, MinIO)
 - `psql` / `pg_dump` nếu dùng script backup trên máy host
 
 ## 2. Cài dependency
@@ -21,12 +21,11 @@ pnpm install
 Nếu có Docker:
 
 ```bash
-docker compose up -d postgres minio minio-init mailpit
+docker compose up -d postgres minio minio-init
 ```
 
 - PostgreSQL: `localhost:5433`
 - MinIO API: `http://localhost:9000` (console `http://localhost:9001`)
-- Mailpit UI: `http://localhost:8025`
 
 Nếu chưa có Docker, có thể dùng PostgreSQL local (Homebrew `postgresql@16`) trên cổng 5432 và sửa `DATABASE_URL` trong `.env`.
 
@@ -61,7 +60,9 @@ Chỉ dùng cho development. Không seed data demo lên production.
 pnpm dev
 ```
 
-Mở `http://localhost:3000`. Email local xem tại Mailpit `http://localhost:8025`.
+Mở `http://localhost:3000`. Hệ thống dùng thông báo nội bộ và không cần dịch vụ gửi email.
+
+Danh sách các luồng đã thay email bằng thông báo nội bộ: [docs/NO_EMAIL_WORKFLOWS.md](docs/NO_EMAIL_WORKFLOWS.md).
 
 ## 8. Test
 

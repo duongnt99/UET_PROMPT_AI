@@ -32,7 +32,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           where: { emailNormalized: email },
           include: { roleAssignments: { where: { revokedAt: null } } },
         });
-        if (!user || user.status === "DISABLED" || user.deletedAt) {
+        if (!user || user.status !== "ACTIVE" || user.deletedAt) {
           await prisma.loginEvent.create({ data: { email, success: false } });
           return null;
         }
@@ -79,7 +79,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           include: { roleAssignments: { where: { revokedAt: null } } },
         });
         token.roles = (dbUser?.roleAssignments.map((item) => item.role) ?? []) as Role[];
-        token.isEmailVerified = Boolean(dbUser?.emailVerifiedAt);
         token.email = user.email;
       }
       return token;
@@ -88,7 +87,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       session.user.id = String(token.userId ?? "");
       session.user.email = String(token.email ?? "");
       session.user.roles = Array.isArray(token.roles) ? token.roles : [];
-      session.user.emailIsVerified = Boolean(token.isEmailVerified);
       return session;
     },
   },

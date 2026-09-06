@@ -58,12 +58,12 @@ export function RegistrationWizard({
           className="space-y-3"
           action={async (formData) => {
             const result = await inviteMemberAction(formData);
-            setSaved(result.ok ? "Đã gửi lời mời." : result.message ?? "Lỗi");
+            setSaved(result.message ?? (result.ok ? "Đã gửi lời mời trong hệ thống." : "Lỗi"));
           }}
         >
           <h2 className="font-semibold">Mời thành viên — {teamName}</h2>
           <Input name="email" type="email" placeholder="email thành viên" required />
-          <Button type="submit" variant="outline">Gửi lời mời</Button>
+          <Button type="submit" variant="outline">Mời trong hệ thống</Button>
         </form>
       ) : null}
       <form

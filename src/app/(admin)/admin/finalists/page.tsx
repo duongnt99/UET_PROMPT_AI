@@ -44,7 +44,7 @@ export default async function Page() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="display text-3xl">Finalist</h1>
+        <h1 className="display text-3xl">Đội vào chung kết</h1>
         <p className="mt-2 max-w-3xl text-sm text-slate-600">
           BTC chọn hồ sơ vào chung kết (không tự nhảy từ điểm Audition). Khóa lựa chọn → hồ sơ{" "}
           <strong>SELECTED</strong> + bản ghi Finalist. Công bố riêng hoặc hàng loạt thì mới hiện trên{" "}
@@ -80,7 +80,7 @@ export default async function Page() {
       </Card>
 
       <div className="space-y-2">
-        <h2 className="font-semibold">Danh sách Finalist</h2>
+        <h2 className="font-semibold">Danh sách đội vào chung kết</h2>
         {finalists.length === 0 ? <p className="text-sm text-slate-600">Chưa có finalist.</p> : null}
         {finalists.map((item) => {
           const selected = item.registration.status === "SELECTED";

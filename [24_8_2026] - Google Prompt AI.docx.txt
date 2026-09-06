@@ -1,0 +1,98 @@
+﻿Google Prompt AI 24/8/2026
+Ngày: 16:05:45 24/8/2026 | Thời lượng: 46:47
+
+
+BIÊN BẢN TÓM TẮT CUỘC HỌP
+1. TỔNG QUAN
+* Mục đích: Thảo luận và chốt các phương án tổ chức cuộc thi Google prompting với hình thức trình diễn trực tiếp trên sân khấu (build in 10 minutes), bao gồm: định dạng vòng loại, công cụ AI sử dụng, vai trò người dẫn chương trình, tiêu chí chấm điểm và kế hoạch marketing/truyền thông.
+2. NỘI DUNG CHÍNH & THẢO LUẬN
+Giới thiệu chung
+* Định dạng cuộc thi được xây dựng theo chủ đề "AI Arena: Vietnam - Đấu trường AI", đội thi sẽ trình diễn sản phẩm xây dựng trong 10 phút trên sân khấu.
+* Có thể linh hoạt điều chỉnh quy mô, với thang điểm tối đa 10 và các tiêu chí chấm điểm có thể phân bổ khác nhau (ví dụ: 5-3-2).
+Vòng tuyển chọn (Audition) & chạy thử
+* Đây là lần đầu tiên tổ chức sự kiện, cần tổ chức 1 đến 2 buổi chạy thử (rehearsal) với nhóm nhỏ để kiểm tra định dạng, thời lượng, câu hỏi, cách trình bày và trải nghiệm thực tế trên sân khấu.
+* Buổi chạy thử không cần chọn đội thi thật, có thể dùng 2 đội, mỗi đội 2-3 người tình nguyện tham gia.
+* Nên có livestream trong buổi chạy thử để đánh giá cảm nhận của khán giả xem từ xa so với xem trực tiếp.
+Định dạng cuộc thi (Competition Format)
+* Số vòng: Tối đa 3 vòng thi.
+* Số đội vào chung kết: Có đề xuất 10 đội, sau đó chốt là 8 đội.
+* Thể thức vòng loại: Bắt đầu với 8 đội → chọn ra 4 đội → vòng cuối 2 đội tranh tài.
+* Định dạng bảng đấu: Không sử dụng hệ thống "bye" (miễn đấu), các đội đấu trực tiếp với nhau.
+* Thời lượng sự kiện: Nửa ngày (half day) là phù hợp.
+Công cụ AI
+* Sử dụng Gemini và Google AI Studio.
+* Lý do thương hiệu: Sự kiện là hợp tác giữa Google và VNU, do đó cần đẩy mạnh thương hiệu Gemini, không sử dụng các sản phẩm AI cạnh tranh khác.
+* Có thể xem Gemini như "gói khởi đầu" để teams brainstorm, tạo mock, sau đó dùng AI Studio để xây dựng giải pháp phức tạp hơn.
+* Mô hình: Sử dụng phiên bản 3.7 Flash hiện tại.
+* Tài khoản: Sinh viên Việt Nam đã có lời mời đăng ký dùng thử miễn phí Google AI Plus kéo dài 1 năm.
+Hạn mức sử dụng (Usage Limits)
+* Vòng tuyển chọn: Tất cả sinh viên dùng Google AI Plus (tài khoản miễn phí đã đăng ký) để nộp bài dự thi.
+* Vòng chung kết (8 đội): Được cấp tài khoản Google AI Pro với hạn mức cao hơn cho cả Gemini và AI Studio, đảm bảo tất cả các đội có hạn mức như nhau.
+Phương thức nhập liệu (Typing/Voice)
+* Việc nhập liệu bằng giọng nói (voice prompt) có thể gây nhiễu âm thanh và ảnh hưởng giữa các đội.
+* Quyết định: Không yêu cầu dùng voice, các đội có thể thử nếu muốn, nhưng tập trung chính vào trải nghiệm giải trí cho khán giả xem.
+* Các đội nên có micro để khán giả nghe được quá trình trao đổi, tạo trải nghiệm hấp dẫn (kiểu như chương trình Top Chef).
+Người dẫn chương trình (MC/Hosting)
+* MC đóng vai trò quan trọng để tạo năng lượng, phỏng vấn thí sinh, tương tác khán giả.
+* Ứng viên tiềm năng: Hải Toàn - có kinh nghiệm dẫn chương trình, tự tin khả năng tiếng Anh.
+* Vai trò MC: Bình luận trực tiếp, phỏng vấn thí sinh, hỏi khán giả — không chỉ đơn thuần là "hype" đám đông.
+* David (từ Google) sẵn sàng hỗ trợ và chia sẻ kinh nghiệm cho MC.
+Ngôn ngữ và giám khảo
+* Cuộc thi diễn ra 99% bằng tiếng Việt.
+* Có thể có giám khảo từ Google tham gia để tăng độ tin cậy và đa dạng, với phần phiên dịch nếu cần.
+Định dạng vòng chung kết & thời lượng thi
+* Kết quả mong đợi: Không kỳ vọng sản phẩm hoàn chỉnh, chỉ là proof of concept (bằng chứng khả thi) có thể demo, không cần tích hợp backend Firebase, không cần người dùng thật.
+* Thời gian thi: Thảo luận giữa 5 phút và 10 phút cho mỗi đội từ lúc nhận đề đến lần tạo (generation) cuối cùng.
+* 5 phút có thể quá ngắn cho các đội trao đổi và lên ý tưởng.
+* 10 phút có thể hơi dài cho khán giả theo dõi.
+* Chốt: Bắt đầu với 5 phút, thử nghiệm thêm bản 10 phút để so sánh, có thể cân nhắc mức trung gian 7 phút.
+Thuyết trình (Pitch) & chấm điểm
+* Thời gian pitch: 60 giây cho mỗi đội (theo mô hình Y Combinator).
+* Mỗi giám khảo (dự kiến 3 giám khảo) được hỏi 1 câu hỏi.
+* Kỹ năng truyền đạt (communication) là yếu tố quan trọng để chiến thắng, các đội cần cân nhắc khi chọn thành viên.
+Thử thách (Challenge)
+* Các đội thi cùng một đề bài (problem statement) để công bằng cho giám khảo đánh giá.
+* Ngân hàng đề thi sẽ được bổ sung thêm từ cả VNU và Google
+* Cần có phần quy tắc ứng xử (code of conduct) và quy định về trách nhiệm AI trong cuộc thi, sẽ được bổ sung sau khi có danh sách đề bài chốt (khoảng 1-2 tuần sau).
+Ban giám khảo (Judging Panel)
+* Giám khảo cần có uy tín, quan điểm rõ ràng, thú vị và có khả năng nói tốt trên sóng.
+* Đề xuất: 5 giám khảo người Việt gồm 2 giám khảo ngoài VNU để thể hiện sự minh bạch.
+* David (Google) sẽ trao đổi thêm về khả năng có đại diện Google tham gia giám khảo.
+* Bổ sung bình chọn khán giả trực tuyến (audience poll) qua livestream, giải thưởng cho đội được khán giả bình chọn (có thể không phải đội giỏi nhất).
+
+
+Giải thưởng & Truyền thông
+* Có giải thưởng từ ban giám khảo và có thể thêm giải thưởng cho bình chọn khán giả.
+* Livestream: Google có thể đăng lại livestream nếu VMU tổ chức phát sóng.
+* Tutorial/Tập huấn: Đề xuất tổ chức buổi tập huấn trực tuyến (online tutorial) cho 8 đội vào chung kết trước vòng thi cuối, hướng dẫn về prompt AI, vibe coding — không bao gồm truyền thông/báo chí.
+* Google có sẵn Cẩm nang Vibe Coding (Vibe Coding Handbook) với các video hướng dẫn, có thể chia sẻ cho đội thi.
+Trách nhiệm sản xuất & Quảng bá
+* Website: Cần chia sẻ link website cho Minh (Google) để góp ý cải thiện.
+* Quảng bá: Google Việt Nam hỗ trợ qua kênh YouTube và TikTok chính thức của Google Việt Nam.
+* Press Release: VNU có thể soạn thảo và Google hỗ trợ phân phối qua mạng lưới truyền thông.
+* VNU sẽ có cuộc họp với VnExpress trong tuần này để thảo luận về hợp tác truyền thông và sẽ phản hồi lại sau.
+Kế hoạch & tiến độ
+* Tổng thời gian còn lại khoảng 3 tuần đến sự kiện.
+* Tuần sau Việt Nam có kỳ nghỉ lễ.
+* Các bên cần phản hồi nhanh qua Google Chat để tiếp tục tiến độ.
+* Biên bản cuộc họp sẽ được ghi lại và chia sẻ cho đội ngũ VNU.
+3. KẾT LUẬN & KẾ HOẠCH HÀNH ĐỘNG
+Các quyết định đã chốt:
+* Cần tổ chức 1-2 buổi chạy thử với nhóm nhỏ trước sự kiện chính thức.
+* Vòng chung kết có 8 đội, tối đa 3 vòng thi.
+* Sử dụng Gemini và Google AI Studio làm công cụ chính thức.
+* Các đội vào chung kết được cấp tài khoản Google AI Pro.
+* Thời gian thi cho mỗi đội bắt đầu với 5 phút, có thể thử nghiệm bản 10 phút.
+* Thời gian pitch: 60 giây, mỗi giám khảo hỏi tối đa 1 câu.
+* Các đội thi đối kháng sẽ dùng cùng một đề bài.
+* Cuộc thi chủ yếu bằng tiếng Việt, có thể có giám khảo ngoài VNU.
+* Có bình chọn khán giả trực tuyến với giải thưởng riêng.
+Phân công nhiệm vụ (Action Items):
+* Minh (Google) - Kiểm tra và xác nhận phương án sử dụng Gemini/AI Studio, đánh giá website sự kiện khi nhận link - Trong tuần
+* David (Google) - Trao đổi về khả năng có đại diện Google làm giám khảo - Trong tuần
+* Đội ngũ VNU - Chia sẻ link website cho Minh (Google) góp ý - Càng sớm càng tốt
+* Đội ngũ VNU - Họp với VnExpress về hợp tác truyền thông, phản hồi lại kết quả - Trong tuần
+* Hải Toàn (MC) - Trao đổi thêm với David về vai trò MC, thống nhất định dạng dẫn chương trình - Chưa chốt thời gian
+* Minh (Google) - Xác nhận phương án tổ chức buổi tập huấn (tutorial) cho 8 đội vào chung kết, phản hồi nội bộ - Chưa chốt thời gian
+* Đội ngũ VNU - Bổ sung ngân hàng đề thi (challenge bank) và phần quy tắc ứng xử - Trong 1-2 tuần tới
+* Cả hai bên - Tiếp tục thảo luận qua Google Chat để hoàn thiện chi tiết

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 
 const NAV = [
   { href: "/#gioi-thieu", label: "Giới thiệu" },
+  { href: "/tin-tuc", label: "Thông báo" },
   { href: "/#lich-trinh", label: "Lịch trình" },
   { href: "/#tieu-chi", label: "Tiêu chí chấm điểm" },
   { href: "/#faq", label: "FAQ" },

@@ -77,7 +77,7 @@ export function PublishFinalistsForm() {
   return (
     <form action={action} className="space-y-3">
       <p className="text-sm text-slate-600">
-        Công bố mọi finalist đang SELECTED lên <code>/finalists</code> và gửi email thông báo.
+        Công bố mọi finalist đang SELECTED lên <code>/finalists</code> và gửi thông báo trong hệ thống.
       </p>
       <Button type="submit" variant="accent" disabled={pending}>
         {pending ? "Đang công bố…" : "Công bố finalist"}

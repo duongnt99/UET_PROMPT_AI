@@ -25,6 +25,10 @@ export const competitionSettingsSchema = z.object({
   publicStatus: publicStatusSchema,
   shortDescription: z.string(),
   fullDescription: z.string(),
+  landingHeroTitle: z.string(),
+  landingHeroHighlight: z.string(),
+  landingAudienceText: z.string(),
+  landingToolsText: z.string(),
   landingFinalRoundTitle: z.string(),
   finalRoundSprintTitle: z.string(),
   finalRoundSprintDescription: z.string(),
@@ -129,6 +133,10 @@ export function defaultCompetitionSettings(
       "Sân chơi quốc gia để sinh viên ứng dụng prompting với Gemini và Google AI Studio, dựng proof of concept trong 5–10 phút.",
     fullDescription:
       "Cuộc thi do Đại học Quốc gia Hà Nội triển khai, Trường Đại học Công nghệ làm đầu mối phối hợp, phối hợp cùng Google. Vòng tuyển chọn trực tuyến; chung kết 8 đội thi trực tiếp trong nửa ngày tại ĐHQGHN (loại trực tiếp 8 → 4 → 2, không bye), kết hợp livestream. Công cụ chính thức: Gemini và Google AI Studio.",
+    landingHeroTitle: "Prompt-Off:",
+    landingHeroHighlight: "Vietnam 2026",
+    landingAudienceText: "Sinh viên các trường đại học trên toàn quốc",
+    landingToolsText: "Google AI Studio và Google Gemini",
     landingFinalRoundTitle: "Vòng chung kết",
     finalRoundSprintTitle: "The Sprint",
     finalRoundSprintDescription:
