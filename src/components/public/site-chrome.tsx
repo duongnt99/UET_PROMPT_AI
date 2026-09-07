@@ -13,15 +13,15 @@ const NAV = [
   { href: "/#faq", label: "FAQ" },
 ];
 
-export function PublicHeader({ workspaceHref }: { workspaceHref?: string | null }) {
+export function PublicHeader({ workspaceHref, brandName }: { workspaceHref?: string | null; brandName: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <header className="sticky top-0 z-40 border-b border-[#4285F4]/10 bg-white/90 text-slate-900 shadow-[0_1px_18px_rgba(15,23,42,0.04)] backdrop-blur-xl">
-      <div className="mx-auto flex h-[68px] max-w-6xl items-center justify-between gap-4 px-5">
-        <Link href="/" className="display text-lg font-bold tracking-[-0.03em] text-[#4285F4] md:text-xl">
-          Prompt-Off: Vietnam 2026
+    <header className="public-chrome sticky top-0 z-40 border-b border-white/40 bg-white/70 text-slate-900 shadow-[0_1px_2px_rgba(15,23,42,0.06)] backdrop-blur-xl">
+      <div className="mx-auto flex h-[68px] max-w-7xl items-center justify-between gap-4 px-5 lg:px-8">
+        <Link href="/" className="display text-lg font-extrabold tracking-[-0.03em] text-[#4285F4] md:text-[1.625rem]">
+          {brandName}
         </Link>
-        <nav aria-label="Điều hướng chính" className="hidden items-center gap-7 text-sm font-medium md:flex">
+        <nav aria-label="Điều hướng chính" className="hidden items-center gap-8 text-sm font-semibold tracking-[0.035em] md:flex">
           {NAV.map((item) => (
             <Link key={item.href} href={item.href} className="text-slate-600 transition hover:text-[#4285F4]">
               {item.label}
@@ -81,17 +81,17 @@ const FOOTER_LINKS = [
   { href: "/dieu-khoan", label: "Điều khoản" },
 ];
 
-export function PublicFooter() {
+export function PublicFooter({ brandName }: { brandName: string }) {
   return (
-    <footer className="mt-auto border-t border-slate-200/70 bg-[#f5f3f1] text-slate-900">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-5 py-10 md:flex-row md:items-center md:justify-between">
+    <footer className="public-chrome mt-auto border-t border-slate-200/20 bg-[#f0eded]/50 text-slate-900 backdrop-blur-lg">
+      <div className="mx-auto flex max-w-7xl flex-col gap-8 px-5 py-12 md:flex-row md:items-center md:justify-between lg:px-8">
         <div>
-          <p className="display text-xl font-bold tracking-[-0.03em] text-[#4285F4]">Prompt-Off: Vietnam 2026</p>
-          <p className="mt-2 text-sm text-slate-600">
+          <p className="display text-2xl font-extrabold tracking-[-0.03em] text-[#4285F4] md:text-[2rem]">{brandName}</p>
+          <p className="mt-3 text-base text-slate-600 md:text-lg">
             Đồng tổ chức: ĐHQGHN, Trường Đại học Công nghệ và Google.
           </p>
         </div>
-        <nav aria-label="Điều hướng cuối trang" className="flex flex-wrap gap-x-7 gap-y-2 text-sm text-slate-600 md:justify-end">
+        <nav aria-label="Điều hướng cuối trang" className="flex flex-wrap gap-x-6 gap-y-2 text-base text-slate-600 md:justify-end md:text-lg">
           {FOOTER_LINKS.map((item) => (
             <Link key={item.href} href={item.href} className="transition hover:text-[#4285F4]">
               {item.label}

@@ -197,7 +197,9 @@ export default async function Page() {
           </Card>
           <Card>
             <p className="font-semibold">Trọng số, tên và mô tả tiêu chí</p>
-            <p className="mt-1 text-sm text-slate-600">Các thẻ 40% / 30% / 30% lấy từ rubric đang kích hoạt.</p>
+            <p className="mt-1 text-sm text-slate-600">
+              Các thẻ trên trang chủ lấy từ rubric Vòng tuyển chọn đang được kích hoạt.
+            </p>
             <Button asChild variant="outline" size="sm" className="mt-4">
               <Link href="/admin/rubrics">Quản lý rubric</Link>
             </Button>

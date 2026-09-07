@@ -22,20 +22,28 @@ export async function registerAccount(params: {
   if (existing) {
     return {
       ok: false as const,
-      message: "Không thể tạo tài khoản với thông tin này. Nếu đã đăng ký, hãy đăng nhập hoặc đặt lại mật khẩu.",
+      message: "Email này đã được sử dụng để đăng ký tài khoản.",
     };
   }
   const passwordHash = await hashPassword(password);
-  const user = await prisma.user.create({
-    data: {
-      email: email,
-      emailNormalized: email,
-      passwordHash,
-      status: "ACTIVE",
-      roleAssignments: { create: { role: "PARTICIPANT" } },
-      profile: { create: {} },
-    },
-  });
+  let user;
+  try {
+    user = await prisma.user.create({
+      data: {
+        email,
+        emailNormalized: email,
+        passwordHash,
+        status: "ACTIVE",
+        roleAssignments: { create: { role: "PARTICIPANT" } },
+        profile: { create: {} },
+      },
+    });
+  } catch (error) {
+    if (typeof error === "object" && error && "code" in error && error.code === "P2002") {
+      return { ok: false as const, message: "Email này đã được sử dụng để đăng ký tài khoản." };
+    }
+    throw error;
+  }
   await writeAuditLog({
     actorUserId: user.id,
     action: "auth.register",

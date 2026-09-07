@@ -58,6 +58,36 @@ a {
     #fff;
 }
 
+.landing-shell,
+.public-chrome {
+  font-family: var(--font-hanken-grotesk), var(--font-be-vietnam), sans-serif;
+}
+
+.landing-shell .display,
+.public-chrome .display {
+  font-family: var(--font-plus-jakarta), var(--font-space-grotesk), sans-serif;
+}
+
+.landing-page-background {
+  background:
+    radial-gradient(circle at -8% 2%, rgba(66, 133, 244, 0.2), transparent 30rem),
+    radial-gradient(circle at 105% 18%, rgba(219, 68, 55, 0.12), transparent 28rem),
+    radial-gradient(circle at -8% 42%, rgba(244, 180, 0, 0.16), transparent 30rem),
+    radial-gradient(circle at 100% 92%, rgba(15, 157, 88, 0.12), transparent 32rem),
+    #fcf9f8;
+}
+
+.landing-page-background::after {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(66, 133, 244, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(66, 133, 244, 0.045) 1px, transparent 1px);
+  background-size: 48px 48px;
+  content: "";
+  mask-image: linear-gradient(to bottom, #000, transparent 35%);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

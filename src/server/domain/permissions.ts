@@ -13,6 +13,7 @@ export const PERMISSIONS = {
   "roles:manage": ["SUPER_ADMIN"],
   "users:manage": ["SUPER_ADMIN", "ADMIN"],
   "content:manage": ["SUPER_ADMIN", "ADMIN"],
+  "email:manage": ["SUPER_ADMIN", "ADMIN"],
   "registration:manage": ["SUPER_ADMIN", "ADMIN"],
   "submission:manage": ["SUPER_ADMIN", "ADMIN"],
   "review:assign": ["SUPER_ADMIN", "ADMIN"],

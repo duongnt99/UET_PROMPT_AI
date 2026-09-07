@@ -21,6 +21,9 @@ describe("permission checks", () => {
   it("blocks TECH_OPERATOR from exporting PII", () => {
     expect(hasPermission(["TECH_OPERATOR"], "export:pii")).toBe(false);
     expect(hasPermission(["TECH_OPERATOR"], "operations:control")).toBe(true);
+    expect(hasPermission(["TECH_OPERATOR"], "email:manage")).toBe(false);
+    expect(hasPermission(["PARTICIPANT"], "email:manage")).toBe(false);
+    expect(hasPermission(["ADMIN"], "email:manage")).toBe(true);
   });
 });
 

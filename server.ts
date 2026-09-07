@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
 import next from "next";
 import { attachLiveScreenSignaling } from "@/server/live-screen/signaling";
+import { startEmailWorker } from "@/server/email/email-worker";
 
 async function main() {
   const dev = process.argv.includes("--dev") || process.env.NODE_ENV !== "production";
@@ -24,12 +25,15 @@ async function main() {
     handleNextUpgrade: app.getUpgradeHandler(),
   });
 
+  const stopEmailWorker = startEmailWorker();
+  server.on("close", stopEmailWorker);
+
   server.listen(port, hostname, () => {
-    console.info(`> Prompt-Off sẵn sàng tại http://${hostname}:${port}`);
+    console.info(`> AI Arena Vietnam sẵn sàng tại http://${hostname}:${port}`);
   });
 }
 
 void main().catch((error) => {
-  console.error("Không khởi động được Prompt-Off server", error);
+  console.error("Không khởi động được máy chủ AI Arena Vietnam", error);
   process.exitCode = 1;
 });

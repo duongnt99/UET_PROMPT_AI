@@ -37,4 +37,4 @@ Append-only `AuditLog`. Secrets redacted by logger.
 
 ## Deployment
 
-Single web process + PostgreSQL + object storage. Không cần SMTP, nhà cung cấp email hay email cron.
+Single web process + PostgreSQL + object storage. Tiến trình web đồng thời chạy worker cho email outbox; production hỗ trợ SMTP hoặc Resend và không cần một queue service riêng. Xem `docs/EMAIL_SYSTEM.md`.

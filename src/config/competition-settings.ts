@@ -125,19 +125,19 @@ export function defaultCompetitionSettings(
   overrides: Partial<CompetitionSettings> = {},
 ): CompetitionSettings {
   return competitionSettingsSchema.parse({
-    competitionName: "Prompt-Off: Vietnam 2026",
+    competitionName: "AI Arena Vietnam",
     competitionSlug: "prompt-off-vietnam-2026",
     season: "2026",
     publicStatus: "PUBLISHED",
     shortDescription:
-      "Sân chơi quốc gia để sinh viên ứng dụng prompting với Gemini và Google AI Studio, dựng proof of concept trong 5–10 phút.",
+      "Sân chơi quốc gia để sinh viên thực hành kỹ năng đặt câu lệnh cùng Google Gemini và Google AI Studio, xây dựng ứng dụng trong 5–10 phút.",
     fullDescription:
-      "Cuộc thi do Đại học Quốc gia Hà Nội triển khai, Trường Đại học Công nghệ làm đầu mối phối hợp, phối hợp cùng Google. Vòng tuyển chọn trực tuyến; chung kết 8 đội thi trực tiếp trong nửa ngày tại ĐHQGHN (loại trực tiếp 8 → 4 → 2, không bye), kết hợp livestream. Công cụ chính thức: Gemini và Google AI Studio.",
-    landingHeroTitle: "Prompt-Off:",
-    landingHeroHighlight: "Vietnam 2026",
+      "Cuộc thi ứng dụng AI do Đại học Quốc gia Hà Nội (ĐHQGHN) triển khai, Trường Đại học Công nghệ (VNU-UET) làm đầu mối phối hợp cùng Google tổ chức. Đây là sân chơi công nghệ mở ra cơ hội thực chiến giải quyết các bài toán thực tế thông qua kỹ năng Prompt Engineering trên nền tảng hai công cụ chính thức: **Google Gemini và Google AI Studio**.\n\nHành trình trải nghiệm bắt đầu từ Vòng tuyển chọn trực tuyến nhằm tìm kiếm 8 đội thi xuất sắc nhất bước vào Vòng Chung kết. Tại vòng đấu quyết định này, 8 đội sẽ trực tiếp tranh tài trên sân khấu để tìm ra nhà vô địch.\n\nVòng Chung kết sẽ chính thức diễn ra vào ngày **03/11/2026 tại Hội trường tầng 1, Trung tâm Văn hóa ULIS - Jonathan KS. Choi, ĐHQGHN** (số 144 Xuân Thủy, Cầu Giấy, Hà Nội).",
+    landingHeroTitle: "AI Arena",
+    landingHeroHighlight: "Vietnam",
     landingAudienceText: "Sinh viên các trường đại học trên toàn quốc",
     landingToolsText: "Google AI Studio và Google Gemini",
-    landingFinalRoundTitle: "Vòng chung kết",
+    landingFinalRoundTitle: "Thể thức vòng chung kết",
     finalRoundSprintTitle: "The Sprint",
     finalRoundSprintDescription:
       "Hai đội nhận cùng một đề bài, có {thoi_luong} để xây dựng bản thử nghiệm bằng Google Gemini & Google AI Studio — tập trung vào tính khả thi.",
@@ -154,9 +154,9 @@ export function defaultCompetitionSettings(
     officialContactEmail: "promptoff@example.edu.vn",
     officialContactPhone: "",
     venue: "Hội trường tầng 1, Trung tâm Văn hóa ULIS - Jonathan KS. Choi, ĐHQGHN",
-    venueStatus: "TENTATIVE",
-    eventDate: "2026-11-01",
-    eventDateStatus: "TENTATIVE",
+    venueStatus: "CONFIRMED",
+    eventDate: "2026-11-03",
+    eventDateStatus: "CONFIRMED",
     livestreamUrl: "",
     livestreamStatus: "HIDDEN",
     prizeInformation: "",

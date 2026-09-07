@@ -17,8 +17,8 @@ await page.pdf({
   printBackground: true,
   margin: { top: "16mm", bottom: "18mm", left: "14mm", right: "14mm" },
   displayHeaderFooter: true,
-  headerTemplate: `<div style="font-size:8px;color:#6b7280;width:100%;padding:0 18mm;font-family:Arial,sans-serif;">Prompt-Off: Vietnam 2026 — Báo cáo hiện trạng và hướng dẫn hệ thống (nội bộ)</div>`,
-  footerTemplate: `<div style="font-size:8px;color:#6b7280;width:100%;padding:0 18mm;font-family:Arial,sans-serif;display:flex;justify-content:space-between;"><span>06/09/2026</span><span>Trang <span class="pageNumber"></span> / <span class="totalPages"></span></span></div>`,
+  headerTemplate: `<div style="font-size:8px;color:#6b7280;width:100%;padding:0 18mm;font-family:Arial,sans-serif;">AI Arena Vietnam — Báo cáo hiện trạng và hướng dẫn hệ thống (nội bộ)</div>`,
+  footerTemplate: `<div style="font-size:8px;color:#6b7280;width:100%;padding:0 18mm;font-family:Arial,sans-serif;display:flex;justify-content:space-between;"><span>07/09/2026</span><span>Trang <span class="pageNumber"></span> / <span class="totalPages"></span></span></div>`,
 });
 await browser.close();
 console.info("Wrote", out);

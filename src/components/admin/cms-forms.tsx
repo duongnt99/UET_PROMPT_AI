@@ -43,6 +43,9 @@ export function LandingOverviewForm({ settings }: { settings: LandingOverviewSet
           <Input id="landingHeroHighlight" name="landingHeroHighlight" required defaultValue={settings.landingHeroHighlight} className="mt-1" />
         </div>
       </div>
+      <p className="text-xs text-slate-500">
+        Hai dòng tiêu đề này cũng được ghép thành tên thương hiệu trên thanh điều hướng và chân trang.
+      </p>
       <div>
         <Label htmlFor="shortDescription">Mô tả ngắn dưới tiêu đề</Label>
         <Textarea id="shortDescription" name="shortDescription" required defaultValue={settings.shortDescription} className="mt-1 min-h-24" />

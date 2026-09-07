@@ -64,14 +64,15 @@ const FALLBACK_TIMELINE = [
     dateLabel: "15/09/2026",
     statusLabel: "Dự kiến",
     title: "Phát động & mở đơn",
-    description: "Phát động cuộc thi và chính thức mở cổng đăng ký tham gia trực tuyến cho sinh viên toàn quốc.",
+    description: "Phát động cuộc thi và chính thức mở cổng đăng ký tham gia trực tuyến cho các đội thi trên toàn quốc.",
   },
   {
     id: "audition",
     dateLabel: "15/09 – 05/10/2026",
     statusLabel: "Audition",
     title: "Vòng tuyển chọn",
-    description: "Đăng ký trực tuyến, nộp video và thử thách vibe coding với Google Gemini và Google AI Studio.",
+    description:
+      "• Đăng ký trực tuyến trên website.\n• Nộp video & thử thách vibe coding với Google Gemini và Google AI Studio.\n• Top 8 đội xuất sắc nhất tiến vào Chung kết.",
   },
   {
     id: "review",
@@ -89,10 +90,11 @@ const FALLBACK_TIMELINE = [
   },
   {
     id: "final",
-    dateLabel: "01/11/2026",
-    statusLabel: "Final day",
+    dateLabel: "03/11/2026",
+    statusLabel: "Chung kết",
     title: "Chung kết & trao giải",
-    description: "8 đội thi đấu loại trực tiếp 8 → 4 → 2, không bye, trong sự kiện nửa ngày tại ĐHQGHN.",
+    description:
+      "• Địa điểm: Hội trường tầng 1, Trung tâm Văn hóa ULIS - Jonathan KS. Choi, ĐHQGHN (144 Xuân Thủy, Cầu Giấy, Hà Nội).\n• 8 đội sẽ tranh tài trực tiếp.",
   },
 ];
 
@@ -126,13 +128,13 @@ const FALLBACK_CRITERIA = [
 const FALLBACK_FAQS = [
   {
     id: "fee",
-    question: "Tham gia cuộc thi có mất phí không?",
-    answerMarkdown: "Cuộc thi không thu phí tham dự. Thí sinh chỉ cần hoàn thành đăng ký và bài Audition đúng hạn.",
+    question: "Chi phí tham dự Chung kết cho các thí sinh như thế nào?",
+    answerMarkdown: "Ban Tổ chức sẽ công bố chính sách hỗ trợ thí sinh Chung kết trong thông báo chính thức.",
   },
   {
-    id: "team",
-    question: "Thi cá nhân hay bắt buộc phải có đội?",
-    answerMarkdown: "Cổng hiện hỗ trợ đăng ký cá nhân hoặc theo đội theo cấu hình của Ban Tổ chức.",
+    id: "account",
+    question: "Thí sinh được cung cấp tài khoản AI như thế nào?",
+    answerMarkdown: "Các đội được lựa chọn vào vòng chung kết sẽ được cấp tài khoản Google AI Pro.",
   },
   {
     id: "copyright",
@@ -140,19 +142,29 @@ const FALLBACK_FAQS = [
     answerMarkdown: "Thí sinh chịu trách nhiệm về sản phẩm và nguồn nội dung sử dụng trong bài dự thi.",
   },
   {
-    id: "tools",
-    question: "Dùng công cụ AI nào?",
-    answerMarkdown: "Công cụ chính thức là Google Gemini và Google AI Studio.",
+    id: "prompting",
+    question: "Phương thức nhập lệnh (Prompting) được quy định ra sao?",
+    answerMarkdown: "Thí sinh thực hiện nhập lệnh trực tiếp theo thể lệ và yêu cầu của từng phần thi.",
   },
   {
-    id: "format",
-    question: "Thể thức chung kết thế nào?",
-    answerMarkdown: "8 đội thi đấu loại trực tiếp qua The Sprint, The Pitch và The Verdict.",
+    id: "language",
+    question: "Ngôn ngữ chính thức được sử dụng trong cuộc thi là gì?",
+    answerMarkdown: "Ngôn ngữ chính thức của cuộc thi là tiếng Việt.",
   },
 ];
 
 function withDuration(template: string, seconds: number) {
   return template.replaceAll("{thoi_luong}", formatDurationLabel(seconds));
+}
+
+function WaveDivider({ flip = false }: { flip?: boolean }) {
+  return (
+    <div aria-hidden className={cn("h-16 w-full text-white/65 md:h-24", flip && "rotate-180")}>
+      <svg viewBox="0 0 1440 96" preserveAspectRatio="none" className="h-full w-full fill-current">
+        <path d="M0 32C216 88 421 1 684 34c274 34 474 84 756 18v44H0Z" />
+      </svg>
+    </div>
+  );
 }
 
 export default async function HomePage() {
@@ -233,49 +245,52 @@ export default async function HomePage() {
   ];
 
   return (
-    <div className="overflow-hidden bg-[#FFFAF8]">
-      <section className="landing-grid relative overflow-hidden border-b border-slate-100 text-slate-900">
+    <div className="landing-shell relative isolate overflow-hidden bg-[#fcf9f8]">
+      <div aria-hidden className="landing-page-background pointer-events-none fixed inset-0 z-0" />
+      <div className="relative z-10">
+      <section className="relative overflow-hidden text-slate-900">
         <div className="pointer-events-none absolute -left-8 top-1/2 flex h-16 w-16 -translate-y-1/2 items-center justify-center rounded-full bg-[#EA4335]/70 text-white shadow-lg">
           <Sparkles className="h-6 w-6" />
         </div>
-        <div className="relative mx-auto grid min-h-[620px] max-w-6xl items-center gap-12 px-5 py-16 md:grid-cols-[1.05fr_0.95fr] md:py-20 lg:gap-20">
+        <div className="relative mx-auto grid min-h-[620px] max-w-7xl items-center gap-12 px-5 py-16 md:grid-cols-2 md:py-[5.5rem] lg:gap-16 lg:px-8">
           <div>
-            <div className="inline-flex items-center gap-2.5 rounded-full border border-slate-200/80 bg-white/85 px-3 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.08)] backdrop-blur">
-              <Image src="/partners/vnu-mini.png" alt="Đại học Quốc gia Hà Nội" width={28} height={28} className="h-7 w-7 object-contain" />
+            <div className="inline-flex h-[52px] min-w-[269px] items-center justify-center gap-4 rounded-full border border-white/60 bg-white/85 px-3 shadow-sm backdrop-blur-lg">
+              <Image src="/partners/vnu-mini.png" alt="Đại học Quốc gia Hà Nội" width={35} height={35} className="h-[35px] w-[35px] object-contain" />
               <span className="text-slate-300">+</span>
-              <Image src="/partners/google-wordmark.png" alt="Google" width={72} height={25} className="h-5 w-auto object-contain" />
+              <Image src="/partners/google-wordmark.png" alt="Google" width={90} height={29} className="h-7 w-[90px] object-contain" />
               <span className="text-slate-300">+</span>
-              <Image src="/partners/uet-mini.jpg" alt="Trường Đại học Công nghệ" width={28} height={28} className="h-7 w-7 rounded-full object-contain" />
+              <Image src="/partners/uet-mini.jpg" alt="Trường Đại học Công nghệ" width={42} height={42} className="h-[42px] w-[42px] rounded-full object-contain" />
             </div>
-            <h1 className="display mt-7 text-[2.75rem] font-bold leading-[0.98] tracking-[-0.055em] text-[#17181c] sm:text-6xl lg:text-[4.6rem]">
-              {settings?.landingHeroTitle ?? "Prompt-Off:"}
+            <h1 className="display mt-7 text-[3rem] font-extrabold leading-[1.03] tracking-[-0.035em] text-[#1c1b1b] sm:text-6xl lg:text-[4.875rem]">
+              {settings?.landingHeroTitle ?? "AI Arena"}
               <span className="mt-2 block text-[#4285F4]">
                 {settings?.landingHeroHighlight ?? "Vietnam 2026"}
               </span>
             </h1>
-            <p className="mt-7 max-w-xl text-base leading-8 text-slate-600 md:text-[1.05rem]">
+            <p className="mt-6 max-w-lg text-justify text-lg leading-8 text-[#424753] md:text-xl">
               {settings?.shortDescription ??
                 "Sân chơi quốc gia để sinh viên thực hành kỹ năng đặt câu lệnh cùng Google Gemini và Google AI Studio, xây dựng ứng dụng trong 5–10 phút."}
             </p>
-            <div className="mt-9 flex flex-wrap items-center gap-3">
-              <Button asChild className="h-11 rounded-full bg-[#169C55] px-6 text-white shadow-[0_10px_25px_rgba(22,156,85,0.24)] hover:bg-[#128147]">
+            <div className="mt-9 flex flex-wrap items-center gap-4">
+              <Button asChild className="h-13 rounded-full bg-[#0f9d58] px-8 font-extrabold tracking-[0.035em] text-white shadow-md hover:bg-[#0b8248]">
                 <Link href="/dashboard/audition">Nộp dự án vòng 1</Link>
               </Button>
-              <Button asChild className="h-11 rounded-full bg-[#E33B43] px-6 text-white shadow-[0_10px_25px_rgba(227,59,67,0.2)] hover:bg-[#c92f37]">
+              <Button asChild className="h-13 rounded-full bg-[#db4437] px-8 font-bold tracking-[0.035em] text-white shadow-md hover:bg-[#bd352a]">
                 <Link href="/the-le">Thể lệ</Link>
               </Button>
             </div>
           </div>
 
-          <div className="relative mx-auto min-h-[350px] w-full max-w-[430px] sm:min-h-[420px]">
-            <div className="absolute inset-x-5 inset-y-4 rotate-[1.5deg] rounded-[2rem] bg-[#4285F4]/10" />
-            <div className="absolute inset-0 rounded-[2rem] border border-white/80 bg-white/90 shadow-[0_28px_60px_rgba(15,23,42,0.18)] backdrop-blur">
+          <div className="relative mx-auto min-h-[350px] w-full max-w-[448px] sm:min-h-[448px]">
+            <div className="absolute inset-x-3 inset-y-4 rotate-[1.5deg] rounded-[2.5rem] bg-[#4285F4]/10" />
+            <div className="absolute inset-0 overflow-hidden rounded-[2.5rem] border border-white/80 bg-white/85 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] backdrop-blur-lg">
               <div className="flex gap-1.5 p-6">
                 <span className="h-2.5 w-2.5 rounded-full bg-[#EA4335]/70" />
                 <span className="h-2.5 w-2.5 rounded-full bg-[#FBBC04]/80" />
                 <span className="h-2.5 w-2.5 rounded-full bg-[#34A853]/70" />
               </div>
-              <Sparkles className="absolute left-1/2 top-1/2 h-20 w-20 -translate-x-1/2 -translate-y-1/2 text-[#4285F4]/10" strokeWidth={1.2} />
+              <div className="absolute inset-0 bg-gradient-to-br from-[#e8f0fe]/40 via-[#e6f4ea]/20 to-[#fce8e6]/20" />
+              <Sparkles className="absolute left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2 text-[#4285F4]/15" strokeWidth={1.2} />
             </div>
             <span className="absolute -left-5 bottom-14 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#4285F4] text-white shadow-lg">
               <Code2 className="h-5 w-5" />
@@ -290,42 +305,41 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section id="gioi-thieu" className="relative scroll-mt-24 px-5 py-20 text-center md:py-28">
+      <WaveDivider />
+
+      <section id="gioi-thieu" className="relative scroll-mt-24 px-5 pb-20 text-center md:pb-28 lg:px-8">
         <div className="pointer-events-none absolute right-[7%] top-16 text-[7rem] font-black leading-none text-[#4285F4]/7">◇</div>
-        <div className="relative mx-auto max-w-4xl">
-          <h2 className="display text-3xl font-bold tracking-[-0.04em] text-[#17181c] md:text-5xl">Thông tin cuộc thi</h2>
-          <div className="mx-auto mt-7 max-w-3xl space-y-4 text-left text-base leading-8 text-slate-700">
-            {competitionDescription
-              .split(/\n\s*\n/)
-              .map((paragraph) => paragraph.trim())
-              .filter(Boolean)
-              .map((paragraph, index) => (
-                <p key={`${index}-${paragraph.slice(0, 24)}`} className="text-pretty">
-                  {paragraph}
-                </p>
-              ))}
-          </div>
-          <div className="mt-10 grid gap-5 sm:grid-cols-2">
-            <div className="overflow-hidden rounded-[1.4rem] bg-white shadow-[0_14px_30px_rgba(15,23,42,0.08)]">
-              <p className="bg-[#169C55] px-5 py-2.5 font-semibold text-white">Đối tượng</p>
-              <p className="px-5 py-4 text-sm text-slate-600">
+        <div className="relative mx-auto max-w-7xl">
+          <h2 className="display text-3xl font-bold tracking-[-0.025em] text-[#1c1b1b] md:text-[3.5rem] md:leading-[4rem]">Thông tin cuộc thi</h2>
+          <FormattedText
+            text={competitionDescription}
+            className="mx-auto mt-4 max-w-[1000px] text-justify text-lg leading-9 text-[#062f73] md:text-xl [&>p]:text-pretty"
+          />
+          <div className="mt-8 grid gap-6 sm:grid-cols-2">
+            <div className="relative pt-6">
+              <p className="display absolute left-1/2 top-0 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#0f9d58] px-6 py-1.5 text-lg font-bold text-white shadow-[0_4px_12px_rgba(15,157,88,0.33)] md:text-[1.375rem]">Đối tượng</p>
+              <div className="flex min-h-[142px] items-center justify-center rounded-[2.5rem] border border-[#0f9d58] bg-white/85 px-6 pb-6 pt-11 shadow-[0_20px_40px_-10px_rgba(66,133,244,0.08)] backdrop-blur-lg">
+              <p className="text-lg text-[#424753] md:text-xl">
                 {settings?.landingAudienceText ?? "Sinh viên các trường đại học trên toàn quốc"}
               </p>
+              </div>
             </div>
-            <div className="overflow-hidden rounded-[1.4rem] bg-white shadow-[0_14px_30px_rgba(15,23,42,0.08)]">
-              <p className="bg-[#F5AA28] px-5 py-2.5 font-semibold text-white">Công cụ</p>
-              <p className="px-5 py-4 text-sm text-slate-600">
+            <div className="relative pt-6">
+              <p className="display absolute left-1/2 top-0 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#f4b400] px-6 py-1.5 text-lg font-bold text-white shadow-[0_4px_12px_rgba(244,180,0,0.33)] md:text-[1.375rem]">Công cụ</p>
+              <div className="flex min-h-[142px] items-center justify-center rounded-[2.5rem] border border-[#f4b400] bg-white/85 px-6 pb-6 pt-11 shadow-[0_20px_40px_-10px_rgba(66,133,244,0.08)] backdrop-blur-lg">
+              <p className="text-lg text-[#424753] md:text-xl">
                 {settings?.landingToolsText ?? "Google AI Studio và Google Gemini"}
               </p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section id="lich-trinh" className="scroll-mt-20 px-5 pb-24 md:pb-28">
-        <div className="mx-auto max-w-5xl">
-          <div className="mx-auto flex w-fit items-center gap-2 rounded-full border-2 border-[#4285F4] bg-white px-5 py-1.5 text-sm font-semibold text-[#4285F4] shadow-sm">
-            <span className="h-2 w-2 rounded-full bg-[#4285F4]" />
+      <section id="lich-trinh" className="scroll-mt-20 px-5 pb-20 md:pb-28 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="display mx-auto flex w-fit items-center gap-3 rounded-full border-2 border-[#4285F4] bg-white px-8 py-3 text-lg font-extrabold tracking-[0.065em] text-[#4285F4] shadow-md md:text-[1.375rem]">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#4285F4]" />
             Lịch trình
           </div>
           <ol className="relative mt-10">
@@ -343,32 +357,32 @@ export default async function HomePage() {
                   <span
                     aria-hidden
                     className={cn(
-                      "absolute left-3 top-8 h-5 w-5 rounded-full border-[5px] border-[#FFFAF8] shadow-sm md:left-1/2 md:-translate-x-1/2",
+                      "absolute left-3 top-8 h-6 w-6 rounded-full border-[5px] border-white shadow-md md:left-1/2 md:-translate-x-1/2",
                       accent.dot,
                     )}
                   />
                   <article
                     className={cn(
-                      "relative rounded-2xl border bg-white/80 p-5 shadow-[0_10px_28px_rgba(15,23,42,0.06)] backdrop-blur md:max-w-[390px]",
+                      "relative rounded-2xl border bg-white/85 p-6 shadow-sm backdrop-blur-lg md:w-full md:max-w-[500px]",
                       accent.border,
                       isLeft ? "md:col-start-1 md:justify-self-end" : "md:col-start-2",
                     )}
                   >
-                    <span className={cn("inline-flex rounded-full border px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-wide", accent.chip)}>
+                    <span className={cn("display inline-flex rounded-lg border px-3 py-1.5 text-xs font-extrabold uppercase tracking-[0.05em]", accent.chip)}>
                       {item.dateLabel}
                     </span>
-                    <h3 className="mt-3 text-sm font-bold uppercase tracking-[-0.01em] text-slate-900">{item.title}</h3>
-                    <FormattedText text={item.description} className="mt-2 text-sm leading-6 text-slate-600" />
+                    <h3 className="display mt-3 text-lg font-extrabold uppercase tracking-[-0.025em] text-slate-800">{item.title}</h3>
+                    <FormattedText text={item.description} className="mt-2 text-sm leading-[1.375rem] text-slate-600" />
                   </article>
                   <span
                     aria-hidden
                     className={cn(
-                      "absolute top-7 hidden h-12 w-12 items-center justify-center rounded-2xl border bg-white shadow-[0_8px_20px_rgba(15,23,42,0.08)] md:flex",
+                      "absolute top-6 hidden h-16 w-16 items-center justify-center rounded-2xl border-2 bg-white shadow-lg md:flex",
                       accent.icon,
-                      isLeft ? "left-[calc(50%+28rem)]" : "right-[calc(50%+28rem)]",
+                      isLeft ? "right-0" : "left-0",
                     )}
                   >
-                    <TimelineIcon className="h-5 w-5" />
+                    <TimelineIcon className="h-8 w-8" />
                   </span>
                 </li>
               );
@@ -377,28 +391,30 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="px-5 pb-24 md:pb-28">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="display text-center text-3xl font-bold tracking-[-0.04em] md:text-5xl">
-            {settings?.landingFinalRoundTitle ?? "Vòng chung kết"}
+      <WaveDivider flip />
+
+      <section className="px-5 py-16 md:py-20 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <h2 className="display text-center text-3xl font-bold tracking-[-0.025em] text-[#424753] md:text-[2.5rem] md:leading-[3.5rem]">
+            {settings?.landingFinalRoundTitle ?? "Thể thức vòng chung kết"}
           </h2>
-          <div className="mt-10 grid gap-5 md:grid-cols-2">
+          <div className="mt-10 grid gap-6 md:grid-cols-2">
             {finalRounds.map((round) => {
               const Icon = round.icon;
               return (
                 <article
                   key={round.title}
                   className={cn(
-                    "flex gap-4 rounded-2xl border border-slate-100 border-l-[3px] bg-white p-6 shadow-[0_12px_30px_rgba(15,23,42,0.07)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(15,23,42,0.1)]",
+                    "flex gap-6 rounded-[2.5rem] border border-l-4 bg-white/85 px-7 py-8 shadow-[0_20px_40px_-10px_rgba(66,133,244,0.08)] backdrop-blur-lg transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_44px_-10px_rgba(66,133,244,0.14)] md:px-9",
                     round.accent,
                   )}
                 >
-                  <span className={cn("flex h-11 w-11 flex-none items-center justify-center rounded-full", round.iconBg)}>
+                  <span className={cn("flex h-14 w-14 flex-none items-center justify-center rounded-full shadow-inner", round.iconBg)}>
                     <Icon className="h-5 w-5" strokeWidth={2} />
                   </span>
                   <div>
-                    <h3 className="font-bold text-slate-900">{round.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">{round.body}</p>
+                    <h3 className="display text-xl font-bold text-[#1c1b1b]">{round.title}</h3>
+                    <p className="mt-2 text-justify text-sm leading-5 text-[#424753]">{round.body}</p>
                   </div>
                 </article>
               );
@@ -407,28 +423,28 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section id="tieu-chi" className="scroll-mt-24 px-5 pb-24 md:pb-28">
-        <div className="soft-card-glow mx-auto max-w-5xl rounded-[2.5rem] border border-white px-6 py-12 shadow-[0_22px_45px_rgba(15,23,42,0.16)] md:px-12 md:py-16">
-          <h2 className="display text-center text-3xl font-bold tracking-[-0.04em] md:text-5xl">
+      <section id="tieu-chi" className="scroll-mt-24 px-5 pb-20 md:pb-28 lg:px-8">
+        <div className="soft-card-glow mx-auto max-w-7xl rounded-[2.5rem] border border-white/60 px-6 py-12 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] backdrop-blur-lg md:px-16 md:py-16">
+          <h2 className="display text-center text-3xl font-bold tracking-[-0.025em] md:text-[3.5rem] md:leading-[4rem]">
             {criteriaIntro?.title || "Tiêu chí chấm điểm"}
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-center text-sm leading-6 text-slate-600">
+          <p className="mx-auto mt-4 max-w-2xl text-center text-lg leading-7 text-[#424753] md:text-xl">
             {criteriaIntro?.bodyMarkdown || "Ban Tổ chức có thể phát hành phiên bản rubric mới."}
           </p>
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
+          <div className="mt-12 grid gap-8 md:grid-cols-3">
             {criteria.map((criterion, index) => {
               const accent = CRITERIA_ACCENTS[index % CRITERIA_ACCENTS.length];
               return (
-                <article key={criterion.id} className={cn("rounded-3xl border bg-white/65 px-5 py-7 text-center backdrop-blur", accent.border)}>
-                  <p className={cn("display text-4xl font-bold", accent.text)}>{criterion.weight}%</p>
-                  <h3 className="mt-3 text-sm font-bold text-slate-900">{criterion.title}</h3>
-                  <p className="mt-2 text-xs leading-5 text-slate-600">{criterion.description}</p>
+                <article key={criterion.id} className={cn("rounded-[2rem] border bg-white/60 px-8 py-8 text-center shadow-sm backdrop-blur-md", accent.border)}>
+                  <p className={cn("display text-5xl font-extrabold", accent.text)}>{criterion.weight}%</p>
+                  <h3 className="display mt-4 text-lg font-bold text-[#1c1b1b]">{criterion.title}</h3>
+                  <p className="mt-2 text-sm leading-5 text-[#424753]">{criterion.description}</p>
                 </article>
               );
             })}
           </div>
           <div className="mt-9 flex justify-center">
-            <Button asChild className="h-11 rounded-full bg-[#E33B43] px-6 text-white shadow-[0_10px_24px_rgba(227,59,67,0.2)] hover:bg-[#c92f37]">
+            <Button asChild className="h-12 rounded-full bg-[#db4437] px-7 font-semibold tracking-[0.035em] text-white shadow-md hover:bg-[#bd352a]">
               <Link href="/tieu-chi-cham">
                 Xem chi tiết thể lệ
                 <ArrowRight className="ml-1 h-4 w-4" />
@@ -438,41 +454,42 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="px-5 pb-24 md:pb-28">
-        <div className="mx-auto max-w-5xl space-y-20 text-center">
+      <section className="px-5 py-20 md:py-24 lg:px-8">
+        <div className="mx-auto max-w-7xl space-y-20 text-center">
           <div>
-            <h2 className="display text-base font-bold uppercase tracking-[0.16em] text-slate-700">Đơn vị đồng tổ chức</h2>
-            <OrganizerLogos variant="bare" items={CO_ORGANIZERS} className="mt-10" />
+            <h2 className="display text-lg font-bold uppercase tracking-[0.09em] text-[#424753] md:text-[1.375rem]">Đơn vị đồng tổ chức</h2>
+            <OrganizerLogos variant="bare" items={CO_ORGANIZERS} className="mt-12" />
           </div>
           <div>
-            <h2 className="display text-base font-bold uppercase tracking-[0.16em] text-slate-700">Đơn vị đăng cai</h2>
-            <OrganizerLogos variant="bare" items={HOST_ORGANIZERS} className="mt-8" />
+            <h2 className="display text-lg font-bold uppercase tracking-[0.09em] text-[#424753] md:text-[1.375rem]">Đơn vị đăng cai</h2>
+            <OrganizerLogos variant="bare" items={HOST_ORGANIZERS} className="mt-10" />
           </div>
         </div>
       </section>
 
-      <section id="faq" className="scroll-mt-24 px-5 pb-24 md:pb-28">
-        <div className="mx-auto max-w-3xl">
-          <h2 className="display text-3xl font-bold tracking-[-0.04em] md:text-5xl">Câu hỏi thường gặp</h2>
-          <div className="mt-9 space-y-3">
+      <section id="faq" className="scroll-mt-24 px-5 pb-20 md:pb-28 lg:px-8">
+        <div className="mx-auto max-w-4xl">
+          <h2 className="display text-center text-3xl font-bold tracking-[-0.025em] text-[#1c1b1b] md:text-[3.5rem] md:leading-[4rem]">Câu hỏi thường gặp</h2>
+          <div className="mt-10 space-y-4">
             {faqs.map((faq) => (
               <details
                 key={faq.id}
-                className="group rounded-2xl border border-slate-100 bg-white px-5 py-4 shadow-[0_8px_20px_rgba(15,23,42,0.05)] transition open:border-[#4285F4]/30 open:shadow-[0_12px_28px_rgba(66,133,244,0.09)]"
+                className="group rounded-3xl border border-white/60 bg-white/85 px-6 py-5 shadow-[0_20px_40px_-10px_rgba(66,133,244,0.08)] backdrop-blur-lg transition open:border-[#4285F4]/30 open:shadow-[0_16px_32px_rgba(66,133,244,0.1)]"
               >
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold text-[#17406f]">
+                <summary className="display flex cursor-pointer list-none items-center justify-between gap-4 text-base font-bold leading-7 text-[#134dab] md:text-lg">
                   {faq.question}
                   <span aria-hidden className="text-lg leading-none text-[#4285F4] transition group-open:rotate-45">+</span>
                 </summary>
                 <FormattedText
                   text={faq.answerMarkdown}
-                  className="mt-3 border-t border-slate-100 pt-3 text-sm leading-6 text-slate-600"
+                  className="mt-4 border-t border-slate-100 pt-4 text-base leading-7 text-slate-600"
                 />
               </details>
             ))}
           </div>
         </div>
       </section>
+      </div>
     </div>
   );
 }

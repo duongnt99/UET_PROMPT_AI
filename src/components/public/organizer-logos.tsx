@@ -33,7 +33,7 @@ export function OrganizerLogos({
 
   if (variant === "bare") {
     return (
-      <ul className={cn("flex flex-wrap items-center justify-center gap-10 md:gap-16", className)}>
+      <ul className={cn("flex flex-wrap items-center justify-center gap-12 md:gap-16", className)}>
         {items.map((item) => (
           <li key={item.shortName}>
             <a
@@ -47,7 +47,12 @@ export function OrganizerLogos({
               <img
                 src={item.imageUrl}
                 alt={item.name}
-                className="h-14 w-auto max-w-[240px] object-contain md:h-20"
+                className={cn(
+                  "w-auto object-contain",
+                  item.role === "HOST"
+                    ? "h-32 max-w-[181px] md:h-[181px]"
+                    : "h-24 max-w-[320px] md:h-36 md:max-w-[436px]",
+                )}
               />
             </a>
           </li>

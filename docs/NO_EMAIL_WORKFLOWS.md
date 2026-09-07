@@ -1,6 +1,6 @@
-# Các luồng không còn phụ thuộc email
+# Các luồng nghiệp vụ chưa tự động gửi email
 
-Hệ thống không cần SMTP, dịch vụ gửi email hay cron xử lý email khi triển khai.
+Các luồng bên dưới tiếp tục hoạt động bằng thông báo nội bộ và không phụ thuộc email. Hệ thống nay có trang **Thông báo email** để admin chủ động liên lạc; xem `docs/EMAIL_SYSTEM.md`.
 
 | Luồng | Cách hoạt động hiện tại |
 | --- | --- |
@@ -13,7 +13,7 @@ Hệ thống không cần SMTP, dịch vụ gửi email hay cron xử lý email 
 | Quên mật khẩu | Người dùng liên hệ Ban Tổ chức; quản trị viên đặt mật khẩu mới tại **Quản trị → Tài khoản**. |
 | Tài khoản nhân sự | Quản trị viên tạo tài khoản và phân quyền trực tiếp; không gửi liên kết mời qua email. |
 
-Các model `EmailOutbox`, `VerificationToken`, `PasswordResetToken` và `StaffInvitation` trong schema là cấu trúc cũ được giữ lại để tương thích dữ liệu/migration. Mã ứng dụng hiện tại không đọc, ghi hoặc gửi email qua các model này.
+`EmailOutbox` hiện được dùng làm delivery queue cho các batch do admin gửi. `VerificationToken`, `PasswordResetToken` và `StaffInvitation` vẫn là cấu trúc cũ được giữ lại để tương thích dữ liệu/migration; đăng ký tài khoản hiện chưa xác minh email.
 
 ## Quy tắc lời mời đội
 

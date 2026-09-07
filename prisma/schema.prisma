@@ -198,6 +198,21 @@ enum EmailOutboxStatus {
   CANCELLED
 }
 
+enum EmailBatchStatus {
+  PENDING
+  SENDING
+  COMPLETED
+  PARTIALLY_FAILED
+  FAILED
+  CANCELLED
+}
+
+enum EmailRecipientType {
+  ALL_USERS
+  ALL_PARTICIPANTS
+  SPECIFIC_USERS
+}
+
 enum AssetVisibility {
   PRIVATE
   PUBLIC
@@ -267,6 +282,8 @@ model User {
   deadlineOverrides   DeadlineOverride[]      @relation("OverrideGrantor")
   loginEvents         LoginEvent[]
   screenShareSessions ScreenShareSession[]
+  emailBatchesCreated EmailBatch[]             @relation("EmailBatchCreator")
+  emailDeliveries     EmailOutbox[]            @relation("EmailDeliveryUser")
 
   @@index([status])
   @@index([createdAt])
@@ -1130,6 +1147,8 @@ model Notification {
 
 model EmailOutbox {
   id             String            @id @default(cuid())
+  batchId        String?
+  userId         String?
   toEmail        String
   templateCode   String
   payload        Json
@@ -1137,12 +1156,45 @@ model EmailOutbox {
   status         EmailOutboxStatus @default(PENDING)
   attempts       Int               @default(0)
   lastError      String?
+  providerMessageId String?
   scheduledAt    DateTime          @default(now())
   sentAt         DateTime?
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
 
+  batch EmailBatch? @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  user  User?       @relation("EmailDeliveryUser", fields: [userId], references: [id], onDelete: SetNull)
+
   @@index([status, scheduledAt])
+  @@index([batchId, status])
+  @@index([userId])
+}
+
+model EmailBatch {
+  id               String             @id @default(cuid())
+  createdByAdminId String?
+  subject          String
+  textContent      String
+  htmlContent      String
+  recipientType    EmailRecipientType
+  recipientFilter  Json?
+  recipientCount   Int                @default(0)
+  skippedCount     Int                @default(0)
+  successCount     Int                @default(0)
+  failedCount      Int                @default(0)
+  status           EmailBatchStatus   @default(PENDING)
+  idempotencyKey   String             @unique
+  startedAt        DateTime?
+  completedAt      DateTime?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  createdBy  User?         @relation("EmailBatchCreator", fields: [createdByAdminId], references: [id], onDelete: SetNull)
+  deliveries EmailOutbox[]
+
+  @@index([createdAt])
+  @@index([status, createdAt])
+  @@index([createdByAdminId, createdAt])
 }
 
 model Incident {

@@ -26,4 +26,12 @@ describe("formatted public text", () => {
     expect(html.match(/<p/g)).toHaveLength(2);
     expect(html).toContain("&lt;script&gt;alert(1)&lt;/script&gt;");
   });
+
+  it("renders simple bold emphasis without allowing raw HTML", () => {
+    const html = renderToStaticMarkup(
+      createElement(FormattedText, { text: "Ngày thi **03/11/2026**." }),
+    );
+
+    expect(html).toContain("<strong>03/11/2026</strong>");
+  });
 });

@@ -1,27 +1,31 @@
 import { cn } from "@/lib/utils";
 
-const URL_PATTERN = /https?:\/\/[^\s<>"']+/g;
+const INLINE_PATTERN = /(\*\*([^*\n]+)\*\*|https?:\/\/[^\s<>"']+)/g;
 
 function textWithLinks(text: string) {
   const content = [];
   let cursor = 0;
 
-  for (const match of text.matchAll(URL_PATTERN)) {
-    const url = match[0];
+  for (const match of text.matchAll(INLINE_PATTERN)) {
+    const token = match[0];
     const start = match.index;
     if (start > cursor) content.push(text.slice(cursor, start));
-    content.push(
-      <a
-        key={`${start}-${url}`}
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="font-medium text-[#2565c7] underline decoration-[#4285F4]/40 underline-offset-2 hover:text-[#174b9c]"
-      >
-        {url}
-      </a>,
-    );
-    cursor = start + url.length;
+    if (match[2]) {
+      content.push(<strong key={`${start}-${token}`}>{match[2]}</strong>);
+    } else {
+      content.push(
+        <a
+          key={`${start}-${token}`}
+          href={token}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-medium text-[#2565c7] underline decoration-[#4285F4]/40 underline-offset-2 hover:text-[#174b9c]"
+        >
+          {token}
+        </a>,
+      );
+    }
+    cursor = start + token.length;
   }
 
   if (cursor < text.length) content.push(text.slice(cursor));

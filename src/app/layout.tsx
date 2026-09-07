@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Be_Vietnam_Pro, Space_Grotesk } from "next/font/google";
+import { Be_Vietnam_Pro, Hanken_Grotesk, Plus_Jakarta_Sans, Space_Grotesk } from "next/font/google";
 import { ToastProvider } from "@/components/ui/toaster";
 import "./globals.css";
 
@@ -15,16 +15,28 @@ const spaceGrotesk = Space_Grotesk({
   weight: ["500", "600", "700"],
 });
 
+const hankenGrotesk = Hanken_Grotesk({
+  variable: "--font-hanken-grotesk",
+  subsets: ["latin", "vietnamese"],
+  weight: ["400", "500", "600", "700", "800"],
+});
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  variable: "--font-plus-jakarta",
+  subsets: ["latin", "vietnamese"],
+  weight: ["400", "500", "600", "700", "800"],
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.APP_URL || "http://localhost:3000"),
   title: {
-    default: "Prompt-Off: Vietnam 2026",
-    template: "%s | Prompt-Off: Vietnam 2026",
+    default: "AI Arena Vietnam",
+    template: "%s | AI Arena Vietnam",
   },
   description:
-    "Cuộc thi Prompt-Off: Vietnam 2026 do ĐHQGHN triển khai, Trường Đại học Công nghệ làm đầu mối phối hợp, phối hợp cùng Google.",
+    "Cuộc thi AI Arena Vietnam do ĐHQGHN, Trường Đại học Công nghệ và Google phối hợp tổ chức.",
   openGraph: {
-    title: "Prompt-Off: Vietnam 2026",
+    title: "AI Arena Vietnam",
     description:
       "Sân chơi quốc gia về prompting với Gemini và Google AI Studio. Chung kết 8 đội, proof of concept 5–10 phút.",
     locale: "vi_VN",
@@ -38,7 +50,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="vi"
       data-scroll-behavior="smooth"
-      className={`${beVietnam.variable} ${spaceGrotesk.variable} h-full antialiased`}
+      className={`${beVietnam.variable} ${spaceGrotesk.variable} ${hankenGrotesk.variable} ${plusJakartaSans.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-[var(--background)] font-sans text-[var(--foreground)]">
         {children}

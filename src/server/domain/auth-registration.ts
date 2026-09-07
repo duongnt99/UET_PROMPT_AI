@@ -7,7 +7,7 @@ export const registrationCredentialsSchema = z
     email: z
       .string()
       .transform(normalizeEmail)
-      .pipe(z.string().email("Email không hợp lệ.")),
+      .pipe(z.string().min(1, "Vui lòng nhập email.").email("Email không hợp lệ.")),
     password: z
       .string()
       .transform(normalizePasswordInput)

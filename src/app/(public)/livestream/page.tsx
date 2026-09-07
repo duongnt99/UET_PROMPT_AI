@@ -19,7 +19,7 @@ export default async function Page() {
         <Card className="mt-6">Livestream chưa được bật hoặc đường dẫn chưa được công bố.</Card>
       ) : (
         <div className="mt-6 aspect-video overflow-hidden rounded-2xl bg-black">
-          <iframe title="Livestream Prompt-Off" src={settings!.livestreamUrl} className="h-full w-full" allowFullScreen />
+          <iframe title="Livestream AI Arena Vietnam" src={settings!.livestreamUrl} className="h-full w-full" allowFullScreen />
         </div>
       )}
     </div>

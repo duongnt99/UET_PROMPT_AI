@@ -9,7 +9,7 @@ export const metadata: Metadata = { robots: { index: false, follow: false }, tit
 export const dynamic = "force-dynamic";
 
 const NAV_SECTIONS = [
-  { title: "Chung", links: [["/admin", "Tổng quan"], ["/admin/content", "Nội dung"], ["/admin/announcements", "Thông báo"], ["/admin/faqs", "Câu hỏi thường gặp"]] },
+  { title: "Chung", links: [["/admin", "Tổng quan"], ["/admin/content", "Nội dung"], ["/admin/announcements", "Thông báo"], ["/admin/email", "Thông báo email"], ["/admin/faqs", "Câu hỏi thường gặp"]] },
   { title: "Vòng tuyển chọn", links: [["/admin/registrations", "Hồ sơ đăng ký"], ["/admin/submissions", "Bài dự thi"], ["/admin/reviewers", "Người chấm vòng loại"], ["/admin/review-assignments", "Phân công chấm"], ["/admin/rubrics", "Bộ tiêu chí chấm"], ["/admin/finalists", "Đội vào chung kết"]] },
   { title: "Vòng chung kết", links: [["/admin/bracket", "Bảng đấu"], ["/admin/challenges", "Đề thi"], ["/admin/judges", "Giám khảo"], ["/admin/scoring", "Chấm chung kết"]] },
   { title: "Hệ thống", links: [["/admin/users", "Tài khoản"], ["/admin/roles", "Phân quyền"], ["/admin/settings", "Cài đặt cuộc thi"], ["/admin/operations", "Vận hành kỹ thuật"], ["/admin/incidents", "Sự cố"], ["/admin/audit", "Nhật ký hệ thống"], ["/admin/exports", "Xuất dữ liệu"]] },
@@ -20,7 +20,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
   return (
     <div className="flex min-h-screen bg-slate-100">
       <aside className="hidden w-60 overflow-y-auto bg-[#0B1F3A] p-4 text-white md:block">
-        <p className="font-semibold">Quản trị Prompt-Off</p>
+        <p className="font-semibold">Quản trị AI Arena Vietnam</p>
         <nav className="mt-4 space-y-5 text-sm">
           {NAV_SECTIONS.map((section) => (
             <section key={section.title}>

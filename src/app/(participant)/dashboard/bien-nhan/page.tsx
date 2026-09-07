@@ -16,7 +16,7 @@ export default async function Page() {
           <p>Chưa có biên nhận. Hãy nộp hồ sơ trước.</p>
         ) : (
           <div>
-            <p className="text-sm text-slate-500">Prompt-Off: Vietnam 2026</p>
+            <p className="text-sm text-slate-500">AI Arena Vietnam</p>
             <h2 className="mt-2 text-2xl font-semibold">Biên nhận đăng ký</h2>
             <p className="mt-4">Mã hồ sơ: {registration.code}</p>
             <p>Trạng thái: {registration.status}</p>

@@ -2,12 +2,14 @@ import { test, expect } from "@playwright/test";
 
 test("public homepage renders Vietnamese content", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /Prompt-Off: Vietnam 2026/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /AI Arena Vietnam/i })).toBeVisible();
   await expect(page.getByRole("link", { name: "Đăng ký ngay" }).first()).toBeVisible();
   await expect(page.getByText("8 đội", { exact: false }).first()).toBeVisible();
-  await expect(page.getByText("không bye", { exact: false }).first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Thể thức vòng chung kết" })).toBeVisible();
+  await expect(page.getByText("03/11/2026", { exact: false }).first()).toBeVisible();
   await expect(page.getByText("Tính khả thi")).toBeVisible();
-  await expect(page.getByText("40%").first()).toBeVisible();
+  await expect(page.locator("#tieu-chi").getByText(/\d+(?:\.\d+)?%/).first()).toBeVisible();
+  await expect(page.locator("#faq details").first()).toBeVisible();
 });
 
 test("login page is available", async ({ page }) => {

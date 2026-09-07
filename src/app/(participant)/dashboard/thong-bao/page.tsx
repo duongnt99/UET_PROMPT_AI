@@ -32,7 +32,7 @@ export default async function Page() {
         {items.map((item) => (
           <Card key={item.id}>
             <h2 className="font-semibold">{item.title}</h2>
-            <p className="text-sm text-slate-600">{item.body}</p>
+            <p className="whitespace-pre-wrap text-sm text-slate-600">{item.body}</p>
             {item.href ? <Link href={item.href} className="mt-2 inline-block text-sm underline">Xem chi tiết</Link> : null}
             <p className="mt-1 text-xs text-slate-500">{formatDateTime(item.createdAt)}</p>
           </Card>

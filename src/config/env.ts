@@ -22,6 +22,20 @@ const envSchema = z.object({
   WEBRTC_TURN_CREDENTIAL: z.string().optional(),
   LIVE_SCREEN_ALLOWED_ORIGINS: z.string().optional(),
   LIVE_SCREEN_DISCONNECT_GRACE_SECONDS: z.coerce.number().int().min(5).max(60).default(12),
+  EMAIL_PROVIDER: z.preprocess((value) => value === "" ? undefined : value, z.enum(["console", "resend", "smtp"]).optional()),
+  EMAIL_FROM: z.string().optional(),
+  EMAIL_FROM_ADDRESS: z.preprocess((value) => value === "" ? undefined : value, z.string().email().optional()),
+  EMAIL_FROM_NAME: z.string().default("AI Arena Vietnam"),
+  RESEND_API_KEY: z.string().optional(),
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().int().min(1).max(65535).default(587),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASSWORD: z.string().optional(),
+  SMTP_SECURE: z.string().optional(),
+  EMAIL_SEND_CONCURRENCY: z.coerce.number().int().min(1).max(10).default(3),
+  EMAIL_BATCH_SIZE: z.coerce.number().int().min(1).max(100).default(25),
+  EMAIL_MAX_ATTEMPTS: z.coerce.number().int().min(1).max(10).default(3),
+  EMAIL_WORKER_INTERVAL_MS: z.coerce.number().int().min(1000).max(300000).default(5000),
 });
 
 export function getEnv() {

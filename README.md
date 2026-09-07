@@ -1,4 +1,4 @@
-# Prompt-Off: Vietnam 2026 — Cổng thông tin cuộc thi
+# AI Arena Vietnam — Cổng thông tin cuộc thi
 
 Hệ thống modular monolith (Next.js) cho đăng ký, nộp bài Audition, chấm, công bố finalist, bracket chung kết, giám khảo, sân khấu, chia sẻ màn hình WebRTC và vận hành.
 
@@ -60,11 +60,11 @@ Chỉ dùng cho development. Không seed data demo lên production.
 pnpm dev
 ```
 
-Mở `http://localhost:3000`. Hệ thống dùng thông báo nội bộ và không cần dịch vụ gửi email.
+Mở `http://localhost:3000`. Development mặc định dùng console email transport nên không gửi email thật.
 
 Lệnh `pnpm dev` chạy custom Next.js server để phục vụ cả HTTP và WebSocket signaling tại cùng origin.
 
-Danh sách các luồng đã thay email bằng thông báo nội bộ: [docs/NO_EMAIL_WORKFLOWS.md](docs/NO_EMAIL_WORKFLOWS.md).
+Thiết lập email production và hướng dẫn vận hành: [docs/EMAIL_SYSTEM.md](docs/EMAIL_SYSTEM.md). Các luồng vẫn chỉ dùng thông báo nội bộ được ghi tại [docs/NO_EMAIL_WORKFLOWS.md](docs/NO_EMAIL_WORKFLOWS.md).
 
 ## 8. Test
 

@@ -5,9 +5,15 @@ import { loginAction, registerAction } from "@/server/actions/auth-actions";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Card } from "@/components/ui/form";
 import Link from "next/link";
+import { useFormStatus } from "react-dom";
 
 function trimOnBlur(event: React.FocusEvent<HTMLInputElement>) {
   event.currentTarget.value = event.currentTarget.value.trim();
+}
+
+function AuthSubmitButton({ label, pendingLabel }: { label: string; pendingLabel: string }) {
+  const { pending } = useFormStatus();
+  return <Button type="submit" className="w-full" disabled={pending}>{pending ? pendingLabel : label}</Button>;
 }
 
 export function RegisterForm() {
@@ -62,7 +68,7 @@ export function RegisterForm() {
           />
         </div>
         {message ? <p className="text-sm text-slate-700">{message}</p> : null}
-        <Button type="submit" className="w-full">Đăng ký</Button>
+        <AuthSubmitButton label="Đăng ký" pendingLabel="Đang đăng ký…" />
       </form>
       <p className="mt-4 text-sm">
         Đã có tài khoản? <Link href="/dang-nhap" className="underline">Đăng nhập</Link>
@@ -111,7 +117,7 @@ export function LoginForm({ from = "" }: { from?: string }) {
           />
         </div>
         {message ? <p className="text-sm text-red-700">{message}</p> : null}
-        <Button type="submit" className="w-full">Đăng nhập</Button>
+        <AuthSubmitButton label="Đăng nhập" pendingLabel="Đang đăng nhập…" />
       </form>
       <p className="mt-4 text-sm">
         <Link href="/quen-mat-khau" className="underline">Quên mật khẩu</Link>
