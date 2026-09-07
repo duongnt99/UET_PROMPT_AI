@@ -142,6 +142,10 @@ export function TimelineItemForm({
           placeholder="Nội dung ngắn hiển thị trên thẻ lịch trình"
           className="mt-1 min-h-24"
         />
+        <p className="mt-1 text-xs text-slate-500">
+          Nhấn Enter một lần để xuống dòng; hai lần để tách thành đoạn mới. URL bắt đầu bằng http:// hoặc https://
+          sẽ tự trở thành liên kết có thể bấm.
+        </p>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <div>
@@ -368,6 +372,10 @@ export function FaqForm({
           defaultValue={faq?.answerMarkdown}
           className="mt-1 min-h-40"
         />
+        <p className="mt-1 text-xs text-slate-500">
+          Nhấn Enter một lần để xuống dòng; hai lần để tách thành đoạn mới. URL bắt đầu bằng http:// hoặc https://
+          sẽ tự trở thành liên kết có thể bấm.
+        </p>
       </div>
       <div>
         <Label htmlFor="displayOrder">Thứ tự hiển thị</Label>

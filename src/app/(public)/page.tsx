@@ -21,6 +21,7 @@ import { formatDurationLabel } from "@/server/domain/match-setup";
 import { getPublicHomeData } from "@/server/services/content-service";
 import { formatDate } from "@/lib/dates";
 import { cn } from "@/lib/utils";
+import { FormattedText } from "@/components/public/formatted-text";
 
 const TIMELINE_ACCENTS = [
   {
@@ -357,7 +358,7 @@ export default async function HomePage() {
                       {item.dateLabel}
                     </span>
                     <h3 className="mt-3 text-sm font-bold uppercase tracking-[-0.01em] text-slate-900">{item.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">{item.description}</p>
+                    <FormattedText text={item.description} className="mt-2 text-sm leading-6 text-slate-600" />
                   </article>
                   <span
                     aria-hidden
@@ -463,7 +464,10 @@ export default async function HomePage() {
                   {faq.question}
                   <span aria-hidden className="text-lg leading-none text-[#4285F4] transition group-open:rotate-45">+</span>
                 </summary>
-                <p className="mt-3 border-t border-slate-100 pt-3 text-sm leading-6 text-slate-600">{faq.answerMarkdown}</p>
+                <FormattedText
+                  text={faq.answerMarkdown}
+                  className="mt-3 border-t border-slate-100 pt-3 text-sm leading-6 text-slate-600"
+                />
               </details>
             ))}
           </div>

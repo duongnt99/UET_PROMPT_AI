@@ -1,6 +1,7 @@
 import { getPublicHomeData } from "@/server/services/content-service";
 import { Card } from "@/components/ui/form";
 import type { Metadata } from "next";
+import { FormattedText } from "@/components/public/formatted-text";
 export const metadata: Metadata = { title: "FAQ" };
 export default async function Page() {
   const data = await getPublicHomeData();
@@ -11,7 +12,7 @@ export default async function Page() {
         {(data?.faqs ?? []).map((faq) => (
           <Card key={faq.id}>
             <h2 className="font-semibold">{faq.question}</h2>
-            <p className="mt-2 text-slate-600">{faq.answerMarkdown}</p>
+            <FormattedText text={faq.answerMarkdown} className="mt-2 leading-7 text-slate-600" />
           </Card>
         ))}
       </div>

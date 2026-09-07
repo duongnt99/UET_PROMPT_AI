@@ -98,7 +98,7 @@ export function RubricEditorForm({
       />
       <div className="grid gap-3 md:grid-cols-2">
         <div>
-          <Label htmlFor="name">Tên rubric</Label>
+          <Label htmlFor="name">Tên bộ tiêu chí</Label>
           <Input id="name" name="name" required defaultValue={rubric?.name} className="mt-1" />
         </div>
         <div>
@@ -110,8 +110,8 @@ export function RubricEditorForm({
             disabled={Boolean(rubric)}
             className="mt-1 h-11 w-full rounded-xl border px-3"
           >
-            <option value="AUDITION">Audition</option>
-            <option value="FINAL">Chung kết</option>
+            <option value="AUDITION">Vòng tuyển chọn</option>
+            <option value="FINAL">Vòng chung kết</option>
           </select>
           {rubric ? <input type="hidden" name="stage" value={rubric.stage} /> : null}
         </div>
@@ -127,7 +127,7 @@ export function RubricEditorForm({
             {competitions.map((item) => (
               <option key={item.id} value={item.id}>
                 {item.name}
-                {item.isRehearsal ? " (rehearsal)" : ""}
+                {item.isRehearsal ? " (diễn tập)" : ""}
               </option>
             ))}
           </select>

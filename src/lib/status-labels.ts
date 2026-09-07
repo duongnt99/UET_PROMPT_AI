@@ -63,6 +63,11 @@ const ACCOUNT_STATUS_LABELS: Record<string, string> = {
   DISABLED: "Đã vô hiệu hóa",
 };
 
+const RUBRIC_STAGE_LABELS: Record<string, string> = {
+  AUDITION: "Vòng tuyển chọn",
+  FINAL: "Vòng chung kết",
+};
+
 export function matchStatusLabel(status: string) {
   return MATCH_STATUS_LABELS[status] ?? status;
 }
@@ -89,4 +94,8 @@ export function registrationStatusLabel(status: string) {
 
 export function accountStatusLabel(status: string) {
   return ACCOUNT_STATUS_LABELS[status] ?? status;
+}
+
+export function rubricStageLabel(stage: string) {
+  return RUBRIC_STAGE_LABELS[stage] ?? stage;
 }

@@ -7,6 +7,7 @@ import { RubricEditorForm, RubricVersionActions } from "@/components/admin/rubri
 import { AdminDeleteForm } from "@/components/admin/delete-form";
 import { deleteRubricAction } from "@/server/actions/admin-rubric-actions";
 import { isRubricMutable } from "@/server/services/rubric-service";
+import { rubricStageLabel } from "@/lib/status-labels";
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   await requirePermission("settings:write");
@@ -16,6 +17,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     include: {
       criteria: { orderBy: { displayOrder: "asc" } },
       competition: { select: { name: true, isRehearsal: true } },
+      _count: { select: { reviews: true, judgeScores: true, snapshots: true } },
     },
   });
   if (!rubric) notFound();
@@ -27,11 +29,12 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       orderBy: { isRehearsal: "asc" },
     }),
   ]);
+  const usageCount = rubric._count.reviews + rubric._count.judgeScores + rubric._count.snapshots;
   return (
     <div className="max-w-4xl space-y-4">
       <p className="text-sm">
         <Link href="/admin/rubrics" className="text-slate-600 underline">
-          ← Danh sách rubric
+          ← Danh sách bộ tiêu chí
         </Link>
       </p>
       <div className="flex flex-wrap items-center gap-2">
@@ -39,8 +42,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         {rubric.isActive ? <Badge tone="green">Đang dùng</Badge> : <Badge>Nháp</Badge>}
       </div>
       <p className="text-sm text-slate-600">
-        {rubric.stage} · v{rubric.versionNumber} · {rubric.competition.name}
-        {rubric.competition.isRehearsal ? " (rehearsal)" : ""}
+        {rubricStageLabel(rubric.stage)} · phiên bản {rubric.versionNumber} · {rubric.competition.name}
+        {rubric.competition.isRehearsal ? " · Dữ liệu diễn tập" : ""}
       </p>
       <Card>
         <RubricVersionActions rubricId={rubric.id} isActive={rubric.isActive} />
@@ -72,20 +75,26 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
           }}
         />
       </Card>
-      {!rubric.isActive && mutable ? (
-        <Card>
-          <h2 className="font-semibold">Xóa phiên bản</h2>
+      <Card>
+        <h2 className="font-semibold">Xóa phiên bản</h2>
+        {!rubric.isActive && mutable ? (
           <div className="mt-3">
             <AdminDeleteForm
               idPrefix={`rubric-${rubric.id}`}
               action={deleteRubricAction}
               hidden={{ id: rubric.id }}
-              warning="Chỉ xóa được phiên bản chưa kích hoạt và chưa dùng để chấm."
-              submitLabel="Xóa rubric"
+              warning="Phiên bản này chưa được kích hoạt và chưa dùng để chấm nên có thể xóa an toàn."
+              submitLabel="Xóa bộ tiêu chí"
             />
           </div>
-        </Card>
-      ) : null}
+        ) : (
+          <p className="mt-2 text-sm text-slate-600">
+            {rubric.isActive
+              ? "Phiên bản này đang dùng nên chưa thể xóa. Hãy kích hoạt một phiên bản khác cùng vòng trước."
+              : `Phiên bản đã được lưu trong ${usageCount} dữ liệu chấm hoặc đã khóa, nên hệ thống giữ lại để bảo toàn lịch sử.`}
+          </p>
+        )}
+      </Card>
     </div>
   );
 }

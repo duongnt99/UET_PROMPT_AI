@@ -5,6 +5,7 @@
 - Node 20.9+
 - PostgreSQL 16
 - S3-compatible bucket
+- TURN server có TLS cho chia sẻ màn hình ổn định qua Internet
 
 ## Steps
 
@@ -16,9 +17,16 @@
 6. `pnpm build && pnpm start`
 7. Health: `GET /api/health`
 
+## WebSocket và WebRTC
+
+- Reverse proxy phải chuyển tiếp HTTP Upgrade cho `/api/live-screen/socket` tới cùng instance chạy `pnpm start`.
+- Cấu hình `LIVE_SCREEN_ALLOWED_ORIGINS` bằng origin HTTPS chính thức.
+- Cấu hình STUN/TURN theo `docs/LIVE_SCREEN_SHARING.md`. STUN-only không bảo đảm kết nối giữa mọi mạng.
+- Nếu chạy nhiều app instance, cần sticky session hoặc thay broker signaling trong process bằng Redis/pub-sub dùng chung.
+
 ## Docker
 
-`Dockerfile` build standalone Next.js. Compose local có DB/MinIO; app chạy trên host cho DX, hoặc containerize khi deploy.
+`Dockerfile` chạy custom Next.js/WebSocket server. Compose local có DB/MinIO; app chạy trên host cho DX, hoặc containerize khi deploy.
 
 ## GitHub Actions
 

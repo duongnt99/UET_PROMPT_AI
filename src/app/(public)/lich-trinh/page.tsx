@@ -2,6 +2,7 @@ import { getPublicHomeData } from "@/server/services/content-service";
 import { Badge, Card } from "@/components/ui/form";
 import { formatDateTime } from "@/lib/dates";
 import type { Metadata } from "next";
+import { FormattedText } from "@/components/public/formatted-text";
 
 export const metadata: Metadata = { title: "Lịch trình" };
 
@@ -16,7 +17,7 @@ export default async function Page() {
           <Card key={item.id}>
             <Badge tone="gold">{item.statusLabel}</Badge>
             <h2 className="mt-2 text-xl font-semibold">{item.title}</h2>
-            <p className="mt-1 text-slate-600">{item.description}</p>
+            <FormattedText text={item.description} className="mt-1 leading-7 text-slate-600" />
             {item.startAt ? <p className="mt-2 text-sm text-slate-500">{formatDateTime(item.startAt)}</p> : null}
           </Card>
         ))}

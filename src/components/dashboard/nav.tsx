@@ -9,6 +9,7 @@ const LINKS = [
   { href: "/dashboard/doi-thi", label: "Đội thi" },
   { href: "/dashboard/dang-ky", label: "Đăng ký" },
   { href: "/dashboard/audition", label: "Audition" },
+  { href: "/dashboard/thi-truc-tiep", label: "Thi trực tiếp" },
   { href: "/dashboard/thong-bao", label: "Thông báo" },
   { href: "/dashboard/bien-nhan", label: "Biên nhận" },
 ];

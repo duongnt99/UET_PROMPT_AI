@@ -25,6 +25,7 @@ import {
 import { AdminDeleteForm } from "@/components/admin/delete-form";
 import { deleteMatchAction } from "@/server/actions/admin-delete-actions";
 import { matchStatusLabel, reviewStatusLabel, timerKindLabel, timerStatusLabel } from "@/lib/status-labels";
+import { MatchDualScreenMonitor, type MatchScreenSide } from "@/components/live/match-dual-screen-monitor";
 
 const finalistInclude = {
   registration: {
@@ -42,8 +43,10 @@ function memberName(user: { name: string | null; email: string; profile: { fullN
 function SideCard({
   label,
   finalist,
+  matchId,
 }: {
   label: string;
+  matchId: string;
   finalist: {
     id: string;
     displayName: string;
@@ -56,6 +59,7 @@ function SideCard({
       status: string;
       owner: { email: string; name: string | null; profile: { fullName: string; phoneNumber: string | null; institution: string | null; facultyOrDepartment: string | null; major: string | null } | null };
       team: {
+        id: string;
         teamName: string;
         teamCode: string;
         shortIntroduction: string | null;
@@ -116,9 +120,45 @@ function SideCard({
         <Link href={`/admin/registrations/${registration.id}`} className="underline">
           Mở hồ sơ đăng ký
         </Link>
+        {" · "}
+        <Link href={`/admin/bracket/${matchId}/theo-doi/${registration.id}`} className="font-semibold text-blue-700 underline">
+          Theo dõi màn hình trực tiếp
+        </Link>
       </p>
     </Card>
   );
+}
+
+function matchScreenSide(
+  side: "A" | "B",
+  finalist: {
+    displayName: string;
+    registration: {
+      id: string;
+      owner: { id: string; name: string | null; email: string; profile: { fullName: string } | null };
+      team: {
+        leaderUserId: string;
+        members: {
+          status: string;
+          user: { id: string; name: string | null; email: string; profile: { fullName: string } | null };
+        }[];
+      } | null;
+    };
+  },
+): MatchScreenSide {
+  const { registration } = finalist;
+  const preferredParticipant = registration.team
+    ? registration.team.members.find((member) => member.user.id === registration.team?.leaderUserId)?.user
+      ?? registration.team.members.find((member) => member.status === "ACCEPTED")?.user
+      ?? registration.owner
+    : registration.owner;
+  return {
+    side,
+    registrationId: registration.id,
+    competitorName: finalist.displayName,
+    preferredParticipantId: preferredParticipant.id,
+    preferredParticipantName: memberName(preferredParticipant),
+  };
 }
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
@@ -177,6 +217,9 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const canChangePairing =
     canManage && !["COMPLETED", "PUBLISHED", "LOCKED", "CANCELLED"].includes(match.status);
   const submittedCount = match.judgeAssignments.filter((item) => item.status === "SUBMITTED").length;
+  const dualScreenSides = match.competitorA && match.competitorB
+    ? [matchScreenSide("A", match.competitorA), matchScreenSide("B", match.competitorB)] as [MatchScreenSide, MatchScreenSide]
+    : null;
 
   return (
     <div className="space-y-6">
@@ -205,9 +248,13 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       </p>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <SideCard label="Đội A" finalist={match.competitorA} />
-        <SideCard label="Đội B" finalist={match.competitorB} />
+        <SideCard label="Đội A" finalist={match.competitorA} matchId={match.id} />
+        <SideCard label="Đội B" finalist={match.competitorB} matchId={match.id} />
       </div>
+
+      {dualScreenSides ? (
+        <MatchDualScreenMonitor contestSessionId={match.id} sides={dualScreenSides} />
+      ) : null}
 
       {canManage ? (
         <Card>
@@ -323,7 +370,15 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       </Card>
 
       <Card>
-        <h2 className="font-semibold">Đồng hồ thi đấu</h2>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="font-semibold">Đồng hồ thi đấu</h2>
+          <Link href="/admin/settings" className="text-sm text-slate-600 underline">
+            Đổi thời lượng mặc định
+          </Link>
+        </div>
+        <p className="mt-1 text-xs text-slate-500">
+          Thời lượng lấy từ Cài đặt cuộc thi tại thời điểm tạo đồng hồ. Trận đã tạo giữ nguyên thời lượng cũ.
+        </p>
         {match.timers.length === 0 ? (
           <p className="mt-2 text-sm text-slate-600">Chưa có đồng hồ. Chuyển trận sang “Sẵn sàng” hoặc “Đang chấm điểm” để tạo.</p>
         ) : (

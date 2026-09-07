@@ -223,6 +223,14 @@ enum RoundStatus {
   CANCELLED
 }
 
+enum ScreenShareStatus {
+  CONNECTING
+  ACTIVE
+  RECONNECTING
+  STOPPED
+  DISCONNECTED
+}
+
 model User {
   id               String     @id @default(cuid())
   email            String     @unique
@@ -258,6 +266,7 @@ model User {
   fileAssets          FileAsset[]
   deadlineOverrides   DeadlineOverride[]      @relation("OverrideGrantor")
   loginEvents         LoginEvent[]
+  screenShareSessions ScreenShareSession[]
 
   @@index([status])
   @@index([createdAt])
@@ -376,6 +385,7 @@ model Competition {
   reviewAssignments ReviewAssignment[]
   judgeAssignments JudgeAssignment[]
   partnerAssets    PartnerAsset[]
+  screenShareSessions ScreenShareSession[]
 
   @@index([isRehearsal])
 }
@@ -454,6 +464,7 @@ model Team {
   members      TeamMember[]
   invitations  TeamInvitation[]
   registration Registration?
+  screenShareSessions ScreenShareSession[]
 
   @@unique([competitionId, teamCode])
   @@index([competitionId, status])
@@ -524,6 +535,7 @@ model Registration {
   notes             InternalNote[]
   tags              EntityTag[]
   finalist          Finalist?
+  screenShareSessions ScreenShareSession[]
 
   @@index([competitionId, status])
   @@index([ownerUserId])
@@ -576,13 +588,16 @@ model InternalNote {
   id             String   @id @default(cuid())
   registrationId String
   authorId       String
+  contestSessionId String?
   body           String
   createdAt      DateTime @default(now())
 
   registration Registration @relation(fields: [registrationId], references: [id])
   author       User         @relation(fields: [authorId], references: [id])
+  contestSession Match?     @relation(fields: [contestSessionId], references: [id], onDelete: Cascade)
 
   @@index([registrationId])
+  @@index([contestSessionId, registrationId, createdAt])
 }
 
 model EntityTag {
@@ -884,6 +899,8 @@ model Match {
   judgeAssignments JudgeAssignment[]
   judgeScores JudgeScore[]
   challenge   MatchChallenge? @relation(fields: [challengeId], references: [id], onDelete: SetNull)
+  screenShareSessions ScreenShareSession[]
+  internalNotes InternalNote[]
 
   @@unique([competitionId, code])
   @@index([competitionId, status])
@@ -891,6 +908,33 @@ model Match {
   @@index([competitorAId])
   @@index([competitorBId])
   @@index([challengeId])
+}
+
+model ScreenShareSession {
+  id               String            @id @default(cuid())
+  contestSessionId String
+  competitionId    String
+  registrationId   String
+  teamId           String?
+  participantId    String
+  slot             Int
+  connectionId     String
+  status           ScreenShareStatus @default(CONNECTING)
+  startedAt        DateTime           @default(now())
+  lastSeenAt       DateTime           @default(now())
+  endedAt          DateTime?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  contestSession Match       @relation(fields: [contestSessionId], references: [id], onDelete: Cascade)
+  competition    Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  registration   Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  team           Team?       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  participant    User        @relation(fields: [participantId], references: [id], onDelete: Cascade)
+
+  @@index([contestSessionId, registrationId, status])
+  @@index([participantId, endedAt])
+  @@index([lastSeenAt])
 }
 
 model MatchChallenge {

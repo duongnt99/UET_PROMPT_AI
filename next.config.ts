@@ -5,7 +5,7 @@ const isDev = process.env.NODE_ENV === "development";
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), display-capture=(self)" },
   { key: "X-DNS-Prefetch-Control", value: "on" },
 ];
 
@@ -17,7 +17,7 @@ const contentSecurityPolicy = [
   "media-src 'self' https: blob:",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "connect-src 'self'",
+  "connect-src 'self' ws: wss:",
   "frame-src https:",
   "frame-ancestors 'self'",
 ].join("; ");

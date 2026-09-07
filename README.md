@@ -1,6 +1,6 @@
 # Prompt-Off: Vietnam 2026 — Cổng thông tin cuộc thi
 
-Hệ thống modular monolith (Next.js) cho đăng ký, nộp bài Audition, chấm, công bố finalist, bracket chung kết, giám khảo, sân khấu và vận hành.
+Hệ thống modular monolith (Next.js) cho đăng ký, nộp bài Audition, chấm, công bố finalist, bracket chung kết, giám khảo, sân khấu, chia sẻ màn hình WebRTC và vận hành.
 
 ## 1. Yêu cầu hệ thống
 
@@ -62,6 +62,8 @@ pnpm dev
 
 Mở `http://localhost:3000`. Hệ thống dùng thông báo nội bộ và không cần dịch vụ gửi email.
 
+Lệnh `pnpm dev` chạy custom Next.js server để phục vụ cả HTTP và WebSocket signaling tại cùng origin.
+
 Danh sách các luồng đã thay email bằng thông báo nội bộ: [docs/NO_EMAIL_WORKFLOWS.md](docs/NO_EMAIL_WORKFLOWS.md).
 
 ## 8. Test
@@ -120,3 +122,4 @@ Xem `docs/DEPLOYMENT.md`. Migration production: `pnpm db:migrate:deploy` có ki�
 - Gemini API không bắt buộc; cổng chỉ quản lý hồ sơ/artifact.
 - Logo Google/ĐHQGHN chính thức chưa được cung cấp — dùng placeholder trung tính và ô upload trong admin.
 - Livestream, giải thưởng, ngày chính thức và hình thức cá nhân/đội có thể còn treo — cấu hình trong Cài đặt. Chung kết mặc định 8 đội, không bye, Sprint 5:00 (có thể thử 10:00), Pitch 1:00.
+- Chia sẻ màn hình dùng WebRTC P2P. STUN mặc định phù hợp để phát triển nhưng production cần TURN để hoạt động ổn định giữa các mạng khác nhau; xem `docs/LIVE_SCREEN_SHARING.md`.

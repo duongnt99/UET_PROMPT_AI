@@ -16,6 +16,12 @@ const envSchema = z.object({
   SEED_PASSWORD: z.string().optional(),
   TURNSTILE_SECRET_KEY: z.string().optional(),
   CAPTCHA_ENABLED: z.string().optional(),
+  WEBRTC_STUN_URLS: z.string().default("stun:stun.l.google.com:19302"),
+  WEBRTC_TURN_URLS: z.string().optional(),
+  WEBRTC_TURN_USERNAME: z.string().optional(),
+  WEBRTC_TURN_CREDENTIAL: z.string().optional(),
+  LIVE_SCREEN_ALLOWED_ORIGINS: z.string().optional(),
+  LIVE_SCREEN_DISCONNECT_GRACE_SECONDS: z.coerce.number().int().min(5).max(60).default(12),
 });
 
 export function getEnv() {
