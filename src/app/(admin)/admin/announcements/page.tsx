@@ -21,7 +21,7 @@ export default async function Page() {
           <h1 className="display text-3xl">Thông báo / tin tức</h1>
           <p className="mt-1 text-sm text-slate-600">Hiện trên trang chủ và /tin-tuc khi Đã đăng.</p>
         </div>
-        <Button asChild>
+        <Button asChild variant="primary">
           <Link href="/admin/announcements/new">Tạo tin</Link>
         </Button>
       </div>

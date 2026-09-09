@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
 import { getProductionCompetition } from "@/server/services/competition-service";
+import { FormattedText } from "@/components/public/formatted-text";
 import { Card } from "@/components/ui/form";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -20,7 +21,9 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
       <h1 className="display text-4xl">{item.title}</h1>
-      <Card className="mt-6 whitespace-pre-wrap">{item.bodyMarkdown}</Card>
+      <Card className="mt-6">
+        <FormattedText text={item.bodyMarkdown} className="leading-7 text-slate-700" />
+      </Card>
     </div>
   );
 }

@@ -30,6 +30,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       <h1 className="display text-3xl">Sửa: {page.title}</h1>
       <Card>
         <StaticPageForm
+          key={`${page.id}-${page.updatedAt.toISOString()}`}
           page={{
             id: page.id,
             slug: page.slug,

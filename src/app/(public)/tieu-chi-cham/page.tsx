@@ -1,6 +1,7 @@
 import { getPublishedPage } from "@/server/services/content-service";
 import { getProductionCompetition } from "@/server/services/competition-service";
 import { getActiveRubric } from "@/server/services/review-service";
+import { FormattedText } from "@/components/public/formatted-text";
 import { Card } from "@/components/ui/form";
 import type { Metadata } from "next";
 
@@ -28,7 +29,9 @@ export default async function Page() {
     <div className="mx-auto max-w-4xl px-4 py-12">
       <h1 className="display text-4xl">{intro?.title ?? "Tiêu chí chấm"}</h1>
       {intro?.bodyMarkdown ? (
-        <Card className="mt-6 whitespace-pre-wrap leading-7 text-slate-700">{intro.bodyMarkdown}</Card>
+        <Card className="mt-6">
+          <FormattedText text={intro.bodyMarkdown} className="leading-7 text-slate-700" />
+        </Card>
       ) : (
         <p className="mt-2 text-slate-600">Trọng số lấy từ rubric đang kích hoạt.</p>
       )}

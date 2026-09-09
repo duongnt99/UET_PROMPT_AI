@@ -1,0 +1,17 @@
+[Unit]
+Description=AI Arena Vietnam production backup (PostgreSQL + MinIO)
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=ccne
+Group=ccne
+WorkingDirectory=/opt/ai-arena
+Environment=DEPLOY_DIR=/opt/ai-arena
+ExecStart=/bin/bash /opt/ai-arena/deploy/backup-production.sh
+StandardOutput=append:/var/log/ai-arena/backup.log
+StandardError=append:/var/log/ai-arena/backup.log
+
+[Install]
+WantedBy=multi-user.target

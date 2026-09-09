@@ -27,21 +27,29 @@ export async function createRegistrationAction(formData: FormData) {
 
 export async function saveProfileAction(formData: FormData) {
   const user = await requireUser();
-  await saveProfile({
-    userId: user.id,
-    data: {
-      fullName: String(formData.get("fullName") ?? ""),
-      phoneNumber: String(formData.get("phoneNumber") ?? ""),
-      institution: String(formData.get("institution") ?? ""),
-      facultyOrDepartment: String(formData.get("facultyOrDepartment") ?? ""),
-      major: String(formData.get("major") ?? ""),
-      studentId: String(formData.get("studentId") ?? ""),
-      academicYear: String(formData.get("academicYear") ?? ""),
-      provinceOrCity: String(formData.get("provinceOrCity") ?? ""),
-      shortBio: String(formData.get("shortBio") ?? ""),
-    },
-  });
-  return { ok: true, savedAt: new Date().toISOString() };
+  try {
+    const profile = await saveProfile({
+      userId: user.id,
+      data: {
+        fullName: String(formData.get("fullName") ?? ""),
+        phoneNumber: String(formData.get("phoneNumber") ?? ""),
+        institution: String(formData.get("institution") ?? ""),
+        facultyOrDepartment: String(formData.get("facultyOrDepartment") ?? ""),
+        major: String(formData.get("major") ?? ""),
+        studentId: String(formData.get("studentId") ?? ""),
+        academicYear: String(formData.get("academicYear") ?? ""),
+        provinceOrCity: String(formData.get("provinceOrCity") ?? ""),
+        shortBio: String(formData.get("shortBio") ?? ""),
+      },
+    });
+    revalidatePath("/dashboard/ho-so");
+    return { ok: true as const, savedAt: profile.updatedAt.toISOString() };
+  } catch (error) {
+    return {
+      ok: false as const,
+      message: error instanceof Error ? error.message : "Không lưu được.",
+    };
+  }
 }
 
 export async function inviteMemberAction(formData: FormData) {

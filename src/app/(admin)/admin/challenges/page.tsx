@@ -24,7 +24,7 @@ export default async function Page() {
             Đề dùng chung cho cả hai đội trong một trận. Gán đề trên trang bracket của cặp đấu.
           </p>
         </div>
-        <Button asChild>
+        <Button asChild variant="primary">
           <Link href="/admin/challenges/new">Tạo đề thi</Link>
         </Button>
       </div>

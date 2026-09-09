@@ -107,7 +107,7 @@ export default async function Page() {
           </p>
         </div>
         {canWrite ? (
-          <Button asChild>
+          <Button asChild variant="primary">
             <Link href="/admin/rubrics/new">Tạo bộ tiêu chí</Link>
           </Button>
         ) : null}

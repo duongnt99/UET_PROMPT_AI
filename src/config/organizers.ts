@@ -20,8 +20,8 @@ export const ORGANIZERS: readonly Organizer[] = [
     name: "Trường Đại học Công nghệ — ĐHQGHN",
     shortName: "UET",
     role: "HOST",
-    imageUrl: "/partners/uet.jpg",
-    miniImageUrl: "/partners/uet-mini.jpg",
+    imageUrl: "/partners/uet.webp",
+    miniImageUrl: "/partners/uet-mini.webp",
     href: "https://uet.vnu.edu.vn/",
   },
   {

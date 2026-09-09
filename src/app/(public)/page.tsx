@@ -259,7 +259,7 @@ export default async function HomePage() {
               <span className="text-slate-300">+</span>
               <Image src="/partners/google-wordmark.png" alt="Google" width={90} height={29} className="h-7 w-[90px] object-contain" />
               <span className="text-slate-300">+</span>
-              <Image src="/partners/uet-mini.jpg" alt="Trường Đại học Công nghệ" width={42} height={42} className="h-[42px] w-[42px] rounded-full object-contain" />
+              <Image src="/partners/uet-mini.webp" alt="Trường Đại học Công nghệ" width={42} height={42} className="h-[42px] w-[42px] rounded-full object-contain" />
             </div>
             <h1 className="display mt-7 text-[3rem] font-extrabold leading-[1.03] tracking-[-0.035em] text-[#1c1b1b] sm:text-6xl lg:text-[4.875rem]">
               {settings?.landingHeroTitle ?? "AI Arena"}
@@ -274,6 +274,9 @@ export default async function HomePage() {
             <div className="mt-9 flex flex-wrap items-center gap-4">
               <Button asChild className="h-13 rounded-full bg-[#0f9d58] px-8 font-extrabold tracking-[0.035em] text-white shadow-md hover:bg-[#0b8248]">
                 <Link href="/dashboard/audition">Nộp dự án vòng 1</Link>
+              </Button>
+              <Button asChild className="h-13 rounded-full bg-[#4285F4] px-8 font-bold tracking-[0.035em] text-white shadow-md hover:bg-[#2f72df]">
+                <Link href="/tin-tuc/huong-dan-dang-ky-va-audition">Hướng dẫn đăng ký và nộp bài</Link>
               </Button>
               <Button asChild className="h-13 rounded-full bg-[#db4437] px-8 font-bold tracking-[0.035em] text-white shadow-md hover:bg-[#bd352a]">
                 <Link href="/the-le">Thể lệ</Link>
@@ -428,9 +431,10 @@ export default async function HomePage() {
           <h2 className="display text-center text-3xl font-bold tracking-[-0.025em] md:text-[3.5rem] md:leading-[4rem]">
             {criteriaIntro?.title || "Tiêu chí chấm điểm"}
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-center text-lg leading-7 text-[#424753] md:text-xl">
-            {criteriaIntro?.bodyMarkdown || "Ban Tổ chức có thể phát hành phiên bản rubric mới."}
-          </p>
+          <FormattedText
+            text={criteriaIntro?.bodyMarkdown || "Ban Tổ chức có thể phát hành phiên bản rubric mới."}
+            className="mx-auto mt-4 max-w-2xl text-center text-lg leading-7 text-[#424753] md:text-xl"
+          />
           <div className="mt-12 grid gap-8 md:grid-cols-3">
             {criteria.map((criterion, index) => {
               const accent = CRITERIA_ACCENTS[index % CRITERIA_ACCENTS.length];

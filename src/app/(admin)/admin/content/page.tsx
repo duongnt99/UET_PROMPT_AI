@@ -52,7 +52,7 @@ export default async function Page() {
             Chỉnh nội dung trang chủ và các trang thông tin. Thay đổi được ghi vào hệ thống ngay khi lưu.
           </p>
         </div>
-        <Button asChild>
+        <Button asChild variant="primary">
           <Link href="/admin/content/new">Tạo trang tĩnh</Link>
         </Button>
       </div>
@@ -67,7 +67,11 @@ export default async function Page() {
         </Card>
         <Card className="p-4">
           <p className="font-semibold">Lịch trình</p>
-          <p className="mt-1 text-sm text-slate-600">{timeline.length} mốc đang được quản lý.</p>
+          <p className="mt-1 text-sm text-slate-600">
+            {timeline.length > 0
+              ? `${timeline.length} mốc đang được quản lý.`
+              : "Chưa có mốc trong hệ thống — trang chủ đang hiển thị lịch trình mặc định."}
+          </p>
           <Link href="#lich-trinh" className="mt-3 inline-block text-sm font-semibold text-blue-700 underline">
             Chỉnh lịch trình
           </Link>
@@ -95,7 +99,11 @@ export default async function Page() {
             Đây là các nội dung ở phần đầu trang và khối “Thông tin cuộc thi” mà người xem nhìn thấy đầu tiên.
           </p>
         </div>
-        {competition ? <Card><LandingOverviewForm settings={competition.settings} /></Card> : (
+        {competition ? (
+          <Card>
+            <LandingOverviewForm key={`overview-${competition.version}`} settings={competition.settings} />
+          </Card>
+        ) : (
           <Card><p className="text-sm text-red-700">Chưa có cuộc thi production để lưu nội dung.</p></Card>
         )}
       </section>
@@ -158,7 +166,10 @@ export default async function Page() {
         </div>
         {competition ? (
           <Card>
-            <LandingFinalRoundsForm settings={competition.settings} />
+            <LandingFinalRoundsForm
+              key={`final-rounds-${competition.version}`}
+              settings={competition.settings}
+            />
             <p className="mt-5 border-t border-slate-200 pt-4 text-sm text-slate-600">
               Thời lượng thi và trạng thái bật/tắt yêu cầu bất ngờ đã có ở{" "}
               <Link href="/admin/settings" className="font-semibold text-blue-700 underline">

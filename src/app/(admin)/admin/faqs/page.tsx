@@ -21,7 +21,7 @@ export default async function Page() {
           <h1 className="display text-3xl">FAQ</h1>
           <p className="mt-1 text-sm text-slate-600">Hiện trên trang chủ và /faq khi trạng thái là Đã đăng.</p>
         </div>
-        <Button asChild>
+        <Button asChild variant="primary">
           <Link href="/admin/faqs/new">Tạo FAQ</Link>
         </Button>
       </div>

@@ -10,6 +10,7 @@ export default async function Page() {
       <h1 className="display text-3xl">Hồ sơ cá nhân</h1>
       <div className="mt-6">
         <ProfileForm
+          key={profile?.updatedAt?.toISOString() ?? user.id}
           profile={{
             fullName: profile?.fullName || user.name || "",
             phoneNumber: profile?.phoneNumber,

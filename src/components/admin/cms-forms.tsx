@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/form";
 import {
@@ -292,6 +293,16 @@ export function LandingFinalRoundsForm({ settings }: { settings: FinalRoundSetti
 }
 
 function Feedback({ state, pending }: { state: ContentActionState; pending: boolean }) {
+  const router = useRouter();
+  const refreshedFor = useRef("");
+
+  useEffect(() => {
+    if (!state.ok || !state.message || pending) return;
+    if (refreshedFor.current === state.message) return;
+    refreshedFor.current = state.message;
+    router.refresh();
+  }, [state.ok, state.message, pending, router]);
+
   if (pending) return <p className="text-sm text-slate-600">Đang lưu…</p>;
   if (!state.message) return null;
   return (

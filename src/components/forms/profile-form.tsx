@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { saveProfileAction } from "@/server/actions/participant-actions";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/form";
@@ -17,16 +18,31 @@ type Profile = {
   shortBio?: string | null;
 };
 
+type ProfileActionState = { ok: boolean; message: string };
+
+const idle: ProfileActionState = { ok: false, message: "" };
+
 export function ProfileForm({ profile }: { profile: Profile }) {
-  const [saved, setSaved] = useState<string | null>(null);
+  const router = useRouter();
+  const refreshedFor = useRef("");
+  const [state, action, pending] = useActionState(
+    async (_prev: ProfileActionState, formData: FormData): Promise<ProfileActionState> => {
+      const result = await saveProfileAction(formData);
+      if (result.ok) return { ok: true, message: "Đã lưu" };
+      return { ok: false, message: result.message ?? "Không lưu được." };
+    },
+    idle,
+  );
+
+  useEffect(() => {
+    if (!state.ok || !state.message || pending) return;
+    if (refreshedFor.current === state.message) return;
+    refreshedFor.current = state.message;
+    router.refresh();
+  }, [state.ok, state.message, pending, router]);
+
   return (
-    <form
-      className="grid gap-4 md:grid-cols-2"
-      action={async (formData) => {
-        const result = await saveProfileAction(formData);
-        if (result.ok) setSaved("Đã lưu");
-      }}
-    >
+    <form className="grid gap-4 md:grid-cols-2" action={action}>
       {[
         ["fullName", "Họ và tên", profile.fullName],
         ["phoneNumber", "Số điện thoại", profile.phoneNumber ?? ""],
@@ -47,8 +63,12 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         <Textarea id="shortBio" name="shortBio" defaultValue={profile.shortBio ?? ""} className="mt-1" />
       </div>
       <div className="flex items-center gap-3 md:col-span-2">
-        <Button type="submit">Lưu hồ sơ</Button>
-        {saved ? <span className="text-sm text-emerald-700">{saved}</span> : null}
+        <Button type="submit" disabled={pending}>{pending ? "Đang lưu…" : "Lưu hồ sơ"}</Button>
+        {state.message ? (
+          <span className={state.ok ? "text-sm text-emerald-700" : "text-sm text-red-700"} role="status">
+            {state.message}
+          </span>
+        ) : null}
       </div>
     </form>
   );
