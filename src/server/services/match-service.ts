@@ -710,6 +710,37 @@ async function ensureMatchTimers(
   }
 }
 
+export async function syncIdleTimerDurationsToSettings(params: {
+  competitionId: string;
+  settings: { sprintDurationSeconds: number; pitchDurationSeconds: number; verdictDurationSeconds: number };
+}) {
+  const specs = [
+    ["SPRINT", params.settings.sprintDurationSeconds],
+    ["PITCH", params.settings.pitchDurationSeconds],
+    ["VERDICT", params.settings.verdictDurationSeconds],
+  ] as const;
+  let updated = 0;
+  for (const [kind, durationSeconds] of specs) {
+    const result = await prisma.timerSession.updateMany({
+      where: {
+        status: { in: ["IDLE", "PAUSED"] },
+        kind,
+        match: { competitionId: params.competitionId },
+      },
+      data: {
+        status: "IDLE",
+        durationSeconds,
+        remainingSnapshot: durationSeconds,
+        startedAt: null,
+        pausedAt: null,
+        accumulatedPausedMs: 0,
+      },
+    });
+    updated += result.count;
+  }
+  return updated;
+}
+
 async function clearCurrentMatchIfThis(
   tx: Prisma.TransactionClient,
   competitionId: string,

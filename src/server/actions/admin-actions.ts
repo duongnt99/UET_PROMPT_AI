@@ -8,54 +8,80 @@ import { lockSelection, publishFinalists, setFinalistPublished, unselectFinalist
 import { toCsvWithBom } from "@/lib/utils";
 import { prisma } from "@/lib/db/prisma";
 import { writeAuditLog } from "@/lib/audit";
-import { controlTimer, advanceWinner } from "@/server/services/match-service";
+import { controlTimer, advanceWinner, syncIdleTimerDurationsToSettings } from "@/server/services/match-service";
 import { revalidatePath } from "next/cache";
 
 export async function saveSettingsAction(formData: FormData) {
-  const user = await requirePermission("settings:write");
-  const competition = await getProductionCompetition();
-  if (!competition) return { ok: false, message: "Missing competition" };
-  const next = {
-    ...competition.settings,
-    competitionName: String(formData.get("competitionName") ?? competition.settings.competitionName),
-    shortDescription: String(formData.get("shortDescription") ?? competition.settings.shortDescription),
-    venue: String(formData.get("venue") ?? competition.settings.venue),
-    officialContactEmail: String(formData.get("officialContactEmail") ?? competition.settings.officialContactEmail),
-    registrationMode: competitionSettingsSchema.shape.registrationMode.parse(
-      formData.get("registrationMode") ?? competition.settings.registrationMode,
-    ),
-    livestreamUrl: String(formData.get("livestreamUrl") ?? ""),
-    prizeInformation: String(formData.get("prizeInformation") ?? ""),
-    maintenanceMode: formData.get("maintenanceMode") === "on",
-    registrationEnabled: formData.get("registrationEnabled") === "on",
-    submissionEnabled: formData.get("submissionEnabled") === "on",
-    publicScoreboardEnabled: formData.get("publicScoreboardEnabled") === "on",
-    livestreamEnabled: formData.get("livestreamEnabled") === "on",
-    finalistCount: competitionSettingsSchema.shape.finalistCount.parse(
-      Number(formData.get("finalistCount") ?? competition.settings.finalistCount),
-    ),
-    allowByes: formData.get("allowByes") === "on",
-    sprintDurationSeconds: competitionSettingsSchema.shape.sprintDurationSeconds.parse(
-      Number(formData.get("sprintDurationSeconds") ?? competition.settings.sprintDurationSeconds),
-    ),
-    pitchDurationSeconds: competitionSettingsSchema.shape.pitchDurationSeconds.parse(
-      Number(formData.get("pitchDurationSeconds") ?? competition.settings.pitchDurationSeconds),
-    ),
-    verdictDurationSeconds: competitionSettingsSchema.shape.verdictDurationSeconds.parse(
-      Number(formData.get("verdictDurationSeconds") ?? competition.settings.verdictDurationSeconds),
-    ),
-  };
-  await updateCompetitionSettings({
-    competitionId: competition.id,
-    actorUserId: user.id,
-    settings: next,
-    reason: String(formData.get("reason") ?? "Admin updated settings"),
-  });
-  revalidatePath("/");
-  revalidatePath("/admin/settings");
-  revalidatePath("/the-le");
-  revalidatePath("/faq");
-  return { ok: true };
+  try {
+    const user = await requirePermission("settings:write");
+    const competition = await getProductionCompetition();
+    if (!competition) return { ok: false as const, message: "Không tìm thấy cấu hình cuộc thi." };
+    const next = {
+      ...competition.settings,
+      competitionName: String(formData.get("competitionName") ?? competition.settings.competitionName),
+      shortDescription: String(formData.get("shortDescription") ?? competition.settings.shortDescription),
+      venue: String(formData.get("venue") ?? competition.settings.venue),
+      officialContactEmail: String(formData.get("officialContactEmail") ?? competition.settings.officialContactEmail),
+      registrationMode: competitionSettingsSchema.shape.registrationMode.parse(
+        formData.get("registrationMode") ?? competition.settings.registrationMode,
+      ),
+      livestreamUrl: String(formData.get("livestreamUrl") ?? ""),
+      prizeInformation: String(formData.get("prizeInformation") ?? ""),
+      maintenanceMode: formData.get("maintenanceMode") === "on",
+      registrationEnabled: formData.get("registrationEnabled") === "on",
+      submissionEnabled: formData.get("submissionEnabled") === "on",
+      publicScoreboardEnabled: formData.get("publicScoreboardEnabled") === "on",
+      livestreamEnabled: formData.get("livestreamEnabled") === "on",
+      finalistCount: competitionSettingsSchema.shape.finalistCount.parse(
+        Number(formData.get("finalistCount") ?? competition.settings.finalistCount),
+      ),
+      allowByes: formData.get("allowByes") === "on",
+      sprintDurationSeconds: competitionSettingsSchema.shape.sprintDurationSeconds.parse(
+        Number(formData.get("sprintDurationSeconds") ?? competition.settings.sprintDurationSeconds),
+      ),
+      pitchDurationSeconds: competitionSettingsSchema.shape.pitchDurationSeconds.parse(
+        Number(formData.get("pitchDurationSeconds") ?? competition.settings.pitchDurationSeconds),
+      ),
+      verdictDurationSeconds: competitionSettingsSchema.shape.verdictDurationSeconds.parse(
+        Number(formData.get("verdictDurationSeconds") ?? competition.settings.verdictDurationSeconds),
+      ),
+      reviewSubmissionLimit: competitionSettingsSchema.shape.reviewSubmissionLimit.parse(
+        Number(formData.get("reviewSubmissionLimit") ?? competition.settings.reviewSubmissionLimit),
+      ),
+    };
+    await updateCompetitionSettings({
+      competitionId: competition.id,
+      actorUserId: user.id,
+      settings: next,
+      reason: String(formData.get("reason") ?? "Admin updated settings"),
+    });
+    const syncedTimers = await syncIdleTimerDurationsToSettings({
+      competitionId: competition.id,
+      settings: {
+        sprintDurationSeconds: next.sprintDurationSeconds,
+        pitchDurationSeconds: next.pitchDurationSeconds,
+        verdictDurationSeconds: next.verdictDurationSeconds,
+      },
+    });
+    revalidatePath("/");
+    revalidatePath("/admin/settings");
+    revalidatePath("/admin/bracket");
+    revalidatePath("/the-le");
+    revalidatePath("/faq");
+    const timerNote =
+      syncedTimers > 0
+        ? ` Đã cập nhật ${syncedTimers} đồng hồ chưa chạy hoặc đang tạm dừng theo thời lượng mới.`
+        : " Các đồng hồ đang chạy hoặc đã kết thúc giữ nguyên thời lượng hiện tại.";
+    return {
+      ok: true as const,
+      message: `Đã lưu cài đặt cuộc thi.${timerNote}`,
+    };
+  } catch (error) {
+    return {
+      ok: false as const,
+      message: error instanceof Error ? error.message : "Không lưu được cài đặt.",
+    };
+  }
 }
 
 export async function autoAssignAction() {

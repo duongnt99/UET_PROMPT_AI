@@ -1,4 +1,5 @@
 import { requireUser } from "@/lib/auth/guards";
+import { submissionStatusLabel } from "@/lib/status-labels";
 import { getOrCreateAudition } from "@/server/services/submission-service";
 import { AuditionForm } from "@/components/forms/audition-form";
 import { Card } from "@/components/ui/form";
@@ -20,16 +21,26 @@ export default async function Page() {
       </div>
     );
   }
-  const { submission } = payload;
+  const { competition, submission } = payload;
   const version = submission.currentVersion;
-  const disabled = ["SUBMITTED", "LOCKED", "UNDER_REVIEW", "SCORED"].includes(submission.status);
   return (
     <div>
       <h1 className="display text-3xl">Bài Audition</h1>
-      <p className="mt-2 text-sm text-slate-600">Trạng thái: {submission.status}. Autosave khi rời ô nhập.</p>
+      <p className="mt-2 text-sm text-slate-600">
+        Trạng thái: {submissionStatusLabel(submission.status)}. Autosave khi rời ô nhập. Các trường có dấu * là
+        bắt buộc khi nộp bài. Liên kết phải bắt đầu bằng https:// hoặc http://.
+      </p>
       <Card className="mt-6">
         <AuditionForm
-          disabled={disabled}
+          initialStatus={submission.status}
+          settings={{
+            auditionVideoMode: competition.settings.auditionVideoMode,
+            auditionVideoRequired: competition.settings.auditionVideoRequired,
+            demoUrlRequired: competition.settings.demoUrlRequired,
+            repositoryUrlRequired: competition.settings.repositoryUrlRequired,
+            documentUploadRequired: competition.settings.documentUploadRequired,
+            promptLogRequired: competition.settings.promptLogRequired,
+          }}
           values={{
             submissionTitle: version?.submissionTitle ?? "",
             problemStatement: version?.problemStatement ?? "",

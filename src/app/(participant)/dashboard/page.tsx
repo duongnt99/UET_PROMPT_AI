@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db/prisma";
 import { getProductionCompetition } from "@/server/services/competition-service";
 import { getMyRegistration } from "@/server/services/registration-service";
 import { Badge, Card } from "@/components/ui/form";
+import { registrationStatusLabel } from "@/lib/status-labels";
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/dates";
 import { remainingMs } from "@/server/domain/deadlines";
@@ -27,7 +28,7 @@ export default async function Page() {
         </Card>
         <Card>
           <p className="text-sm text-slate-500">Đăng ký</p>
-          <Badge>{registration?.status ?? "Chưa tạo"}</Badge>
+          <Badge>{registration ? registrationStatusLabel(registration.status) : "Chưa tạo"}</Badge>
         </Card>
         <Card>
           <p className="text-sm text-slate-500">Hạn đăng ký</p>

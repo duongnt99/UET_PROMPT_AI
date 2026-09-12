@@ -187,9 +187,9 @@ async function deleteReviewAssignments(
 ) {
   const assignments = await tx.reviewAssignment.findMany({
     where,
-    include: { review: true },
+    include: { reviews: true },
   });
-  const reviewIds = assignments.map((item) => item.review?.id).filter((id): id is string => Boolean(id));
+  const reviewIds = assignments.flatMap((item) => item.reviews.map((review) => review.id));
   if (reviewIds.length) {
     await tx.reviewScoreItem.deleteMany({ where: { reviewId: { in: reviewIds } } });
     await tx.review.deleteMany({ where: { id: { in: reviewIds } } });

@@ -31,8 +31,8 @@ describe("single active registration", () => {
 
 describe("team size validation", () => {
   it("enforces configured min and max size", () => {
-    expect(validateTeamSize({ acceptedMemberCount: 1, minSize: 2, maxSize: 4 }).ok).toBe(false);
-    expect(validateTeamSize({ acceptedMemberCount: 3, minSize: 2, maxSize: 4 }).ok).toBe(true);
-    expect(validateTeamSize({ acceptedMemberCount: 5, minSize: 2, maxSize: 4 }).ok).toBe(false);
+    expect(validateTeamSize({ acceptedMemberCount: 1, minSize: 2, maxSize: 3 }).ok).toBe(false);
+    expect(validateTeamSize({ acceptedMemberCount: 3, minSize: 2, maxSize: 3 }).ok).toBe(true);
+    expect(validateTeamSize({ acceptedMemberCount: 4, minSize: 2, maxSize: 3 }).ok).toBe(false);
   });
 });

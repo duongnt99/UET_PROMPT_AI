@@ -59,7 +59,8 @@ services:
     env_file:
       - ../.env.production
     ports:
-      - "127.0.0.1:3000:3000"
+      # Host port range enables horizontal scale: compose up -d --scale app=4
+      - "127.0.0.1:3000-3003:3000"
     depends_on:
       postgres:
         condition: service_healthy

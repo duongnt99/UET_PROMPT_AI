@@ -3,17 +3,28 @@ import { prisma } from "@/lib/db/prisma";
 import { requireProductionCompetition } from "@/server/services/competition-service";
 import {
   assertSingleActiveRegistration,
+  canEditTeamRoster,
   canSubmitRegistration,
+  canSubmitRegistrationStatus,
   isRegistrationTypeAllowed,
 } from "@/server/domain/registration-rules";
-import { validateTeamSize } from "@/server/domain/team-rules";
+import {
+  canAddTeamMember,
+  canInviteMember,
+  validateTeamSize,
+} from "@/server/domain/team-rules";
 import { isDeadlinePassed } from "@/server/domain/deadlines";
+import {
+  isParticipantProfileComplete,
+  missingParticipantProfileFields,
+} from "@/server/domain/participant-profile";
 import { assertTransition, REGISTRATION_TRANSITIONS } from "@/server/domain/status-transitions";
 import { writeAuditLog } from "@/lib/audit";
 import { generateCode, normalizeEmail } from "@/lib/utils";
 import { createRawToken, hashToken } from "@/lib/auth/password";
 import { upsertFinalistFromRegistration } from "@/server/services/finalist-service";
 import { notifyUser } from "@/lib/notifications";
+import { Prisma } from "@prisma/client";
 
 export async function getMyRegistration(userId: string, competitionId: string) {
   const seat = await prisma.registrationSeat.findUnique({
@@ -43,6 +54,12 @@ export async function createRegistrationDraft(params: {
   const existing = await prisma.registrationSeat.findUnique({
     where: { userId_competitionId: { userId: params.userId, competitionId: competition.id } },
   });
+  if (existing) {
+    const current = await prisma.registration.findFirst({
+      where: { id: existing.registrationId, deletedAt: null },
+    });
+    if (current) return current;
+  }
   const uniqueness = assertSingleActiveRegistration({ existingActiveCount: existing ? 1 : 0 });
   if (!uniqueness.ok) throw new Error(uniqueness.message);
   const user = await prisma.user.findUniqueOrThrow({
@@ -50,7 +67,8 @@ export async function createRegistrationDraft(params: {
     include: { profile: true },
   });
 
-  return prisma.$transaction(async (tx) => {
+  try {
+    return await prisma.$transaction(async (tx) => {
     let teamId: string | undefined;
     if (params.type === "TEAM") {
       const team = await tx.team.create({
@@ -91,7 +109,14 @@ export async function createRegistrationDraft(params: {
       });
     }
     return registration;
-  });
+    });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      const retry = await getMyRegistration(params.userId, competition.id);
+      if (retry) return retry;
+    }
+    throw error;
+  }
 }
 
 export async function saveProfile(params: {
@@ -125,9 +150,33 @@ export async function inviteTeamMember(params: {
   if (!registration?.team || registration.ownerUserId !== params.actorUserId) {
     throw new Error("Chỉ nhóm trưởng mới được mời thành viên.");
   }
-  if (!competition.settings.allowTeamInvitations) {
-    throw new Error("Ban Tổ chức chưa cho phép mời thành viên.");
-  }
+  const rosterCheck = canEditTeamRoster({
+    status: registration.status,
+    allowEditAfterSubmit: competition.settings.allowParticipantEditAfterSubmit,
+  });
+  if (!rosterCheck.ok) throw new Error(rosterCheck.message);
+  const inviteCheck = canInviteMember({
+    allowTeamInvitations: competition.settings.allowTeamInvitations,
+    teamLocked: registration.team.status === "LOCKED",
+  });
+  if (!inviteCheck.ok) throw new Error(inviteCheck.message);
+  const [acceptedMemberCount, pendingInvitationCount] = await Promise.all([
+    prisma.teamMember.count({
+      where: { teamId: registration.team.id, status: "ACCEPTED" },
+    }),
+    prisma.teamInvitation.count({
+      where: { teamId: registration.team.id, status: "PENDING", expiresAt: { gt: new Date() } },
+    }),
+  ]);
+  const capacityCheck = canAddTeamMember({
+    acceptedMemberCount,
+    pendingInvitationCount,
+    settings: {
+      minSize: competition.settings.teamMinSize,
+      maxSize: competition.settings.teamMaxSize,
+    },
+  });
+  if (!capacityCheck.ok) throw new Error(capacityCheck.message);
   const email = normalizeEmail(params.email);
   const invitee = await prisma.user.findUnique({ where: { emailNormalized: email } });
   if (!invitee || invitee.deletedAt || invitee.status !== "ACTIVE") {
@@ -227,15 +276,43 @@ async function requireTeamInvitationForUser(userId: string, invitationId: string
 export async function acceptTeamInvitation(params: { userId: string; invitationId: string }) {
   const invitation = await requireTeamInvitationForUser(params.userId, params.invitationId);
   const competitionId = invitation.team.competitionId;
+  const competition = await requireProductionCompetition();
+  if (competition.id !== competitionId) {
+    throw new Error("Lời mời không thuộc cuộc thi hiện tại.");
+  }
+  const registration = invitation.team.registration;
+  if (registration) {
+    const rosterCheck = canEditTeamRoster({
+      status: registration.status,
+      allowEditAfterSubmit: competition.settings.allowParticipantEditAfterSubmit,
+    });
+    if (!rosterCheck.ok) throw new Error(rosterCheck.message);
+  }
   const existing = await prisma.registrationSeat.findUnique({
     where: { userId_competitionId: { userId: params.userId, competitionId } },
   });
   if (existing) throw new Error("Bạn đã thuộc một hồ sơ đăng ký khác.");
   await prisma.$transaction(async (tx) => {
-    await tx.teamInvitation.update({
-      where: { id: invitation.id },
+    const acceptedMemberCount = await tx.teamMember.count({
+      where: { teamId: invitation.teamId, status: "ACCEPTED" },
+    });
+    const capacityCheck = canAddTeamMember({
+      acceptedMemberCount,
+      pendingInvitationCount: 0,
+      settings: {
+        minSize: competition.settings.teamMinSize,
+        maxSize: competition.settings.teamMaxSize,
+      },
+    });
+    if (!capacityCheck.ok) throw new Error(capacityCheck.message);
+
+    const updatedInvite = await tx.teamInvitation.updateMany({
+      where: { id: invitation.id, status: "PENDING" },
       data: { status: "ACCEPTED", acceptedAt: new Date(), inviteeId: params.userId },
     });
+    if (updatedInvite.count === 0) {
+      throw new Error("Lời mời không còn hợp lệ.");
+    }
     await tx.teamMember.upsert({
       where: { teamId_userId: { teamId: invitation.teamId, userId: params.userId } },
       update: { status: "ACCEPTED", joinedAt: new Date() },
@@ -321,6 +398,8 @@ export async function submitRegistration(params: {
   if (registration.ownerUserId !== params.userId) {
     throw new Error("Chỉ chủ hồ sơ / nhóm trưởng mới được nộp.");
   }
+  const submitState = canSubmitRegistrationStatus(registration.status);
+  if (!submitState.ok) throw new Error(submitState.message);
   const override = await prisma.deadlineOverride.findFirst({
     where: { registrationId: registration.id, kind: "registration" },
     orderBy: { createdAt: "desc" },
@@ -335,38 +414,71 @@ export async function submitRegistration(params: {
     throw new Error("Đã hết hạn đăng ký.");
   }
   const profile = await prisma.participantProfile.findUnique({ where: { userId: params.userId } });
-  if (!profile?.fullName || !profile.institution || !profile.studentId) {
+  if (!isParticipantProfileComplete(profile)) {
     throw new Error("Hồ sơ cá nhân chưa đủ: họ tên, trường, mã sinh viên.");
   }
   if (!params.consents.consentToRules || !params.consents.consentToDataProcessing) {
     throw new Error("Bạn cần đồng ý thể lệ và chính sách dữ liệu.");
   }
   if (registration.type === "TEAM") {
-    const accepted = await prisma.teamMember.count({
+    const members = await prisma.teamMember.findMany({
       where: { teamId: registration.teamId!, status: "ACCEPTED" },
+      include: { user: { include: { profile: true } } },
     });
     const size = validateTeamSize({
-      acceptedMemberCount: accepted,
+      acceptedMemberCount: members.length,
       minSize: competition.settings.teamMinSize,
       maxSize: competition.settings.teamMaxSize,
     });
     if (!size.ok) throw new Error(size.message);
+    const missingDetails = members
+      .map((member) => {
+        const missing = missingParticipantProfileFields(member.user.profile);
+        if (missing.length === 0) return null;
+        const label = member.user.profile?.fullName || member.user.name || member.user.email;
+        return `${label} (thiếu: ${missing.join(", ")})`;
+      })
+      .filter(Boolean);
+    if (missingDetails.length > 0) {
+      throw new Error(
+        `Tất cả thành viên trong nhóm cần hoàn tất hồ sơ (họ tên, trường, mã sinh viên) trước khi nộp. ${missingDetails.join("; ")}.`,
+      );
+    }
   }
   assertTransition(REGISTRATION_TRANSITIONS, registration.status, "SUBMITTED", "registration");
 
   const result = await prisma.$transaction(async (tx) => {
     const submittedAt = new Date();
-    const updated = await tx.registration.update({
-      where: { id: registration.id, version: registration.version },
+    const updated = await tx.registration.updateMany({
+      where: {
+        id: registration.id,
+        version: registration.version,
+        status: { in: ["DRAFT", "NEEDS_UPDATE"] },
+      },
       data: {
         status: "SUBMITTED",
         submittedAt,
         version: { increment: 1 },
-        statusHistory: {
-          create: { fromStatus: registration.status, toStatus: "SUBMITTED", actorUserId: params.userId },
-        },
       },
     });
+    if (updated.count === 0) {
+      throw new Error("Hồ sơ đã được nộp hoặc vừa được cập nhật. Hãy tải lại trang.");
+    }
+    const current = await tx.registration.findUniqueOrThrow({ where: { id: registration.id } });
+    await tx.registrationStatusHistory.create({
+      data: {
+        registrationId: registration.id,
+        fromStatus: registration.status,
+        toStatus: "SUBMITTED",
+        actorUserId: params.userId,
+      },
+    });
+    if (registration.teamId) {
+      await tx.teamInvitation.updateMany({
+        where: { teamId: registration.teamId, status: "PENDING" },
+        data: { status: "REVOKED" },
+      });
+    }
     await tx.participantProfile.update({
       where: { userId: params.userId },
       data: {
@@ -390,13 +502,13 @@ export async function submitRegistration(params: {
       ],
     });
     await tx.notification.upsert({
-      where: { id: `registration-submitted:${updated.id}` },
+      where: { id: `registration-submitted:${current.id}` },
       update: {},
       create: {
-        id: `registration-submitted:${updated.id}`,
+        id: `registration-submitted:${current.id}`,
         userId: params.userId,
         title: "Đã nhận hồ sơ đăng ký",
-        body: `Hồ sơ ${updated.code} đã được nộp thành công.`,
+        body: `Hồ sơ ${current.code} đã được nộp thành công.`,
         href: "/dashboard/bien-nhan",
       },
     });
@@ -405,10 +517,10 @@ export async function submitRegistration(params: {
         userId: params.userId,
         action: "registration.submit",
         key: params.idempotencyKey,
-        responseJson: { ok: true, code: updated.code },
+        responseJson: { ok: true, code: current.code },
       },
     });
-    return { ok: true as const, code: updated.code };
+    return { ok: true as const, code: current.code };
   });
   await writeAuditLog({
     actorUserId: params.userId,

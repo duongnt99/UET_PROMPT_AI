@@ -17,6 +17,19 @@ export default async function Page() {
           status={registration?.status}
           mode={competition?.settings.registrationMode ?? "UNDECIDED"}
           teamName={registration?.team?.teamName}
+          registrationCode={registration?.code}
+          registrationType={registration?.type}
+          submittedAt={registration?.submittedAt}
+          teamMinSize={competition?.settings.teamMinSize ?? 2}
+          teamMaxSize={competition?.settings.teamMaxSize ?? 3}
+          allowEditAfterSubmit={competition?.settings.allowParticipantEditAfterSubmit ?? false}
+          teamMembers={
+            registration?.team?.members.map((member) => ({
+              email: member.user.email,
+              status: member.status,
+              roleLabel: member.roleLabel,
+            })) ?? []
+          }
         />
       </div>
     </div>

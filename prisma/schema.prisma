@@ -113,6 +113,11 @@ enum ReviewStatus {
   LOCKED
 }
 
+enum ReviewAttemptStatus {
+  DRAFT
+  SUBMITTED
+}
+
 enum Recommendation {
   STRONG_YES
   YES
@@ -638,6 +643,7 @@ model Submission {
   lockedAt             DateTime?
   confirmationEmailKey String?          @unique
   lastAutosavedAt      DateTime?
+  reviewSubmissionLimit Int?
   createdAt            DateTime         @default(now())
   updatedAt            DateTime         @updatedAt
   deletedAt            DateTime?
@@ -776,14 +782,15 @@ model ReviewAssignment {
   reopenReason        String?
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
-  version             Int          @default(1)
+  version               Int          @default(1)
+  submittedAttemptCount Int          @default(0)
 
   competition       Competition       @relation(fields: [competitionId], references: [id])
   submission        Submission        @relation(fields: [submissionId], references: [id])
   submissionVersion SubmissionVersion @relation(fields: [submissionVersionId], references: [id])
   reviewer          User              @relation(fields: [reviewerId], references: [id])
   rubric            Rubric            @relation(fields: [rubricId], references: [id])
-  review            Review?
+  reviews           Review[]
 
   @@unique([submissionVersionId, reviewerId])
   @@index([reviewerId, status])
@@ -792,18 +799,23 @@ model ReviewAssignment {
 }
 
 model Review {
-  id               String         @id @default(cuid())
-  assignmentId     String         @unique
-  overallComment   String         @default("")
+  id               String              @id @default(cuid())
+  assignmentId     String
+  attemptNumber    Int                 @default(1)
+  status           ReviewAttemptStatus @default(DRAFT)
+  overallComment   String              @default("")
   recommendation   Recommendation?
-  totalNormalized  Decimal        @db.Decimal(14, 8)
+  totalNormalized  Decimal             @db.Decimal(14, 8)
   submittedAt      DateTime?
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  version          Int            @default(1)
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  version          Int                 @default(1)
 
   assignment ReviewAssignment @relation(fields: [assignmentId], references: [id])
   items      ReviewScoreItem[]
+
+  @@unique([assignmentId, attemptNumber])
+  @@index([assignmentId, status])
 }
 
 model ReviewScoreItem {

@@ -28,13 +28,19 @@ case "$SCENARIO" in
     RATE=10
     TIME=12m
     ;;
-  auth-ramp)
+  auth-ramp|login-ramp)
     export LOADTEST_SHAPE=auth-ramp
-    export LOADTEST_SCENARIO=auth
+    export LOADTEST_SCENARIO=login-ramp
     export LOADTEST_POOL_SIZE="${LOADTEST_POOL_SIZE:-500}"
     USERS=500
     RATE=20
     TIME=18m
+    ;;
+  registration-ramp)
+    export LOADTEST_SCENARIO=registration-ramp
+    USERS=30
+    RATE=5
+    TIME=3m
     ;;
   scoreboard-burst)
     export LOADTEST_SCENARIO=scoreboard
@@ -49,7 +55,7 @@ case "$SCENARIO" in
     TIME=2m
     ;;
   *)
-    echo "Usage: $0 [burst|sustained|ramp|auth-ramp|scoreboard-burst|scoreboard-2k]"
+    echo "Usage: $0 [burst|sustained|ramp|auth-ramp|login-ramp|registration-ramp|scoreboard-burst|scoreboard-2k]"
     exit 1
     ;;
 esac

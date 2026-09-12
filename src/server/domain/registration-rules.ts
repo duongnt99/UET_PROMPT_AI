@@ -65,3 +65,17 @@ export function canEditRegistration(params: {
   }
   return false;
 }
+
+import { canEditTeamRoster, ROSTER_EDITABLE_STATUSES } from "@/lib/team-registration";
+
+export { canEditTeamRoster, ROSTER_EDITABLE_STATUSES };
+
+export function canSubmitRegistrationStatus(status: string): { ok: boolean; message?: string } {
+  if (status === "DRAFT" || status === "NEEDS_UPDATE") {
+    return { ok: true };
+  }
+  if (status === "SUBMITTED") {
+    return { ok: false, message: "Hồ sơ đã được nộp." };
+  }
+  return { ok: false, message: "Hồ sơ không ở trạng thái có thể nộp." };
+}

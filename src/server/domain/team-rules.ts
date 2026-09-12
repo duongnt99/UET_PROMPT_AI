@@ -1,3 +1,12 @@
+export type TeamSizeSettings = {
+  minSize: number;
+  maxSize: number;
+};
+
+export function countAcceptedTeamMembers(members: Array<{ status: string }>): number {
+  return members.filter((member) => member.status === "ACCEPTED").length;
+}
+
 export function validateTeamSize(params: {
   acceptedMemberCount: number;
   minSize: number;
@@ -9,13 +18,28 @@ export function validateTeamSize(params: {
   if (params.acceptedMemberCount < params.minSize) {
     return {
       ok: false,
-      message: `Đội cần tối thiểu ${params.minSize} thành viên đã chấp nhận lời mời.`,
+      message: `Đội cần tối thiểu ${params.minSize} thành viên (bao gồm nhóm trưởng).`,
     };
   }
   if (params.acceptedMemberCount > params.maxSize) {
     return {
       ok: false,
       message: `Đội không được vượt quá ${params.maxSize} thành viên.`,
+    };
+  }
+  return { ok: true };
+}
+
+export function canAddTeamMember(params: {
+  acceptedMemberCount: number;
+  pendingInvitationCount: number;
+  settings: TeamSizeSettings;
+}): { ok: boolean; message?: string } {
+  const occupied = params.acceptedMemberCount + params.pendingInvitationCount;
+  if (occupied >= params.settings.maxSize) {
+    return {
+      ok: false,
+      message: `Đội đã đạt sĩ số tối đa (${params.settings.maxSize} thành viên).`,
     };
   }
   return { ok: true };

@@ -378,7 +378,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
           </Link>
         </div>
         <p className="mt-1 text-xs text-slate-500">
-          Thời lượng lấy từ Cài đặt cuộc thi tại thời điểm tạo đồng hồ. Trận đã tạo giữ nguyên thời lượng cũ.
+          Thời lượng mặc định lấy từ Cài đặt cuộc thi. Đồng hồ chưa chạy hoặc đang tạm dừng sẽ được cập nhật khi
+          lưu cài đặt; đồng hồ đang chạy hoặc đã kết thúc giữ nguyên.
         </p>
         <AdminMatchTimers matchId={match.id} initialTimers={timerStates} canControl={canStage} />
         {canStage && match.status !== "CANCELLED" ? (

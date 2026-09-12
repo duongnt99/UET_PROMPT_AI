@@ -17,6 +17,7 @@ const MATCH_STATUS_LABELS: Record<string, string> = {
 
 const REVIEW_STATUS_LABELS: Record<string, string> = {
   ASSIGNED: "Đã phân công",
+  DRAFT: "Đang chấm",
   IN_PROGRESS: "Đang chấm",
   SUBMITTED: "Đã nộp",
   DECLINED: "Đã từ chối",
@@ -63,6 +64,16 @@ const ACCOUNT_STATUS_LABELS: Record<string, string> = {
   DISABLED: "Đã vô hiệu hóa",
 };
 
+const SUBMISSION_STATUS_LABELS: Record<string, string> = {
+  DRAFT: "Bản nháp",
+  SUBMITTED: "Đã nộp",
+  LOCKED: "Đã khóa",
+  UNDER_REVIEW: "Đang xét duyệt",
+  SCORED: "Đã chấm",
+  NEEDS_UPDATE: "Cần bổ sung",
+  WITHDRAWN: "Đã rút",
+};
+
 const RUBRIC_STAGE_LABELS: Record<string, string> = {
   AUDITION: "Vòng tuyển chọn",
   FINAL: "Vòng chung kết",
@@ -98,4 +109,8 @@ export function accountStatusLabel(status: string) {
 
 export function rubricStageLabel(stage: string) {
   return RUBRIC_STAGE_LABELS[stage] ?? stage;
+}
+
+export function submissionStatusLabel(status: string) {
+  return SUBMISSION_STATUS_LABELS[status] ?? status;
 }

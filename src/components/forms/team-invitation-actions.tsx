@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   acceptTeamInvitationAction,
@@ -14,7 +15,9 @@ export function TeamInvitationActions({
   invitationId: string;
   hasRegistrationConflict: boolean;
 }) {
+  const router = useRouter();
   const [message, setMessage] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
   return (
     <div className="mt-3">
       {hasRegistrationConflict ? (
@@ -25,13 +28,19 @@ export function TeamInvitationActions({
       <div className="flex flex-wrap gap-2">
         {!hasRegistrationConflict ? (
           <form
-            action={async (formData) => {
-              const result = await acceptTeamInvitationAction(formData);
-              setMessage(result.message);
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (pending) return;
+              const formData = new FormData(event.currentTarget);
+              startTransition(async () => {
+                const result = await acceptTeamInvitationAction(formData);
+                setMessage(result.message ?? null);
+                if (result.ok) router.refresh();
+              });
             }}
           >
             <input type="hidden" name="invitationId" value={invitationId} />
-            <Button type="submit">Chấp nhận</Button>
+            <Button type="submit" disabled={pending}>{pending ? "Đang xử lý…" : "Chấp nhận"}</Button>
           </form>
         ) : null}
         <form

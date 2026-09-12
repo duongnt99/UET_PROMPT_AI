@@ -1,0 +1,3 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,POST /dang-ky [register action],CatchResponseError('status 500'),43,2026-09-12T14:42:33Z,2026-09-12T14:44:20Z
+POST,POST /api/auth/callback/credentials [failed],CatchResponseError('status 502'),1,2026-09-12T14:42:42Z,2026-09-12T14:42:42Z

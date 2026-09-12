@@ -10,8 +10,22 @@ import {
   inviteTeamMember,
 } from "@/server/services/registration-service";
 import { requireUser } from "@/lib/auth/guards";
+import { parseAuditionFormData } from "@/server/domain/audition-form";
 import { autosaveAudition, submitAudition } from "@/server/services/submission-service";
 import { revalidatePath } from "next/cache";
+
+function revalidateAuditionPaths() {
+  revalidatePath("/dashboard/audition");
+  revalidatePath("/dashboard");
+  revalidatePath("/admin/submissions");
+}
+
+function revalidateRegistrationPaths() {
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/dang-ky");
+  revalidatePath("/dashboard/doi-thi");
+  revalidatePath("/dashboard/bien-nhan");
+}
 
 export async function createRegistrationAction(formData: FormData) {
   const user = await requireUser();
@@ -19,9 +33,10 @@ export async function createRegistrationAction(formData: FormData) {
   const teamName = String(formData.get("teamName") ?? "");
   try {
     await createRegistrationDraft({ userId: user.id, type, teamName });
-    return { ok: true };
+    revalidateRegistrationPaths();
+    return { ok: true as const };
   } catch (error) {
-    return { ok: false, message: error instanceof Error ? error.message : "Không tạo được hồ sơ." };
+    return { ok: false as const, message: error instanceof Error ? error.message : "Không tạo được hồ sơ." };
   }
 }
 
@@ -56,8 +71,7 @@ export async function inviteMemberAction(formData: FormData) {
   const user = await requireUser();
   try {
     await inviteTeamMember({ actorUserId: user.id, email: String(formData.get("email") ?? "") });
-    revalidatePath("/dashboard/dang-ky");
-    revalidatePath("/dashboard/doi-thi");
+    revalidateRegistrationPaths();
     revalidatePath("/dashboard/thong-bao");
     return { ok: true, message: "Đã gửi lời mời trong hệ thống." };
   } catch (error) {
@@ -109,6 +123,7 @@ export async function submitRegistrationAction(formData: FormData) {
       },
       idempotencyKey: String(formData.get("idempotencyKey") || nanoid()),
     });
+    revalidateRegistrationPaths();
     return result;
   } catch (error) {
     return { ok: false as const, message: error instanceof Error ? error.message : "Nộp hồ sơ thất bại." };
@@ -117,25 +132,25 @@ export async function submitRegistrationAction(formData: FormData) {
 
 export async function autosaveAuditionAction(formData: FormData) {
   const user = await requireUser();
-  const data = Object.fromEntries(formData.entries());
-  await autosaveAudition({
+  const result = await autosaveAudition({
     userId: user.id,
-    data: {
-      ...data,
-      originalityDeclaration: formData.get("originalityDeclaration") === "on",
-      permissionToReviewPrivateLinks: formData.get("permissionToReviewPrivateLinks") === "on",
-    },
+    data: parseAuditionFormData(formData),
   });
-  return { ok: true, savedAt: new Date().toISOString() };
+  return { ok: true, savedAt: new Date().toISOString(), skipped: result.skipped };
 }
 
 export async function submitAuditionAction(formData: FormData) {
   const user = await requireUser();
   try {
+    const draft = parseAuditionFormData(formData);
     const result = await submitAudition({
       userId: user.id,
       idempotencyKey: String(formData.get("idempotencyKey") || nanoid()),
+      draft,
     });
+    if (result.ok) {
+      revalidateAuditionPaths();
+    }
     return result;
   } catch (error) {
     return { ok: false as const, message: error instanceof Error ? error.message : "Nộp bài thất bại." };
