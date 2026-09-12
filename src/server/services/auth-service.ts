@@ -4,6 +4,8 @@ import { consumeRateLimit } from "@/lib/rate-limit";
 import { normalizeEmail } from "@/lib/utils";
 import { writeAuditLog } from "@/lib/audit";
 import type { Role as AppRole } from "@/server/domain/permissions";
+import { sendVerificationEmail } from "@/server/services/auth-email-service";
+import { createVerificationToken } from "@/server/services/auth-token-service";
 
 export async function registerAccount(params: {
   email: string;
@@ -33,7 +35,7 @@ export async function registerAccount(params: {
         email,
         emailNormalized: email,
         passwordHash,
-        status: "ACTIVE",
+        status: "PENDING_VERIFICATION",
         roleAssignments: { create: { role: "PARTICIPANT" } },
         profile: { create: {} },
       },
@@ -50,7 +52,102 @@ export async function registerAccount(params: {
     entityType: "User",
     entityId: user.id,
   });
-  return { ok: true as const };
+
+  const token = await createVerificationToken(user.id);
+  const emailResult = await sendVerificationEmail({ to: email, token });
+
+  return {
+    ok: true as const,
+    emailSent: emailResult.ok,
+  };
+}
+
+export async function requestPasswordReset(email: string) {
+  const normalized = normalizeEmail(email);
+  const limit = await consumeRateLimit(`password-reset:${normalized}`);
+  if (!limit.ok) {
+    return { ok: true as const, message: "Nếu email tồn tại trong hệ thống, chúng tôi đã gửi hướng dẫn đặt lại mật khẩu." };
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { emailNormalized: normalized },
+    include: { roleAssignments: { where: { revokedAt: null } } },
+  });
+  if (!user || user.deletedAt || user.status === "DISABLED") {
+    return { ok: true as const, message: "Nếu email tồn tại trong hệ thống, chúng tôi đã gửi hướng dẫn đặt lại mật khẩu." };
+  }
+
+  const { createPasswordResetToken } = await import("@/server/services/auth-token-service");
+  const { sendPasswordResetEmail } = await import("@/server/services/auth-email-service");
+  const token = await createPasswordResetToken(user.id);
+  await sendPasswordResetEmail({ to: user.email, token });
+
+  await writeAuditLog({
+    actorUserId: user.id,
+    action: "auth.password_reset_requested",
+    entityType: "User",
+    entityId: user.id,
+  });
+
+  return { ok: true as const, message: "Nếu email tồn tại trong hệ thống, chúng tôi đã gửi hướng dẫn đặt lại mật khẩu." };
+}
+
+export async function resendVerificationEmail(email: string) {
+  const normalized = normalizeEmail(email);
+  const limit = await consumeRateLimit(`verify-resend:${normalized}`);
+  if (!limit.ok) {
+    return { ok: false as const, message: "Bạn thao tác quá nhanh. Vui lòng thử lại sau." };
+  }
+
+  const user = await prisma.user.findUnique({ where: { emailNormalized: normalized } });
+  if (!user || user.deletedAt || user.status === "DISABLED") {
+    return { ok: false as const, message: "Không tìm thấy tài khoản cần xác minh." };
+  }
+  if (user.emailVerifiedAt) {
+    return { ok: false as const, message: "Email này đã được xác minh. Bạn có thể đăng nhập." };
+  }
+  if (user.status !== "PENDING_VERIFICATION") {
+    return { ok: false as const, message: "Không tìm thấy tài khoản cần xác minh." };
+  }
+
+  const token = await createVerificationToken(user.id);
+  const emailResult = await sendVerificationEmail({ to: user.email, token });
+  if (!emailResult.ok) {
+    return { ok: false as const, message: "Không gửi được email xác minh. Vui lòng thử lại sau." };
+  }
+
+  return { ok: true as const, message: "Đã gửi lại email xác minh. Vui lòng kiểm tra hộp thư." };
+}
+
+export async function changePassword(params: {
+  userId: string;
+  currentPassword: string;
+  newPassword: string;
+}) {
+  const user = await prisma.user.findUnique({ where: { id: params.userId } });
+  if (!user || user.deletedAt || user.status === "DISABLED") {
+    return { ok: false as const, message: "Tài khoản không khả dụng." };
+  }
+
+  const valid = await verifyPassword(params.currentPassword, user.passwordHash);
+  if (!valid) {
+    return { ok: false as const, message: "Mật khẩu hiện tại không đúng." };
+  }
+
+  const passwordHash = await hashPassword(params.newPassword);
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash, failedLoginCount: 0, lockedUntil: null },
+  });
+
+  await writeAuditLog({
+    actorUserId: user.id,
+    action: "auth.password_changed",
+    entityType: "User",
+    entityId: user.id,
+  });
+
+  return { ok: true as const, message: "Đã đổi mật khẩu thành công." };
 }
 
 export async function getUserRoles(userId: string): Promise<AppRole[]> {

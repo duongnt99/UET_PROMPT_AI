@@ -1,4 +1,4 @@
-# AI Arena Vietnam — Cổng thông tin cuộc thi
+# AI Arena Viet Nam — Cổng thông tin cuộc thi
 
 Hệ thống modular monolith (Next.js) cho đăng ký, nộp bài Audition, chấm, công bố finalist, bracket chung kết, giám khảo, sân khấu, chia sẻ màn hình WebRTC và vận hành.
 

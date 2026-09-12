@@ -1,12 +1,12 @@
-import { CmsArticle } from "@/components/public/cms-article";
 import type { Metadata } from "next";
-export const metadata: Metadata = { title: "Thể lệ" };
+import { TheLePage } from "@/components/public/the-le/the-le-page";
+
+export const metadata: Metadata = {
+  title: "Thể lệ cuộc thi",
+  description:
+    "Thể lệ chính thức AI Arena Vietnam 2026: đối tượng dự thi, các vòng thi, tiêu chí chấm điểm, cơ cấu giải thưởng, lịch trình và quy định thi đấu.",
+};
+
 export default function Page() {
-  return (
-    <CmsArticle
-      slug="the-le"
-      fallbackTitle="Thể lệ"
-      fallback="Thể lệ khung: chung kết 8 đội, không bye, Sprint 5 phút (có thể thử 10 phút), Pitch 60 giây, công cụ Gemini và Google AI Studio. Bản chính thức Ban Tổ chức đang hoàn thiện."
-    />
-  );
+  return <TheLePage />;
 }

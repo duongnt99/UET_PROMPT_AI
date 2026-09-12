@@ -43,7 +43,7 @@ export function renderAdminEmail(content: string): { text: string; html: string 
     .join("");
   return {
     text,
-    html: `<!doctype html><html><body style="margin:0;background:#f4f7fb;font-family:Arial,sans-serif;color:#172033"><table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td align="center" style="padding:28px 12px"><table role="presentation" width="600" cellspacing="0" cellpadding="0" style="max-width:600px;background:#fff;border:1px solid #dbe3ee;border-radius:16px"><tr><td style="padding:24px;background:#0b1f3a;color:#fff;border-radius:16px 16px 0 0;font-size:20px;font-weight:700">AI Arena Vietnam</td></tr><tr><td style="padding:28px">${paragraphs}<p style="margin:28px 0 0;padding-top:18px;border-top:1px solid #e2e8f0;color:#64748b;font-size:13px;line-height:1.5">Đây là email được gửi từ Ban tổ chức AI Arena Vietnam.</p></td></tr></table></td></tr></table></body></html>`,
+    html: `<!doctype html><html><body style="margin:0;background:#f4f7fb;font-family:Arial,sans-serif;color:#172033"><table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td align="center" style="padding:28px 12px"><table role="presentation" width="600" cellspacing="0" cellpadding="0" style="max-width:600px;background:#fff;border:1px solid #dbe3ee;border-radius:16px"><tr><td style="padding:24px;background:#0b1f3a;color:#fff;border-radius:16px 16px 0 0;font-size:20px;font-weight:700">AI Arena Viet Nam</td></tr><tr><td style="padding:28px">${paragraphs}<p style="margin:28px 0 0;padding-top:18px;border-top:1px solid #e2e8f0;color:#64748b;font-size:13px;line-height:1.5">Đây là email được gửi từ Ban tổ chức AI Arena Viet Nam.</p></td></tr></table></td></tr></table></body></html>`,
   };
 }
 

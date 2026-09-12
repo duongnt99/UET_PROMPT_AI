@@ -202,7 +202,7 @@ async function ensureStaticPages(competitionId: string) {
       slug: "gioi-thieu",
       title: "Giới thiệu",
       bodyMarkdown:
-        "AI Arena Vietnam là sân chơi để sinh viên ứng dụng kỹ năng đặt câu lệnh với **Google Gemini** và **Google AI Studio**. Chung kết gồm **8 đội**, thi đấu loại trực tiếp tại ĐHQGHN.",
+        "AI Arena Viet Nam là sân chơi để sinh viên ứng dụng kỹ năng đặt câu lệnh với **Google Gemini** và **Google AI Studio**. Chung kết gồm **8 đội**, thi đấu loại trực tiếp tại ĐHQGHN.",
     },
     {
       slug: "the-le",
@@ -233,7 +233,7 @@ async function ensureStaticPages(competitionId: string) {
       slug: "lien-he",
       title: "Liên hệ",
       bodyMarkdown:
-        "Đầu mối hệ thống: Ban Tổ chức AI Arena Vietnam — Trường Đại học Công nghệ, ĐHQGHN.",
+        "Đầu mối hệ thống: Ban Tổ chức AI Arena Viet Nam — Trường Đại học Công nghệ, ĐHQGHN.",
     },
     {
       slug: "chinh-sach-bao-mat",
@@ -268,7 +268,7 @@ async function ensureStaticPages(competitionId: string) {
 
 async function main() {
   const settings = defaultCompetitionSettings({
-    officialContactEmail: "ai-arena-vietnam@uet.edu.vn",
+    officialContactEmail: "ai_arena_vietnam@vnu.edu.vn",
     registrationMode: "BOTH",
     registrationEnabled: true,
     submissionEnabled: true,

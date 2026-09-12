@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test("public homepage renders Vietnamese content", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /AI Arena Vietnam/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /AI Arena Viet Nam/i })).toBeVisible();
   await expect(page.getByRole("link", { name: "Đăng ký ngay" }).first()).toBeVisible();
   await expect(page.getByText("8 đội", { exact: false }).first()).toBeVisible();
   await expect(page.getByRole("heading", { name: "Thể thức vòng chung kết" })).toBeVisible();
@@ -28,7 +28,7 @@ test("participant can sign in to dashboard", async ({ page }) => {
 
 test("public scoreboard does not expose participant emails", async ({ page }) => {
   await page.goto("/scoreboard");
-  await expect(page.getByRole("heading", { name: "Scoreboard" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Bảng đấu trực tiếp" })).toBeVisible();
   await expect(page.locator("body")).not.toContainText("@promptoff.local");
 });
 

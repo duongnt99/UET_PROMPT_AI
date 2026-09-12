@@ -29,11 +29,11 @@ async function main() {
   server.on("close", stopEmailWorker);
 
   server.listen(port, hostname, () => {
-    console.info(`> AI Arena Vietnam sẵn sàng tại http://${hostname}:${port}`);
+    console.info(`> AI Arena Viet Nam sẵn sàng tại http://${hostname}:${port}`);
   });
 }
 
 void main().catch((error) => {
-  console.error("Không khởi động được máy chủ AI Arena Vietnam", error);
+  console.error("Không khởi động được máy chủ AI Arena Viet Nam", error);
   process.exitCode = 1;
 });

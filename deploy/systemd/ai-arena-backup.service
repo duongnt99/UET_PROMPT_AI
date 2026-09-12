@@ -1,5 +1,5 @@
 [Unit]
-Description=AI Arena Vietnam production backup (PostgreSQL + MinIO)
+Description=AI Arena Viet Nam production backup (PostgreSQL + MinIO)
 After=docker.service
 Requires=docker.service
 

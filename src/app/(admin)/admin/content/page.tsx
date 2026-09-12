@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import {
   LandingFinalRoundsForm,
   LandingOverviewForm,
+  LandingResourcesForm,
   TimelineItemForm,
 } from "@/components/admin/cms-forms";
 import { requirePermission } from "@/lib/auth/guards";
@@ -57,7 +58,7 @@ export default async function Page() {
         </Button>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-4">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
         <Card className="p-4">
           <p className="font-semibold">Giới thiệu trang chủ</p>
           <p className="mt-1 text-sm text-slate-600">Tiêu đề, mô tả, đối tượng và công cụ.</p>
@@ -88,6 +89,13 @@ export default async function Page() {
           <p className="mt-1 text-sm text-slate-600">Nội dung giới thiệu và các rubric đang kích hoạt.</p>
           <Link href="#tieu-chi-cham" className="mt-3 inline-block text-sm font-semibold text-blue-700 underline">
             Mở tùy chọn
+          </Link>
+        </Card>
+        <Card className="p-4">
+          <p className="font-semibold">Tài nguyên khác</p>
+          <p className="mt-1 text-sm text-slate-600">Thẻ VibeCoding và danh sách liên kết tài liệu trên trang chủ.</p>
+          <Link href="#tai-nguyen" className="mt-3 inline-block text-sm font-semibold text-blue-700 underline">
+            Chỉnh nội dung
           </Link>
         </Card>
       </div>
@@ -182,6 +190,25 @@ export default async function Page() {
           <Card>
             <p className="text-sm text-red-700">Chưa có cuộc thi production để lưu nội dung.</p>
           </Card>
+        )}
+      </section>
+
+      <section id="tai-nguyen" className="scroll-mt-24 space-y-4">
+        <div>
+          <h2 className="display text-2xl">Tài nguyên khác</h2>
+          <p className="mt-1 text-sm text-slate-600">
+            Chỉnh tiêu đề, mô tả, liên kết cẩm nang và danh sách tài liệu Google AI Studio trên trang chủ.
+          </p>
+        </div>
+        {competition ? (
+          <Card>
+            <LandingResourcesForm
+              key={`landing-resources-${competition.version}`}
+              settings={competition.settings}
+            />
+          </Card>
+        ) : (
+          <Card><p className="text-sm text-red-700">Chưa có cuộc thi production để lưu nội dung.</p></Card>
         )}
       </section>
 

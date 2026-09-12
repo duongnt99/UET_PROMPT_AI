@@ -6,7 +6,7 @@ export default function Page() {
     <CmsArticle
       slug="lien-he"
       fallbackTitle="Liên hệ"
-      fallback="Ban Tổ chức AI Arena Vietnam — Trường Đại học Công nghệ, ĐHQGHN."
+      fallback="Ban Tổ chức AI Arena Viet Nam — Trường Đại học Công nghệ, ĐHQGHN."
     />
   );
 }

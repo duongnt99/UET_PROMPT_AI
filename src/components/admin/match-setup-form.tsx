@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { FIELD_LIMITS } from "@/config/field-limits";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/form";
 import { createEightTeamBracketAction, createScoringMatchAction, type MatchSetupState } from "@/server/actions/admin-match-actions";
@@ -16,7 +17,14 @@ export function CreateEightTeamBracketForm() {
       </p>
       <div>
         <Label htmlFor="bracket-reason">Lý do khởi tạo</Label>
-        <Input id="bracket-reason" name="reason" required defaultValue="Khởi tạo bảng đấu chung kết 8 đội" className="mt-1" />
+        <Input
+          id="bracket-reason"
+          name="reason"
+          required
+          maxLength={FIELD_LIMITS.AUDIT_REASON}
+          defaultValue="Khởi tạo bảng đấu chung kết 8 đội"
+          className="mt-1"
+        />
       </div>
       <Button type="submit" disabled={pending}>{pending ? "Đang khởi tạo…" : "Khởi tạo bảng đấu 8 đội"}</Button>
       {state.message ? <p role="status" className={state.ok ? "text-sm text-emerald-700" : "text-sm text-red-700"}>{state.message}</p> : null}
@@ -92,7 +100,13 @@ export function CreateScoringMatchForm({
       </div>
       <div>
         <Label htmlFor="code">Mã trận (tuỳ chọn)</Label>
-        <Input id="code" name="code" placeholder="Ví dụ: PI3 — để trống sẽ là LIVE-1, LIVE-2…" className="mt-1" />
+        <Input
+          id="code"
+          name="code"
+          maxLength={FIELD_LIMITS.MATCH_CODE}
+          placeholder="Ví dụ: PI3 — để trống sẽ là LIVE-1, LIVE-2…"
+          className="mt-1"
+        />
       </div>
       <fieldset>
         <legend className="text-sm font-medium text-slate-800">Giám khảo</legend>
@@ -125,15 +139,34 @@ export function CreateScoringMatchForm({
       </div>
       <div>
         <Label htmlFor="problemTitle">Tiêu đề đề thi (cả hai đội)</Label>
-        <Input id="problemTitle" name="problemTitle" placeholder="Bỏ trống nếu đã chọn từ kho" className="mt-1" />
+        <Input
+          id="problemTitle"
+          name="problemTitle"
+          maxLength={FIELD_LIMITS.PROBLEM_TITLE}
+          placeholder="Bỏ trống nếu đã chọn từ kho"
+          className="mt-1"
+        />
       </div>
       <div>
         <Label htmlFor="problemPrompt">Nội dung đề thi</Label>
-        <Textarea id="problemPrompt" name="problemPrompt" className="mt-1" placeholder="Đề chung hiển thị trên sân khấu và overlay" />
+        <Textarea
+          id="problemPrompt"
+          name="problemPrompt"
+          maxLength={FIELD_LIMITS.PROBLEM_PROMPT}
+          className="mt-1"
+          placeholder="Đề chung hiển thị trên sân khấu và overlay"
+        />
       </div>
       <div>
         <Label htmlFor="match-reason">Lý do (audit)</Label>
-        <Input id="match-reason" name="reason" required placeholder="Ví dụ: tứ kết 1 — cùng đề cho hai đội" className="mt-1" />
+        <Input
+          id="match-reason"
+          name="reason"
+          required
+          maxLength={FIELD_LIMITS.AUDIT_REASON}
+          placeholder="Ví dụ: tứ kết 1 — cùng đề cho hai đội"
+          className="mt-1"
+        />
       </div>
       <Button type="submit" disabled={pending}>
         {pending ? "Đang tạo…" : "Tạo trận và mở chấm điểm"}

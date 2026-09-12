@@ -15,9 +15,12 @@ import {
   saveMatchProblemAction,
   assignChallengeToMatchAction,
   clearMatchProblemAction,
+  publishMatchAction,
+  unpublishMatchAction,
   type MatchSetupState,
 } from "@/server/actions/admin-match-actions";
-import { matchStatusLabel } from "@/lib/status-labels";
+import { FIELD_LIMITS } from "@/config/field-limits";
+import { contentStatusLabel, matchStatusLabel } from "@/lib/status-labels";
 
 const idle: MatchSetupState = { ok: true, message: "" };
 
@@ -84,7 +87,14 @@ export function ChangePairingForm({
       </div>
       <div>
         <Label htmlFor="pairing-reason">Lý do</Label>
-        <Input id="pairing-reason" name="reason" required placeholder="Đổi cặp vì…" className="mt-1" />
+        <Input
+          id="pairing-reason"
+          name="reason"
+          required
+          maxLength={FIELD_LIMITS.AUDIT_REASON}
+          placeholder="Đổi cặp vì…"
+          className="mt-1"
+        />
       </div>
       <Button type="submit" disabled={pending}>
         {pending ? "Đang lưu…" : "Đổi cặp đấu"}
@@ -122,7 +132,7 @@ export function MatchStatusForm({
       </div>
       <div>
         <Label htmlFor="status-reason">Lý do</Label>
-        <Input id="status-reason" name="reason" required className="mt-1" />
+        <Input id="status-reason" name="reason" required maxLength={FIELD_LIMITS.AUDIT_REASON} className="mt-1" />
       </div>
       <Button type="submit" disabled={pending || nextStatuses.length === 0}>
         {pending ? "Đang lưu…" : "Đổi trạng thái"}
@@ -139,7 +149,14 @@ export function StopMatchForm({ matchId }: { matchId: string }) {
       <input type="hidden" name="matchId" value={matchId} />
       <div>
         <Label htmlFor="stop-reason">Lý do dừng trận</Label>
-        <Input id="stop-reason" name="reason" required placeholder="Hủy vì sự cố / đổi lịch…" className="mt-1" />
+        <Input
+          id="stop-reason"
+          name="reason"
+          required
+          maxLength={FIELD_LIMITS.AUDIT_REASON}
+          placeholder="Hủy vì sự cố / đổi lịch…"
+          className="mt-1"
+        />
       </div>
       <Button type="submit" variant="destructive" disabled={pending}>
         {pending ? "Đang dừng…" : "Dừng và hủy trận"}
@@ -192,13 +209,90 @@ export function AssignJudgesForm({
       </div>
       <div>
         <Label htmlFor="judges-reason">Lý do</Label>
-        <Input id="judges-reason" name="reason" required className="mt-1" />
+        <Input id="judges-reason" name="reason" required maxLength={FIELD_LIMITS.AUDIT_REASON} className="mt-1" />
       </div>
       <Button type="submit" disabled={pending}>
         {pending ? "Đang lưu…" : "Cập nhật giám khảo"}
       </Button>
       <Feedback state={state} pending={pending} />
     </form>
+  );
+}
+
+export function PublishMatchForm({
+  matchId,
+  publicStatus,
+  scoresGloballyEnabled,
+}: {
+  matchId: string;
+  publicStatus: string;
+  scoresGloballyEnabled: boolean;
+}) {
+  const [publishState, publishAction, publishPending] = useActionState(publishMatchAction, idle);
+  const [unpublishState, unpublishAction, unpublishPending] = useActionState(unpublishMatchAction, idle);
+  const isPublished = publicStatus === "PUBLISHED";
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-slate-600">
+        Trạng thái công bố: <span className="font-semibold text-slate-900">{contentStatusLabel(publicStatus)}</span>
+      </p>
+      {isPublished ? (
+        <p className="text-sm text-emerald-800">
+          Trận đã công bố. Người xem có thể mở trang chi tiết trên Bảng đấu trực tiếp.
+          {scoresGloballyEnabled
+            ? " Điểm số hiển thị khi giám khảo đã nộp đủ phiếu."
+            : " Bật “Công khai điểm trên Bảng đấu” ở trang Bảng đấu để hiện điểm."}
+        </p>
+      ) : (
+        <p className="text-sm text-slate-600">
+          Trận chưa công bố — điểm số và chi tiết chấm sẽ không hiện trên Bảng đấu công khai dù đã bật công khai điểm
+          toàn cục.
+        </p>
+      )}
+
+      {isPublished ? (
+        <form action={unpublishAction} className="space-y-3">
+          <input type="hidden" name="matchId" value={matchId} />
+          <div>
+            <Label htmlFor="unpublish-reason">Lý do ẩn công bố</Label>
+            <Input
+              id="unpublish-reason"
+              name="reason"
+              required
+              maxLength={FIELD_LIMITS.AUDIT_REASON}
+              defaultValue="Ẩn công bố trận trên Bảng đấu"
+              className="mt-1"
+            />
+          </div>
+          <Button type="submit" variant="outline" disabled={unpublishPending}>
+            {unpublishPending ? "Đang lưu…" : "Ẩn công bố trận"}
+          </Button>
+          <Feedback state={unpublishState} pending={unpublishPending} />
+        </form>
+      ) : publicStatus === "ARCHIVED" ? (
+        <p className="text-sm text-slate-500">Trận đã lưu trữ, không thể công bố.</p>
+      ) : (
+        <form action={publishAction} className="space-y-3">
+          <input type="hidden" name="matchId" value={matchId} />
+          <div>
+            <Label htmlFor="publish-reason">Lý do công bố</Label>
+            <Input
+              id="publish-reason"
+              name="reason"
+              required
+              maxLength={FIELD_LIMITS.AUDIT_REASON}
+              defaultValue="Công bố trận trên Bảng đấu trực tiếp"
+              className="mt-1"
+            />
+          </div>
+          <Button type="submit" variant="primary" disabled={publishPending}>
+            {publishPending ? "Đang lưu…" : "Công bố trận"}
+          </Button>
+          <Feedback state={publishState} pending={publishPending} />
+        </form>
+      )}
+    </div>
   );
 }
 
@@ -229,7 +323,14 @@ export function AdvanceWinnerForm({
       </div>
       <div>
         <Label htmlFor="winner-reason">Lý do</Label>
-        <Input id="winner-reason" name="reason" required placeholder="Theo điểm gộp / quyết định BTC" className="mt-1" />
+        <Input
+          id="winner-reason"
+          name="reason"
+          required
+          maxLength={FIELD_LIMITS.AUDIT_REASON}
+          placeholder="Theo điểm gộp / quyết định BTC"
+          className="mt-1"
+        />
       </div>
       <Button type="submit" variant="accent" disabled={pending || competitors.length < 1}>
         {pending ? "Đang lưu…" : "Công bố thắng cuộc"}
@@ -297,7 +398,14 @@ export function MatchProblemForm({
           </div>
           <div>
             <Label htmlFor="assign-reason">Lý do</Label>
-            <Input id="assign-reason" name="reason" required defaultValue="Gán đề chung cho cặp đấu" className="mt-1" />
+            <Input
+              id="assign-reason"
+              name="reason"
+              required
+              maxLength={FIELD_LIMITS.AUDIT_REASON}
+              defaultValue="Gán đề chung cho cặp đấu"
+              className="mt-1"
+            />
           </div>
           <Button type="submit" variant="outline" disabled={assignPending}>
             {assignPending ? "Đang gán…" : "Gán đề vào trận"}
@@ -314,11 +422,25 @@ export function MatchProblemForm({
         <input type="hidden" name="matchId" value={matchId} />
         <div>
           <Label htmlFor="problemTitle">Tiêu đề đề thi</Label>
-          <Input id="problemTitle" name="problemTitle" required defaultValue={title} className="mt-1" />
+          <Input
+            id="problemTitle"
+            name="problemTitle"
+            required
+            maxLength={FIELD_LIMITS.PROBLEM_TITLE}
+            defaultValue={title}
+            className="mt-1"
+          />
         </div>
         <div>
           <Label htmlFor="problemPrompt">Nội dung đề (cả hai đội)</Label>
-          <Textarea id="problemPrompt" name="problemPrompt" required defaultValue={prompt} className="mt-1 min-h-36" />
+          <Textarea
+            id="problemPrompt"
+            name="problemPrompt"
+            required
+            maxLength={FIELD_LIMITS.PROBLEM_PROMPT}
+            defaultValue={prompt}
+            className="mt-1 min-h-36"
+          />
         </div>
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" name="saveToLibrary" className="size-4" />
@@ -326,7 +448,14 @@ export function MatchProblemForm({
         </label>
         <div>
           <Label htmlFor="problem-reason">Lý do</Label>
-          <Input id="problem-reason" name="reason" required defaultValue="Cập nhật đề chung cho cặp đấu" className="mt-1" />
+          <Input
+            id="problem-reason"
+            name="reason"
+            required
+            maxLength={FIELD_LIMITS.AUDIT_REASON}
+            defaultValue="Cập nhật đề chung cho cặp đấu"
+            className="mt-1"
+          />
         </div>
         <Button type="submit" disabled={savePending}>
           {savePending ? "Đang lưu…" : "Lưu đề thi"}
@@ -338,7 +467,14 @@ export function MatchProblemForm({
           <input type="hidden" name="matchId" value={matchId} />
           <div>
             <Label htmlFor="clear-reason">Xóa đề khỏi trận</Label>
-            <Input id="clear-reason" name="reason" required defaultValue="Gỡ đề thi khỏi cặp đấu" className="mt-1" />
+            <Input
+              id="clear-reason"
+              name="reason"
+              required
+              maxLength={FIELD_LIMITS.AUDIT_REASON}
+              defaultValue="Gỡ đề thi khỏi cặp đấu"
+              className="mt-1"
+            />
           </div>
           <Button type="submit" variant="destructive" disabled={clearPending}>
             {clearPending ? "Đang xóa…" : "Xóa đề trên trận này"}

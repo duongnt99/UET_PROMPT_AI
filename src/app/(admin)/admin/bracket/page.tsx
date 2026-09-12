@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db/prisma";
 import { Card, Badge } from "@/components/ui/form";
 import { requirePermission } from "@/lib/auth/guards";
 import { CreateEightTeamBracketForm, CreateScoringMatchForm } from "@/components/admin/match-setup-form";
+import { PublicScoresToggle } from "@/components/admin/public-scores-toggle";
 import { getProductionCompetition } from "@/server/services/competition-service";
 import { matchStatusLabel } from "@/lib/status-labels";
 
@@ -51,6 +52,8 @@ export default async function Page() {
           Ghép hai đội vào từng trận, gán giám khảo và đề thi. Bảng đấu công khai tự cập nhật khi công bố đội thắng.
         </p>
       </div>
+
+      <PublicScoresToggle enabled={competition?.settings.publicScoresEnabled ?? false} />
 
       {matches.length === 0 ? (
         <Card>

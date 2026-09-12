@@ -1,0 +1,2 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,POST /api/auth/callback/credentials [success],HTTPError('504 Server Error: Gateway Time-out for url: POST /api/auth/callback/credentials [success]'),1,2026-09-11T12:28:50Z,2026-09-11T12:28:50Z

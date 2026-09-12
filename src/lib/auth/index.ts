@@ -32,7 +32,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           where: { emailNormalized: email },
           include: { roleAssignments: { where: { revokedAt: null } } },
         });
-        if (!user || user.status !== "ACTIVE" || user.deletedAt) {
+        if (!user || user.deletedAt || user.status === "DISABLED" || user.status === "PENDING_VERIFICATION") {
+          await prisma.loginEvent.create({ data: { email, success: false } });
+          return null;
+        }
+        if (user.status !== "ACTIVE") {
           await prisma.loginEvent.create({ data: { email, success: false } });
           return null;
         }

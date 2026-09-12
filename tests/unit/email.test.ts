@@ -24,7 +24,7 @@ describe("admin email domain", () => {
     expect(result.text).toContain("<script>");
     expect(result.html).not.toContain("<script>");
     expect(result.html).toContain("&lt;script&gt;");
-    expect(result.html).toContain("AI Arena Vietnam");
+    expect(result.html).toContain("AI Arena Viet Nam");
   });
 
   it("derives completed, partially failed, and failed batch states", () => {

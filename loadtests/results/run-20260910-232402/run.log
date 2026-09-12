@@ -1,0 +1,150 @@
+[2026-09-10 23:24:03,360] MacBook-Air-6/INFO/locust.main: Starting Locust 2.46.5
+[2026-09-10 23:24:03,364] MacBook-Air-6/INFO/locust.main: Run time limit set to 300 seconds
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                         0     0(0.00%) |      0       0       0      0 |    0.00        0.00
+
+[2026-09-10 23:24:03,366] MacBook-Air-6/INFO/locust.runners: Ramping to 50 users at a rate of 10.00 per second
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /api/auth/csrf                                                                 1     0(0.00%) |    730     730     730    730 |    0.00        0.00
+GET      GET /api/auth/csrf [auth user]                                                     3     0(0.00%) |    630     284     974    630 |    0.00        0.00
+GET      GET /api/public/competition                                                        1     0(0.00%) |    738     738     738    738 |    0.00        0.00
+GET      GET /api/public/event-state                                                        1     0(0.00%) |   1027    1027    1027   1027 |    0.00        0.00
+GET      GET /api/public/scoreboard                                                         2     0(0.00%) |    957     897    1016    900 |    0.00        0.00
+GET      GET /dang-ky [discover action]                                                     2     0(0.00%) |   1008     999    1016   1000 |    0.00        0.00
+GET      GET /faq                                                                           1     0(0.00%) |   1045    1045    1045   1045 |    0.00        0.00
+GET      GET /the-le                                                                        1     0(0.00%) |   1018    1018    1018   1018 |    0.00        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                        12     0(0.00%) |    865     284    1045    970 |    0.00        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /api/auth/csrf                                                                 1     0(0.00%) |    730     730     730    730 |    0.00        0.00
+GET      GET /api/auth/csrf [auth user]                                                     4     0(0.00%) |    968     284    1981    630 |    1.00        0.00
+GET      GET /api/public/competition                                                        1     0(0.00%) |    738     738     738    738 |    0.50        0.00
+GET      GET /api/public/event-state                                                        3     0(0.00%) |   2211    1027    2847   2800 |    0.50        0.00
+GET      GET /api/public/scoreboard                                                         2     0(0.00%) |    957     897    1016    900 |    1.00        0.00
+GET      GET /dang-ky                                                                       1     0(0.00%) |   2407    2407    2407   2407 |    0.00        0.00
+GET      GET /dang-ky [discover action]                                                     2     0(0.00%) |   1008     999    1016   1000 |    1.00        0.00
+GET      GET /faq                                                                           1     0(0.00%) |   1045    1045    1045   1045 |    0.50        0.00
+GET      GET /the-le                                                                        1     0(0.00%) |   1018    1018    1018   1018 |    0.50        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                        16     0(0.00%) |   1273     284    2847   1000 |    5.00        0.00
+
+[2026-09-10 23:24:07,385] MacBook-Air-6/INFO/locust.runners: All users spawned: {"AuthFunnelUser": 10, "AuthenticatedUser": 10, "PublicApiClient": 7, "PublicVisitor": 10, "ScoreboardSurgeUser": 13} (50 total users)
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET / [scoreboard surge]                                                           1     0(0.00%) |   4567    4567    4567   4567 |    0.00        0.00
+GET      GET /api/auth/csrf                                                                 1     0(0.00%) |    730     730     730    730 |    0.25        0.00
+GET      GET /api/auth/csrf [auth user]                                                     6     0(0.00%) |   1694     284    3243    970 |    1.00        0.00
+GET      GET /api/public/competition                                                        2     0(0.00%) |   2157     738    3575    740 |    0.25        0.00
+GET      GET /api/public/event-state                                                        3     0(0.00%) |   2211    1027    2847   2800 |    0.25        0.00
+GET      GET /api/public/scoreboard                                                         2     0(0.00%) |    957     897    1016    900 |    0.50        0.00
+GET      GET /api/public/timeline                                                           2     0(0.00%) |   2948    2747    3150   2747 |    0.00        0.00
+GET      GET /dang-ky                                                                       1     0(0.00%) |   2407    2407    2407   2407 |    0.25        0.00
+GET      GET /dang-ky [discover action]                                                     4     0(0.00%) |   2103     999    3286   1000 |    0.50        0.00
+GET      GET /faq                                                                           1     0(0.00%) |   1045    1045    1045   1045 |    0.25        0.00
+GET      GET /lich-trinh                                                                    1     0(0.00%) |   4932    4932    4932   4932 |    0.00        0.00
+GET      GET /scoreboard                                                                    1     0(0.00%) |   3775    3775    3775   3775 |    0.00        0.00
+GET      GET /the-le                                                                        1     0(0.00%) |   1018    1018    1018   1018 |    0.25        0.00
+GET      GET /tin-tuc                                                                       1     0(0.00%) |   4041    4041    4041   4041 |    0.00        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                        27     0(0.00%) |   2216     284    4932   2400 |    3.50        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET / [scoreboard surge]                                                           3     0(0.00%) |   5302    4567    5779   5600 |    0.17        0.00
+GET      GET /api/auth/csrf                                                                 1     0(0.00%) |    730     730     730    730 |    0.17        0.00
+GET      GET /api/auth/csrf [auth user]                                                     8     0(0.00%) |   2184     284    3744   2000 |    1.00        0.00
+GET      GET /api/health                                                                    1     0(0.00%) |   4633    4633    4633   4633 |    0.00        0.00
+GET      GET /api/public/competition                                                        2     0(0.00%) |   2157     738    3575    740 |    0.33        0.00
+GET      GET /api/public/event-state                                                        3     0(0.00%) |   2211    1027    2847   2800 |    0.50        0.00
+GET      GET /api/public/scoreboard                                                         3     0(0.00%) |   2178     897    4620   1000 |    0.33        0.00
+GET      GET /api/public/timeline                                                           2     0(0.00%) |   2948    2747    3150   2747 |    0.33        0.00
+GET      GET /dang-ky                                                                       1     0(0.00%) |   2407    2407    2407   2407 |    0.17        0.00
+GET      GET /dang-ky [discover action]                                                     6     0(0.00%) |   2892     999    4551   3100 |    0.67        0.00
+GET      GET /faq                                                                           1     0(0.00%) |   1045    1045    1045   1045 |    0.17        0.00
+GET      GET /lich-trinh                                                                    2     0(0.00%) |   5455    4932    5977   4932 |    0.00        0.00
+GET      GET /scoreboard                                                                    3     0(0.00%) |   4499    3775    5320   4400 |    0.17        0.00
+GET      GET /the-le                                                                        1     0(0.00%) |   1018    1018    1018   1018 |    0.17        0.00
+GET      GET /tin-tuc                                                                       2     0(0.00%) |   5009    4041    5978   4041 |    0.17        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                        39     0(0.00%) |   3035     284    5978   3200 |    4.33        0.00
+
+PermissionError: [Errno 1] Operation not permitted (originated from sysctlbyname('hw.logicalcpu'))
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "src/gevent/greenlet.py", line 912, in gevent._gevent_cgreenlet.Greenlet.run
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/locust/runners.py", line 302, in monitor_cpu_and_memory
+    self.current_cpu_usage = process.cpu_percent()
+                             ~~~~~~~~~~~~~~~~~~~^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/psutil/__init__.py", line 1063, in cpu_percent
+    num_cpus = cpu_count() or 1
+               ~~~~~~~~~^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/psutil/__init__.py", line 1665, in cpu_count
+    ret = _psplatform.cpu_count_logical()
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/psutil/_psosx.py", line 155, in cpu_count_logical
+    return cext.cpu_count_logical()
+           ~~~~~~~~~~~~~~~~~~~~~~^^
+SystemError: <built-in function cpu_count_logical> returned a result with an exception set
+2026-09-10T16:24:13Z <Greenlet at 0x109b39a80: <bound method Runner.monitor_cpu_and_memory of <locust.runners.LocalRunner object at 0x109b50050>>> failed with SystemError
+
+PermissionError: [Errno 1] Operation not permitted (originated from sysctlbyname('hw.logicalcpu'))
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.13/bin/locust", line 7, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/locust/main.py", line 687, in main
+    main_greenlet.join()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/gevent/pool.py", line 430, in join
+    result = self._empty_event.wait(timeout=timeout)
+  File "src/gevent/event.py", line 165, in gevent._gevent_cevent.Event.wait
+  File "src/gevent/_abstract_linkable.py", line 586, in gevent._gevent_c_abstract_linkable.AbstractLinkable._wait
+  File "src/gevent/_abstract_linkable.py", line 552, in gevent._gevent_c_abstract_linkable.AbstractLinkable._wait_core
+  File "src/gevent/_abstract_linkable.py", line 555, in gevent._gevent_c_abstract_linkable.AbstractLinkable._wait_core
+  File "src/gevent/_abstract_linkable.py", line 507, in gevent._gevent_c_abstract_linkable.AbstractLinkable._AbstractLinkable__wait_to_be_notified
+  File "src/gevent/_abstract_linkable.py", line 516, in gevent._gevent_c_abstract_linkable.AbstractLinkable._switch_to_hub
+  File "src/gevent/_greenlet_primitives.py", line 61, in gevent._gevent_c_greenlet_primitives.SwitchOutGreenletWithLoop.switch
+  File "src/gevent/_greenlet_primitives.py", line 65, in gevent._gevent_c_greenlet_primitives.SwitchOutGreenletWithLoop.switch
+  File "src/gevent/_gevent_c_greenlet_primitives.pxd", line 35, in gevent._gevent_c_greenlet_primitives._greenlet_switch
+  File "src/gevent/greenlet.py", line 912, in gevent._gevent_cgreenlet.Greenlet.run
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/locust/runners.py", line 302, in monitor_cpu_and_memory
+    self.current_cpu_usage = process.cpu_percent()
+                             ~~~~~~~~~~~~~~~~~~~^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/psutil/__init__.py", line 1063, in cpu_percent
+    num_cpus = cpu_count() or 1
+               ~~~~~~~~~^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/psutil/__init__.py", line 1665, in cpu_count
+    ret = _psplatform.cpu_count_logical()
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/psutil/_psosx.py", line 155, in cpu_count_logical
+    return cext.cpu_count_logical()
+           ~~~~~~~~~~~~~~~~~~~~~~^^
+SystemError: <built-in function cpu_count_logical> returned a result with an exception set
+[2026-09-10 23:24:13,383] MacBook-Air-6/CRITICAL/locust.runners: Unhandled exception in greenlet: <Greenlet at 0x109b39a80: <bound method Runner.monitor_cpu_and_memory of <locust.runners.LocalRunner object at 0x109b50050>>>
+PermissionError: [Errno 1] Operation not permitted (originated from sysctlbyname('hw.logicalcpu'))
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "src/gevent/greenlet.py", line 912, in gevent._gevent_cgreenlet.Greenlet.run
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/locust/runners.py", line 302, in monitor_cpu_and_memory
+    self.current_cpu_usage = process.cpu_percent()
+    ^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/psutil/__init__.py", line 1063, in cpu_percent
+    num_cpus = cpu_count() or 1
+    ^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/psutil/__init__.py", line 1665, in cpu_count
+    ret = _psplatform.cpu_count_logical()
+    ^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/psutil/_psosx.py", line 155, in cpu_count_logical
+    return cext.cpu_count_logical()
+      ^^^^^^^^^^^^^^^^^
+SystemError: <built-in function cpu_count_logical> returned a result with an exception set

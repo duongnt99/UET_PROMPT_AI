@@ -1,6 +1,7 @@
 import { requireUser } from "@/lib/auth/guards";
 import { prisma } from "@/lib/db/prisma";
 import { ProfileForm } from "@/components/forms/profile-form";
+import { ChangePasswordForm } from "@/components/forms/change-password-form";
 
 export default async function Page() {
   const user = await requireUser();
@@ -24,6 +25,7 @@ export default async function Page() {
           }}
         />
       </div>
+      <ChangePasswordForm />
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { loginAction, registerAction } from "@/server/actions/auth-actions";
+import { PasswordField } from "@/components/forms/password-fields";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Card } from "@/components/ui/form";
 import Link from "next/link";
@@ -25,7 +26,7 @@ export function RegisterForm() {
         className="mt-6 space-y-4"
         action={async (formData) => {
           const result = await registerAction(formData);
-          setMessage(result.ok ? "Đã tạo tài khoản. Bạn có thể đăng nhập ngay." : result.message);
+          setMessage(result.message);
         }}
       >
         <div>
@@ -43,31 +44,21 @@ export function RegisterForm() {
             onBlur={trimOnBlur}
           />
         </div>
-        <div>
-          <Label htmlFor="password">Mật khẩu</Label>
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            minLength={10}
-            required
-            autoComplete="new-password"
-            className="mt-1"
-          />
-        </div>
-        <div>
-          <Label htmlFor="confirmPassword">Xác nhận mật khẩu</Label>
-          <Input
-            id="confirmPassword"
-            name="confirmPassword"
-            type="password"
-            minLength={10}
-            required
-            autoComplete="new-password"
-            className="mt-1"
-          />
-        </div>
-        {message ? <p className="text-sm text-slate-700">{message}</p> : null}
+        <PasswordField
+          id="password"
+          name="password"
+          label="Mật khẩu"
+          autoComplete="new-password"
+          minLength={10}
+        />
+        <PasswordField
+          id="confirmPassword"
+          name="confirmPassword"
+          label="Xác nhận mật khẩu"
+          autoComplete="new-password"
+          minLength={10}
+        />
+        {message ? <p className="text-sm text-red-700">{message}</p> : null}
         <AuthSubmitButton label="Đăng ký" pendingLabel="Đang đăng ký…" />
       </form>
       <p className="mt-4 text-sm">
@@ -77,11 +68,29 @@ export function RegisterForm() {
   );
 }
 
-export function LoginForm({ from = "" }: { from?: string }) {
+export function LoginForm({
+  from = "",
+  registered = false,
+  reset = false,
+}: {
+  from?: string;
+  registered?: boolean;
+  reset?: boolean;
+}) {
   const [message, setMessage] = useState<string | null>(null);
   return (
     <Card className="mx-auto max-w-md">
       <h1 className="display text-2xl">Đăng nhập</h1>
+      {registered ? (
+        <p className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          Đã tạo tài khoản thành công. Vui lòng xác minh email trước khi đăng nhập.
+        </p>
+      ) : null}
+      {reset ? (
+        <p className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          Đã đặt lại mật khẩu thành công. Vui lòng đăng nhập với mật khẩu mới.
+        </p>
+      ) : null}
       <form
         className="mt-6 space-y-4"
         action={async (formData) => {
@@ -105,17 +114,12 @@ export function LoginForm({ from = "" }: { from?: string }) {
             onBlur={trimOnBlur}
           />
         </div>
-        <div>
-          <Label htmlFor="password">Mật khẩu</Label>
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            required
-            autoComplete="current-password"
-            className="mt-1"
-          />
-        </div>
+        <PasswordField
+          id="password"
+          name="password"
+          label="Mật khẩu"
+          autoComplete="current-password"
+        />
         {message ? <p className="text-sm text-red-700">{message}</p> : null}
         <AuthSubmitButton label="Đăng nhập" pendingLabel="Đang đăng nhập…" />
       </form>

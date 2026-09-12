@@ -1,4 +1,4 @@
-# AI Arena Vietnam — Operations Runbook
+# AI Arena Viet Nam — Operations Runbook
 
 Quick reference for production operators. All commands assume you are logged in as `ccne` on the server.
 

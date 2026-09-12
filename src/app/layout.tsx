@@ -30,13 +30,13 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.APP_URL || "http://localhost:3000"),
   title: {
-    default: "AI Arena Vietnam",
-    template: "%s | AI Arena Vietnam",
+    default: "AI Arena Viet Nam",
+    template: "%s | AI Arena Viet Nam",
   },
   description:
-    "Cuộc thi AI Arena Vietnam do ĐHQGHN, Trường Đại học Công nghệ và Google phối hợp tổ chức.",
+    "Cuộc thi AI Arena Viet Nam do ĐHQGHN, Trường Đại học Công nghệ và Google phối hợp tổ chức.",
   openGraph: {
-    title: "AI Arena Vietnam",
+    title: "AI Arena Viet Nam",
     description:
       "Sân chơi quốc gia về prompting với Gemini và Google AI Studio. Chung kết 8 đội, proof of concept 5–10 phút.",
     locale: "vi_VN",

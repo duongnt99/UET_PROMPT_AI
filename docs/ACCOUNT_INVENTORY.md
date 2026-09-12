@@ -1,4 +1,4 @@
-# Account Inventory — AI Arena Vietnam Production
+# Account Inventory — AI Arena Viet Nam Production
 
 **Generated:** 2026-09-08  
 **Method:** Read-only server inspection + read-only PostgreSQL queries  

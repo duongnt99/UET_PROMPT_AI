@@ -135,6 +135,64 @@ export async function saveLandingFinalRoundsAction(
   }
 }
 
+function parseLandingResourceLinks(formData: FormData) {
+  const links = [];
+  for (let index = 0; index < 12; index += 1) {
+    const label = String(formData.get(`linkLabel${index}`) ?? "").trim();
+    const url = String(formData.get(`linkUrl${index}`) ?? "").trim();
+    const icon = String(formData.get(`linkIcon${index}`) ?? "").trim() || "🔗";
+    if (!label && !url) continue;
+    if (!label || !url) {
+      throw new Error(`Liên kết số ${index + 1} cần cả tên hiển thị và URL.`);
+    }
+    links.push({ label, url, icon });
+  }
+  if (links.length === 0) throw new Error("Cần ít nhất một liên kết tài nguyên.");
+  return links;
+}
+
+export async function saveLandingResourcesAction(
+  _prev: ContentActionState,
+  formData: FormData,
+): Promise<ContentActionState> {
+  const user = await requirePermission("content:manage");
+  try {
+    const competition = await getProductionCompetition();
+    if (!competition) throw new Error("Chưa có cuộc thi production.");
+
+    await updateCompetitionSettings({
+      competitionId: competition.id,
+      actorUserId: user.id,
+      settings: {
+        ...competition.settings,
+        landingResourcesTitle: requiredText(formData, "landingResourcesTitle", "tiêu đề phần tài nguyên"),
+        landingResourcesFeaturedBadge: requiredText(formData, "landingResourcesFeaturedBadge", "nhãn thẻ VibeCoding"),
+        landingResourcesFeaturedTitle: requiredText(formData, "landingResourcesFeaturedTitle", "tiêu đề thẻ VibeCoding"),
+        landingResourcesFeaturedDescription: requiredText(
+          formData,
+          "landingResourcesFeaturedDescription",
+          "mô tả thẻ VibeCoding",
+        ),
+        landingResourcesHandbookUrl: requiredText(formData, "landingResourcesHandbookUrl", "liên kết cẩm nang"),
+        landingResourcesGuideUrl: requiredText(formData, "landingResourcesGuideUrl", "liên kết hướng dẫn"),
+        landingResourcesGridTitle: requiredText(formData, "landingResourcesGridTitle", "tiêu đề danh sách tài liệu"),
+        landingResourcesGridDescription: requiredText(
+          formData,
+          "landingResourcesGridDescription",
+          "mô tả danh sách tài liệu",
+        ),
+        landingResourceLinks: parseLandingResourceLinks(formData),
+      },
+      reason: String(formData.get("reason") ?? "").trim() || "Cập nhật phần tài nguyên trang chủ",
+    });
+    revalidateSite();
+    revalidatePath("/admin/settings");
+    return { ok: true, message: "Đã lưu phần Tài nguyên khác trên trang chủ." };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
 export async function saveLandingOverviewAction(
   _prev: ContentActionState,
   formData: FormData,

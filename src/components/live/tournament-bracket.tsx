@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { matchStatusLabel } from "@/lib/status-labels";
 
@@ -63,7 +64,12 @@ export function TournamentBracket({ initialData }: { initialData: PublicBracketD
               <h2 className="mb-4 text-center text-sm font-bold uppercase tracking-wide text-slate-600">{round.name}</h2>
               <div className="flex flex-1 flex-col justify-around gap-6">
                 {round.matches.map((match) => (
-                  <article key={match.id} className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                  <Link
+                    key={match.id}
+                    href={`/scoreboard/matches/${match.id}`}
+                    className="relative block cursor-pointer overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-slate-300 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                    aria-label={`Xem chi tiết trận ${match.code}`}
+                  >
                     <div className="flex items-center justify-between bg-slate-800 px-3 py-1.5 text-xs text-white">
                       <span>{match.code}</span>
                       <span>{matchStatusLabel(match.status)}</span>
@@ -71,7 +77,7 @@ export function TournamentBracket({ initialData }: { initialData: PublicBracketD
                     <TeamRow name={match.competitorA} winner={Boolean(match.winner && match.winner === match.competitorA)} />
                     <div className="border-t border-slate-100" />
                     <TeamRow name={match.competitorB} winner={Boolean(match.winner && match.winner === match.competitorB)} />
-                  </article>
+                  </Link>
                 ))}
               </div>
             </section>

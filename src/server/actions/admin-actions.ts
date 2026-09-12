@@ -206,3 +206,49 @@ export async function advanceWinnerAction(formData: FormData) {
     expectedVersion: Number(formData.get("version") ?? 1),
   });
 }
+
+export async function setPublicScoresEnabledAction(
+  enabled: boolean,
+): Promise<{ ok: boolean; message: string }> {
+  try {
+    const user = await requirePermission("bracket:manage");
+    const competition = await getProductionCompetition();
+    if (!competition) {
+      return { ok: false, message: "Không tìm thấy cuộc thi production." };
+    }
+    await updateCompetitionSettings({
+      competitionId: competition.id,
+      actorUserId: user.id,
+      settings: {
+        ...competition.settings,
+        publicScoresEnabled: enabled,
+      },
+      reason: enabled ? "PUBLIC_SCORES_ENABLED" : "PUBLIC_SCORES_DISABLED",
+    });
+    await writeAuditLog({
+      actorUserId: user.id,
+      competitionId: competition.id,
+      action: enabled ? "PUBLIC_SCORES_ENABLED" : "PUBLIC_SCORES_DISABLED",
+      entityType: "Competition",
+      entityId: competition.id,
+      after: { publicScoresEnabled: enabled },
+    });
+    revalidatePath("/scoreboard");
+    revalidatePath("/admin/bracket");
+    revalidatePath("/admin/settings");
+    return {
+      ok: true,
+      message: enabled
+        ? "Đã công khai điểm trên Bảng đấu."
+        : "Đã ẩn điểm khỏi Bảng đấu.",
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Không thể cập nhật trạng thái công khai điểm. Vui lòng thử lại.",
+    };
+  }
+}

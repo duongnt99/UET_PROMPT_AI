@@ -4,7 +4,7 @@
 
 **KẾ HOẠCH**
 
-**Tổ chức cuộc thi Prompt-Off: Vietnam 2026**
+**Tổ chức cuộc thi Prompt-Off: Viet Nam 2026**
 
 Cuộc thi được xây dựng trong khuôn khổ phối hợp giữa Đại học Quốc gia Hà Nội (ĐHQGHN) và Google, do Trường Đại học Công nghệ làm đầu mối phối hợp triển khai; hướng tới sinh viên các trường đại học trên toàn quốc, tổ chức trực tiếp tại ĐHQGHN kết hợp livestream vào đầu tháng 11/2026.
 

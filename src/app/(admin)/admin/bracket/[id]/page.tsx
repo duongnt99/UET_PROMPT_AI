@@ -6,10 +6,8 @@ import { requireAnyRole } from "@/lib/auth/guards";
 import { hasPermission, type Role } from "@/server/domain/permissions";
 import { formatDateTime } from "@/lib/dates";
 import { formatScoreDisplay } from "@/server/domain/scoring";
-import { remainingTimerSeconds } from "@/server/domain/timer";
-import { formatTimerClock } from "@/server/domain/match-setup";
 import { MATCH_TRANSITIONS } from "@/server/domain/status-transitions";
-import { finalizeMatchIfReady } from "@/server/services/match-service";
+import { finalizeMatchIfReady, getMatchTimerStates } from "@/server/services/match-service";
 import { getActiveRubric } from "@/server/services/review-service";
 import { getProductionCompetition } from "@/server/services/competition-service";
 import {
@@ -17,14 +15,15 @@ import {
   AssignJudgesForm,
   ChangePairingForm,
   MatchStatusForm,
-  MatchTimerForm,
   SetCurrentMatchForm,
   StopMatchForm,
   MatchProblemForm,
+  PublishMatchForm,
 } from "@/components/admin/match-admin-forms";
+import { AdminMatchTimers } from "@/components/admin/admin-match-timers";
 import { AdminDeleteForm } from "@/components/admin/delete-form";
 import { deleteMatchAction } from "@/server/actions/admin-delete-actions";
-import { matchStatusLabel, reviewStatusLabel, timerKindLabel, timerStatusLabel } from "@/lib/status-labels";
+import { contentStatusLabel, matchStatusLabel, reviewStatusLabel } from "@/lib/status-labels";
 import { MatchDualScreenMonitor, type MatchScreenSide } from "@/components/live/match-dual-screen-monitor";
 
 const finalistInclude = {
@@ -189,7 +188,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   });
   if (!match) notFound();
 
-  const [summary, rubric, competition, finalists, judges, challengeOptions] = await Promise.all([
+  const [summary, rubric, competition, finalists, judges, challengeOptions, timerStates] = await Promise.all([
     finalizeMatchIfReady(match.id),
     getActiveRubric(match.competitionId, "FINAL"),
     getProductionCompetition(),
@@ -208,9 +207,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       orderBy: { updatedAt: "desc" },
       select: { id: true, title: true },
     }),
+    getMatchTimerStates(match.id),
   ]);
-
-  const now = new Date();
   const isCurrent = competition?.settings.currentMatchId === match.id;
   const nextStatuses = MATCH_TRANSITIONS[match.status] ?? [];
   const canStop = !["CANCELLED", "COMPLETED", "PUBLISHED", "LOCKED"].includes(match.status);
@@ -241,6 +239,9 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         </Badge>
         {isCurrent ? <Badge tone="blue">Trận hiện tại</Badge> : null}
         {match.winner ? <Badge tone="green">Thắng: {match.winner.displayName}</Badge> : null}
+        <Badge tone={match.publicStatus === "PUBLISHED" ? "green" : "gold"}>
+          Công bố: {contentStatusLabel(match.publicStatus)}
+        </Badge>
       </div>
       <p className="text-sm text-slate-600">
         Bắt đầu: {formatDateTime(match.actualStartedAt)} · Kết thúc: {formatDateTime(match.actualEndedAt)}
@@ -379,33 +380,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         <p className="mt-1 text-xs text-slate-500">
           Thời lượng lấy từ Cài đặt cuộc thi tại thời điểm tạo đồng hồ. Trận đã tạo giữ nguyên thời lượng cũ.
         </p>
-        {match.timers.length === 0 ? (
-          <p className="mt-2 text-sm text-slate-600">Chưa có đồng hồ. Chuyển trận sang “Sẵn sàng” hoặc “Đang chấm điểm” để tạo.</p>
-        ) : (
-          <div className="mt-3 space-y-3">
-            {match.timers.map((timer) => (
-              <div key={timer.id} className="rounded-xl border p-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="font-medium">
-                    {timerKindLabel(timer.kind)} · {formatTimerClock(
-                      remainingTimerSeconds({
-                        now,
-                        status: timer.status,
-                        durationSeconds: timer.durationSeconds,
-                        remainingSnapshot: timer.remainingSnapshot,
-                        startedAt: timer.startedAt,
-                        pausedAt: timer.pausedAt,
-                        accumulatedPausedMs: timer.accumulatedPausedMs,
-                      }),
-                    )}{" "}
-                    <Badge>{timerStatusLabel(timer.status)}</Badge>
-                  </p>
-                  {canStage ? <MatchTimerForm matchId={match.id} kind={timer.kind} /> : null}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <AdminMatchTimers matchId={match.id} initialTimers={timerStates} canControl={canStage} />
         {canStage && match.status !== "CANCELLED" ? (
           <div className="mt-4">
             <SetCurrentMatchForm matchId={match.id} />
@@ -415,6 +390,19 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 
       {canManage ? (
         <div className="grid gap-4 lg:grid-cols-2">
+          <Card>
+            <h2 className="font-semibold">Công bố trận</h2>
+            <p className="mt-1 text-sm text-slate-600">
+              Cho phép hiển thị điểm số chi tiết của trận này trên Bảng đấu trực tiếp (cần bật công khai điểm toàn cục).
+            </p>
+            <div className="mt-3">
+              <PublishMatchForm
+                matchId={match.id}
+                publicStatus={match.publicStatus}
+                scoresGloballyEnabled={competition?.settings.publicScoresEnabled ?? false}
+              />
+            </div>
+          </Card>
           {canChangePairing ? (
             <Card>
               <h2 className="font-semibold">Đổi cặp đấu</h2>

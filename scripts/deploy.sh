@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AI Arena Vietnam — production deploy script (v2)
+# AI Arena Viet Nam — production deploy script (v2)
 #
 # Usage (on server):
 #   cd /opt/ai-arena

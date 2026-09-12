@@ -10,6 +10,7 @@ import {
   createAndOpenScoringMatch,
   setCurrentMatch,
   setMatchStatus,
+  setMatchPublicStatus,
   stopMatch,
   updateMatchPairing,
   advanceWinner,
@@ -60,6 +61,9 @@ function revalidateMatch(matchId: string) {
   revalidatePath("/stage/current-match");
   revalidatePath("/stage/problem");
   revalidatePath("/overlay/current-match");
+  revalidatePath("/dashboard/thi-truc-tiep");
+  revalidatePath("/scoreboard");
+  revalidatePath(`/scoreboard/matches/${matchId}`);
 }
 
 export async function createScoringMatchAction(
@@ -126,6 +130,52 @@ export async function stopMatchAction(
     });
     revalidateMatch(matchId);
     return { ok: true, message: `Đã hủy trận ${result.code}. Đồng hồ đã tạm dừng.` };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function publishMatchAction(
+  _prev: MatchSetupState,
+  formData: FormData,
+): Promise<MatchSetupState> {
+  const user = await requirePermission("bracket:manage");
+  const matchId = String(formData.get("matchId") ?? "");
+  try {
+    const result = await setMatchPublicStatus({
+      actorUserId: user.id,
+      matchId,
+      publicStatus: "PUBLISHED",
+      reason: String(formData.get("reason") ?? ""),
+    });
+    revalidateMatch(matchId);
+    return {
+      ok: true,
+      message: `Đã công bố trận ${result.code} trên Bảng đấu. Điểm số hiển thị khi bật công khai điểm toàn cục.`,
+    };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function unpublishMatchAction(
+  _prev: MatchSetupState,
+  formData: FormData,
+): Promise<MatchSetupState> {
+  const user = await requirePermission("bracket:manage");
+  const matchId = String(formData.get("matchId") ?? "");
+  try {
+    const result = await setMatchPublicStatus({
+      actorUserId: user.id,
+      matchId,
+      publicStatus: "DRAFT",
+      reason: String(formData.get("reason") ?? ""),
+    });
+    revalidateMatch(matchId);
+    return {
+      ok: true,
+      message: `Đã ẩn trận ${result.code} khỏi công bố điểm trên Bảng đấu.`,
+    };
   } catch (error) {
     return fail(error);
   }

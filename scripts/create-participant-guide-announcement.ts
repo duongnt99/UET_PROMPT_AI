@@ -16,7 +16,7 @@ const ANNOUNCEMENT = {
   slug: SLUG,
   excerpt:
     "Từng bước cho đội thi: đăng nhập, hoàn thiện hồ sơ cá nhân, đăng ký đội, mời thành viên và nộp bài Audition.",
-  bodyMarkdown: `Chào các đội thi **AI Arena Vietnam**,
+  bodyMarkdown: `Chào các đội thi **AI Arena Viet Nam**,
 
 Dưới đây là quy trình sử dụng hệ thống từ lúc có tài khoản đến khi nộp bài **Audition**. Nên làm theo thứ tự để tránh lỗi “chưa được phép nộp bài”.
 

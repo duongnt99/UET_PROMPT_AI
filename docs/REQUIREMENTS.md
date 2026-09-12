@@ -1,6 +1,6 @@
 # Requirements
 
-Cổng thông tin AI Arena Vietnam phục vụ:
+Cổng thông tin AI Arena Viet Nam phục vụ:
 
 1. Website công khai tiếng Việt, nội dung chưa chốt hiển thị Dự kiến/Đang cập nhật.
 2. Tài khoản email/mật khẩu hoạt động ngay, không xác minh email; quên mật khẩu do quản trị viên hỗ trợ; RBAC.

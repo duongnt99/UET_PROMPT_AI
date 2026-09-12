@@ -19,6 +19,7 @@ function revalidateChallenges() {
   revalidatePath("/stage/current-match");
   revalidatePath("/stage/problem");
   revalidatePath("/overlay/current-match");
+  revalidatePath("/dashboard/thi-truc-tiep");
 }
 
 export async function saveChallengeAction(

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { defaultLandingResourcesContent, landingResourceLinkSchema } from "@/config/landing-resources";
 
 export const registrationModeSchema = z.enum(["INDIVIDUAL", "TEAM", "BOTH", "UNDECIDED"]);
 export const tentativeStatusSchema = z.enum(["TENTATIVE", "CONFIRMED"]);
@@ -30,6 +31,15 @@ export const competitionSettingsSchema = z.object({
   landingAudienceText: z.string(),
   landingToolsText: z.string(),
   landingFinalRoundTitle: z.string(),
+  landingResourcesTitle: z.string(),
+  landingResourcesFeaturedBadge: z.string(),
+  landingResourcesFeaturedTitle: z.string(),
+  landingResourcesFeaturedDescription: z.string(),
+  landingResourcesHandbookUrl: z.string(),
+  landingResourcesGuideUrl: z.string(),
+  landingResourcesGridTitle: z.string(),
+  landingResourcesGridDescription: z.string(),
+  landingResourceLinks: z.array(landingResourceLinkSchema),
   finalRoundSprintTitle: z.string(),
   finalRoundSprintDescription: z.string(),
   finalRoundPitchTitle: z.string(),
@@ -125,33 +135,48 @@ export function defaultCompetitionSettings(
   overrides: Partial<CompetitionSettings> = {},
 ): CompetitionSettings {
   return competitionSettingsSchema.parse({
-    competitionName: "AI Arena Vietnam",
+    competitionName: "AI Arena Viet Nam",
     competitionSlug: "prompt-off-vietnam-2026",
     season: "2026",
     publicStatus: "PUBLISHED",
     shortDescription:
       "Sân chơi quốc gia để sinh viên thực hành kỹ năng đặt câu lệnh cùng Google Gemini và Google AI Studio, xây dựng ứng dụng trong 5–10 phút.",
     fullDescription:
-      "Cuộc thi ứng dụng AI do Đại học Quốc gia Hà Nội (ĐHQGHN) triển khai, Trường Đại học Công nghệ (VNU-UET) làm đầu mối phối hợp cùng Google tổ chức. Đây là sân chơi công nghệ mở ra cơ hội thực chiến giải quyết các bài toán thực tế thông qua kỹ năng Prompt Engineering trên nền tảng hai công cụ chính thức: **Google Gemini và Google AI Studio**.\n\nHành trình trải nghiệm bắt đầu từ Vòng tuyển chọn trực tuyến nhằm tìm kiếm 8 đội thi xuất sắc nhất bước vào Vòng Chung kết. Tại vòng đấu quyết định này, 8 đội sẽ trực tiếp tranh tài trên sân khấu để tìm ra nhà vô địch.\n\nVòng Chung kết sẽ chính thức diễn ra vào ngày **03/11/2026 tại Hội trường tầng 1, Trung tâm Văn hóa ULIS - Jonathan KS. Choi, ĐHQGHN** (số 144 Xuân Thủy, Cầu Giấy, Hà Nội).",
+      "Cuộc thi ứng dụng AI do Đại học Quốc gia Hà Nội (ĐHQGHN) triển khai, Trường Đại học Công nghệ (VNU-UET) làm đầu mối phối hợp cùng Google tổ chức. Đây là sân chơi công nghệ cho các bạn sinh viên trên toàn quốc, mở ra cơ hội thực chiến giải quyết các bài toán thực tế thông qua kỹ năng Natural Language Entrepreneurship trên nền tảng hai công cụ chính thức: **Google Gemini** và **Google AI Studio**.\n\nHành trình trải nghiệm bắt đầu từ Vòng tuyển chọn trực tuyến nhằm tìm kiếm 8 đội thi xuất sắc nhất bước vào Vòng Chung kết. Tại vòng đấu quyết định này, 8 đội sẽ trực tiếp tranh tài trên sân khấu để tìm ra nhà vô địch.\n\nVòng Chung kết sẽ diễn ra vào ngày **03/11/2026** tại **Đại học Quốc gia Hà Nội** _(144 Xuân Thủy, Cầu Giấy, Hà Nội)_.",
     landingHeroTitle: "AI Arena",
     landingHeroHighlight: "Vietnam",
     landingAudienceText: "Sinh viên các trường đại học trên toàn quốc",
     landingToolsText: "Google AI Studio và Google Gemini",
     landingFinalRoundTitle: "Thể thức vòng chung kết",
+    ...(() => {
+      const resources = defaultLandingResourcesContent();
+      return {
+        landingResourcesTitle: resources.title,
+        landingResourcesFeaturedBadge: resources.featuredBadge,
+        landingResourcesFeaturedTitle: resources.featuredTitle,
+        landingResourcesFeaturedDescription: resources.featuredDescription,
+        landingResourcesHandbookUrl: resources.handbookUrl,
+        landingResourcesGuideUrl: resources.guideUrl,
+        landingResourcesGridTitle: resources.gridTitle,
+        landingResourcesGridDescription: resources.gridDescription,
+        landingResourceLinks: resources.links,
+      };
+    })(),
     finalRoundSprintTitle: "The Sprint",
     finalRoundSprintDescription:
-      "Hai đội nhận cùng một đề bài, có {thoi_luong} để xây dựng bản thử nghiệm bằng Google Gemini & Google AI Studio — tập trung vào tính khả thi.",
+      "Hai đội đối đầu nhận cùng một bài toán thực tế. Trong vòng {thoi_luong}, các đội tiến hành xây dựng bản thử nghiệm (Proof of Concept) trên Gemini và Google AI Studio, tập trung chứng minh tính khả thi mà không yêu cầu dựng hệ thống backend hoàn chỉnh.",
     finalRoundPitchTitle: "The Pitch",
     finalRoundPitchDescription:
-      "Thuyết trình {thoi_luong} theo phong cách YC: bài toán, ứng dụng AI và demo sản phẩm.",
+      "Mỗi đội có {thoi_luong} để trình bày ngắn gọn về bài toán, giải pháp ứng dụng AI và demo sản phẩm trực tiếp trước Ban giám khảo và khán giả.",
     finalRoundVerdictTitle: "The Verdict",
-    finalRoundVerdictDescription: "Ban Giám khảo chấm điểm, đánh giá và chọn đội đi tiếp.",
+    finalRoundVerdictDescription:
+      "Mỗi thành viên Ban giám khảo đặt tối đa một câu hỏi chất vấn. Sau đó, Hội đồng giám khảo chấm điểm, đánh giá và quyết định đội thi đi tiếp.",
     finalRoundTwistTitle: "On-stage Twist",
     finalRoundTwistDescription:
-      "Ban Tổ chức có thể thêm yêu cầu ngay trên sân khấu để thử khả năng ứng biến.",
+      "Các thử thách bất ngờ có thể xuất hiện ngay trên sân khấu nhằm thử thách khả năng ứng biến linh hoạt của thí sinh.",
     organizerText: "Đại học Quốc gia Hà Nội — Trường Đại học Công nghệ (đầu mối phối hợp).",
     partnerText: "Đồng tổ chức: Đại học Quốc gia Hà Nội, Trường Đại học Công nghệ (đầu mối phối hợp) và Google.",
-    officialContactEmail: "promptoff@example.edu.vn",
+    officialContactEmail: "ai_arena_vietnam@vnu.edu.vn",
     officialContactPhone: "",
     venue: "Hội trường tầng 1, Trung tâm Văn hóa ULIS - Jonathan KS. Choi, ĐHQGHN",
     venueStatus: "CONFIRMED",

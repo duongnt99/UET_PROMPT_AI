@@ -209,8 +209,13 @@ function PrimaryScreen({
       <div className={cn("flex flex-wrap items-center justify-between gap-2 border-b px-4 py-3", variant === "overlay" && "border-white/15")}>
         <div>
           <p className={cn("text-xs font-semibold uppercase tracking-wide text-slate-500", variant === "overlay" && "text-white/60")}>Đội {screen.side}</p>
-          <h3 className="font-semibold">{screen.competitorName}</h3>
-          <p className={cn("text-xs text-slate-500", variant === "overlay" && "text-white/60")}>Thí sinh: {screen.preferredParticipantName}</p>
+          <h3 className="truncate font-semibold" title={screen.competitorName}>{screen.competitorName}</h3>
+          <p
+            className={cn("truncate text-xs text-slate-500", variant === "overlay" && "text-white/60")}
+            title={screen.preferredParticipantName}
+          >
+            Thí sinh: {screen.preferredParticipantName}
+          </p>
         </div>
         <div className="flex gap-2">
           <Badge tone={connection === "connected" ? "blue" : connection === "disconnected" ? "red" : "gold"}>{connectionLabel}</Badge>
@@ -232,7 +237,9 @@ function PrimaryScreen({
       {variant === "admin" && fullscreen && publisher?.stream ? (
         <div className="fixed inset-0 z-50 flex flex-col bg-black p-4">
           <div className="mb-3 flex items-center justify-between text-white">
-            <p className="font-semibold">Đội {screen.side} · {screen.competitorName} · {publisher.participantName}</p>
+            <p className="truncate font-semibold" title={`Đội ${screen.side} · ${screen.competitorName} · ${publisher.participantName}`}>
+              Đội {screen.side} · {screen.competitorName} · {publisher.participantName}
+            </p>
             <Button type="button" variant="outline" onClick={() => setFullscreen(false)}>
               <X className="h-4 w-4" /> Trở lại hai màn hình
             </Button>

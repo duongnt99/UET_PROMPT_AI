@@ -1,13 +1,8 @@
 import { prisma } from "@/lib/db/prisma";
 import { writeAuditLog } from "@/lib/audit";
 import { requireProductionCompetition } from "@/server/services/competition-service";
+import { normalizeAuditReason, normalizeChallengeNotes } from "@/config/field-limits";
 import { matchProblemForDisplay, normalizeMatchProblem } from "@/server/domain/match-problem";
-
-function requireReason(reason: string) {
-  const trimmed = reason.trim();
-  if (trimmed.length < 3) throw new Error("Cần ghi lý do (audit).");
-  return trimmed;
-}
 
 export async function listMatchChallenges(competitionId: string) {
   return prisma.matchChallenge.findMany({
@@ -67,7 +62,7 @@ export async function saveMatchChallenge(params: {
 }
 
 export async function deleteMatchChallenge(params: { actorUserId: string; id: string; reason: string }) {
-  const reason = requireReason(params.reason);
+  const reason = normalizeAuditReason(params.reason);
   const competition = await requireProductionCompetition();
   const existing = await prisma.matchChallenge.findFirst({
     where: { id: params.id, competitionId: competition.id },
@@ -94,7 +89,7 @@ export async function saveMatchProblem(params: {
   saveToLibrary?: boolean;
   reason: string;
 }) {
-  const reason = requireReason(params.reason);
+  const reason = normalizeAuditReason(params.reason);
   const problem = normalizeMatchProblem({ title: params.title, prompt: params.prompt });
   const match = await prisma.match.findUniqueOrThrow({ where: { id: params.matchId } });
   let challengeId = match.challengeId;
@@ -135,7 +130,7 @@ export async function assignChallengeToMatch(params: {
   challengeId: string;
   reason: string;
 }) {
-  const reason = requireReason(params.reason);
+  const reason = normalizeAuditReason(params.reason);
   const match = await prisma.match.findUniqueOrThrow({ where: { id: params.matchId } });
   const challenge = await prisma.matchChallenge.findFirst({
     where: { id: params.challengeId, competitionId: match.competitionId },
@@ -163,7 +158,7 @@ export async function assignChallengeToMatch(params: {
 }
 
 export async function clearMatchProblem(params: { actorUserId: string; matchId: string; reason: string }) {
-  const reason = requireReason(params.reason);
+  const reason = normalizeAuditReason(params.reason);
   const match = await prisma.match.findUniqueOrThrow({ where: { id: params.matchId } });
   const updated = await prisma.match.update({
     where: { id: match.id },

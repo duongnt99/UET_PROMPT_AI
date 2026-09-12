@@ -1,3 +1,4 @@
+import { normalizeProfileData } from "@/config/field-limits";
 import { prisma } from "@/lib/db/prisma";
 import { requireProductionCompetition } from "@/server/services/competition-service";
 import {
@@ -107,10 +108,11 @@ export async function saveProfile(params: {
     shortBio?: string;
   };
 }) {
+  const data = normalizeProfileData(params.data);
   return prisma.participantProfile.upsert({
     where: { userId: params.userId },
-    update: params.data,
-    create: { userId: params.userId, ...params.data },
+    update: data,
+    create: { userId: params.userId, ...data },
   });
 }
 

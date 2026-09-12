@@ -20,7 +20,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
   return (
     <div className="flex min-h-screen bg-slate-100">
       <aside className="hidden w-60 overflow-y-auto bg-[#0B1F3A] p-4 text-white md:block">
-        <p className="font-semibold">Quản trị AI Arena Vietnam</p>
+        <p className="font-semibold">Quản trị AI Arena Viet Nam</p>
         <nav className="mt-4 space-y-5 text-sm">
           {NAV_SECTIONS.map((section) => (
             <section key={section.title}>

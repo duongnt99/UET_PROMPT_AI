@@ -1,17 +1,31 @@
 import { prisma } from "@/lib/db/prisma";
 import { getProductionCompetition } from "@/server/services/competition-service";
 import { FormattedText } from "@/components/public/formatted-text";
+import { ParticipantGuidePage } from "@/components/public/tin-tuc/participant-guide-page";
 import { Card } from "@/components/ui/form";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
+const PARTICIPANT_GUIDE_SLUG = "huong-dan-dang-ky-va-audition";
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
+  if (slug === PARTICIPANT_GUIDE_SLUG) {
+    return {
+      title: "Hướng dẫn đăng ký và nộp bài Audition",
+      description:
+        "Hướng dẫn từng bước cho thí sinh AI Arena Vietnam 2026: đăng nhập, hoàn thiện hồ sơ, đăng ký đội và nộp bài Audition.",
+    };
+  }
   return { title: slug };
 }
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  if (slug === PARTICIPANT_GUIDE_SLUG) {
+    return <ParticipantGuidePage />;
+  }
+
   const competition = await getProductionCompetition();
   if (!competition) notFound();
   const item = await prisma.announcement.findUnique({

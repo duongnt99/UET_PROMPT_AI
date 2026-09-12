@@ -2,6 +2,10 @@ import { getEnv } from "@/config/env";
 import { logger } from "@/lib/logging";
 import nodemailer from "nodemailer";
 import { isDeliverableEmail } from "@/server/domain/email";
+import { EmailSendError } from "@/server/email/email-errors";
+import { sendViaGmailApi } from "@/server/email/gmail-api-provider";
+
+export { EmailSendError } from "@/server/email/email-errors";
 
 export type SendEmailInput = {
   to: string;
@@ -11,15 +15,8 @@ export type SendEmailInput = {
   deliveryId: string;
 };
 
-export class EmailSendError extends Error {
-  constructor(message: string, public readonly transient = false) {
-    super(message);
-    this.name = "EmailSendError";
-  }
-}
-
 function safeSenderName(value: string) {
-  return value.replace(/[\r\n<>]/g, "").trim() || "AI Arena Vietnam";
+  return value.replace(/[\r\n<>]/g, "").trim() || "AI Arena Viet Nam";
 }
 
 function resolveFromAddress(env: ReturnType<typeof getEnv>) {
@@ -33,12 +30,31 @@ function resolveFromAddress(env: ReturnType<typeof getEnv>) {
   return from;
 }
 
+export function getEmailProviderLabel(provider: string) {
+  switch (provider) {
+    case "gmail-api":
+      return "Gmail API";
+    case "smtp":
+      return "SMTP";
+    case "resend":
+      return "Resend";
+    case "console":
+      return "Console (dev)";
+    case "unconfigured":
+      return "Chưa cấu hình";
+    default:
+      return provider;
+  }
+}
+
 export function getEmailRuntimeInfo() {
   const env = getEnv();
   const provider = env.EMAIL_PROVIDER ?? (env.NODE_ENV === "production" ? undefined : "console");
   const localSmtp = provider === "smtp" && ["localhost", "127.0.0.1", "::1"].includes(env.SMTP_HOST ?? "");
+  const resolvedProvider = provider ?? "unconfigured";
   return {
-    provider: provider ?? "unconfigured",
+    provider: resolvedProvider,
+    providerLabel: getEmailProviderLabel(resolvedProvider),
     localSmtp,
     localInboxUrl: localSmtp ? "http://localhost:8025" : null,
   };
@@ -86,6 +102,17 @@ export async function sendEmail(input: SendEmailInput): Promise<{ messageId: str
       const transient = ["ETIMEDOUT", "ECONNECTION", "ECONNRESET", "ESOCKET"].includes(code);
       throw new EmailSendError(error instanceof Error ? error.message : "SMTP từ chối email.", transient);
     }
+  }
+
+  if (provider === "gmail-api") {
+    return sendViaGmailApi({
+      from,
+      to: input.to,
+      subject: input.subject,
+      text: input.text,
+      html: input.html,
+      deliveryId: input.deliveryId,
+    });
   }
 
   if (!env.RESEND_API_KEY || !env.EMAIL_FROM_ADDRESS) {

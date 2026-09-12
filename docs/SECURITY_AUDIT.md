@@ -1,4 +1,4 @@
-# Security Audit — AI Arena Vietnam Production
+# Security Audit — AI Arena Viet Nam Production
 
 **Audit date:** 2026-09-08  
 **Scope:** Repository source code + read-only inspection of production server (`ai-arena-vietnam.uet.edu.vn`)  
@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-AI Arena Vietnam is a **Next.js 16 monolith** deployed via **Docker Compose** behind **Nginx + Let's Encrypt**. Core application security controls are present: bcrypt password hashing, JWT sessions (Auth.js), server-side role/permission guards, rate limiting on login, CSP headers, and database/storage not exposed to the public Internet.
+AI Arena Viet Nam is a **Next.js 16 monolith** deployed via **Docker Compose** behind **Nginx + Let's Encrypt**. Core application security controls are present: bcrypt password hashing, JWT sessions (Auth.js), server-side role/permission guards, rate limiting on login, CSP headers, and database/storage not exposed to the public Internet.
 
 **Primary risks** are operational rather than architectural: **SSH password authentication is enabled**, **fail2ban is not installed**, **automated backups are not scheduled**, and the **production server has uncommitted local changes** that could complicate safe updates. Email delivery is not configured for production.
 

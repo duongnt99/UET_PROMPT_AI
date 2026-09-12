@@ -59,7 +59,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ p
       ) : emailRuntime.provider === "unconfigured" ? (
         <div className="mt-4 rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-800"><strong>Chưa cấu hình email provider.</strong> Thông báo nội bộ vẫn được tạo nhưng email sẽ thất bại.</div>
       ) : (
-        <div className="mt-4 rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-sm text-emerald-900">Provider email đang dùng: <strong>{emailRuntime.provider.toUpperCase()}</strong>.</div>
+        <div className="mt-4 rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-sm text-emerald-900">Provider email đang dùng: <strong>{emailRuntime.providerLabel}</strong>.</div>
       )}
       <div className="mt-6"><EmailComposeForm users={users} allUsersCount={allUsersCount} participantCount={participantCount} initialIdempotencyKey={randomUUID()} /></div>
 

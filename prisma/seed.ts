@@ -75,7 +75,7 @@ async function upsertPublicCopy(competitionId: string) {
     [
       "gioi-thieu",
       "Giới thiệu",
-      "AI Arena Vietnam là sân chơi để sinh viên ứng dụng kỹ năng đặt câu lệnh với **Google Gemini** và **Google AI Studio**. Chung kết gồm **8 đội**, thi đấu loại trực tiếp tại ĐHQGHN.",
+      "AI Arena Viet Nam là sân chơi để sinh viên ứng dụng kỹ năng đặt câu lệnh với **Google Gemini** và **Google AI Studio**. Chung kết gồm **8 đội**, thi đấu loại trực tiếp tại ĐHQGHN.",
     ],
     [
       "the-le",
@@ -318,7 +318,7 @@ async function main() {
   });
 
   const rehearsalSettings = defaultCompetitionSettings({
-    competitionName: "AI Arena Vietnam (Diễn tập)",
+    competitionName: "AI Arena Viet Nam (Diễn tập)",
     competitionSlug: "prompt-off-vietnam-2026-rehearsal",
     rehearsalCompetitionId: production.id,
   });
@@ -451,7 +451,7 @@ async function main() {
         competitionId: production.id,
         title: "Hệ thống đăng ký đang được hoàn thiện",
         slug: "he-thong-dang-ky",
-        excerpt: "Cổng thông tin AI Arena Vietnam đã sẵn sàng cho giai đoạn thử nghiệm nội bộ.",
+        excerpt: "Cổng thông tin AI Arena Viet Nam đã sẵn sàng cho giai đoạn thử nghiệm nội bộ.",
         bodyMarkdown:
           "Ban Tổ chức đang hoàn thiện thể lệ, rubric và các mốc chính thức. Các thông tin chưa chốt sẽ hiển thị **Đang cập nhật** hoặc **Dự kiến**.",
         status: "PUBLISHED",
@@ -459,11 +459,11 @@ async function main() {
       },
     });
     const pages = [
-      ["gioi-thieu", "Giới thiệu", "AI Arena Vietnam tạo sân chơi để sinh viên ứng dụng AI tạo sinh và kỹ năng đặt câu lệnh, phát triển nhanh sản phẩm với Google Gemini và Google AI Studio."],
+      ["gioi-thieu", "Giới thiệu", "AI Arena Viet Nam tạo sân chơi để sinh viên ứng dụng AI tạo sinh và kỹ năng đặt câu lệnh, phát triển nhanh sản phẩm với Google Gemini và Google AI Studio."],
       ["the-le", "Thể lệ", "Thể lệ chính thức **đang được Ban Tổ chức hoàn thiện**. Bản này mô tả khung đã công bố trong kế hoạch tổ chức, không tự ý chốt các nội dung còn treo."],
       ["huong-dan-audition", "Hướng dẫn Audition", "Bài Audition gồm video giới thiệu ngắn và/hoặc thử thách vibe coding cơ bản sử dụng Gemini. Các trường bắt buộc được cấu hình trong hệ thống, không hard-code."],
       ["tieu-chi-cham", "Tiêu chí chấm điểm", "Ban Tổ chức có thể phát hành phiên bản rubric mới."],
-      ["lien-he", "Liên hệ", "Đầu mối hệ thống: Ban Tổ chức AI Arena Vietnam — Trường Đại học Công nghệ, ĐHQGHN."],
+      ["lien-he", "Liên hệ", "Đầu mối hệ thống: Ban Tổ chức AI Arena Viet Nam — Trường Đại học Công nghệ, ĐHQGHN."],
       ["chinh-sach-bao-mat", "Chính sách bảo mật", "Hệ thống chỉ thu thập dữ liệu cần thiết cho đăng ký và vận hành cuộc thi. Không thu thập căn cước công dân nếu BTC chưa yêu cầu."],
       ["dieu-khoan", "Điều khoản", "Khi đăng ký, thí sinh cam kết thông tin trung thực và tuân thủ thể lệ do Ban Tổ chức công bố."],
     ];

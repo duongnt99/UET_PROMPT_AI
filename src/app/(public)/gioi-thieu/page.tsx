@@ -8,7 +8,7 @@ export default function Page() {
     <CmsArticle
       slug="gioi-thieu"
       fallbackTitle="Giới thiệu"
-      fallback="AI Arena Vietnam do Đại học Quốc gia Hà Nội triển khai, Trường Đại học Công nghệ làm đầu mối phối hợp cùng Google tổ chức. Chung kết gồm 8 đội thi trực tiếp với Google Gemini và Google AI Studio."
+      fallback="AI Arena Viet Nam do Đại học Quốc gia Hà Nội triển khai, Trường Đại học Công nghệ làm đầu mối phối hợp cùng Google tổ chức. Chung kết gồm 8 đội thi trực tiếp với Google Gemini và Google AI Studio."
     />
   );
 }

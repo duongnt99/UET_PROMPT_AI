@@ -8,6 +8,7 @@ import {
   saveAnnouncementAction,
   saveFaqAction,
   saveLandingOverviewAction,
+  saveLandingResourcesAction,
   saveLandingFinalRoundsAction,
   saveStaticPageAction,
   saveTimelineItemAction,
@@ -45,7 +46,8 @@ export function LandingOverviewForm({ settings }: { settings: LandingOverviewSet
         </div>
       </div>
       <p className="text-xs text-slate-500">
-        Hai dòng tiêu đề này cũng được ghép thành tên thương hiệu trên thanh điều hướng và chân trang.
+        Hai dòng tiêu đề này ghép thành tên trên thanh điều hướng và chân trang theo mẫu{" "}
+        <strong>AI Arena: Vietnam 2026</strong> (tiêu đề chính + dòng nổi bật + mùa giải).
       </p>
       <div>
         <Label htmlFor="shortDescription">Mô tả ngắn dưới tiêu đề</Label>
@@ -223,6 +225,98 @@ const FINAL_ROUND_FIELDS = [
   ["Verdict", "The Verdict"],
   ["Twist", "On-stage Twist"],
 ] as const;
+
+type LandingResourcesSettings = {
+  landingResourcesTitle: string;
+  landingResourcesFeaturedBadge: string;
+  landingResourcesFeaturedTitle: string;
+  landingResourcesFeaturedDescription: string;
+  landingResourcesHandbookUrl: string;
+  landingResourcesGuideUrl: string;
+  landingResourcesGridTitle: string;
+  landingResourcesGridDescription: string;
+  landingResourceLinks: Array<{ label: string; url: string; icon: string }>;
+};
+
+export function LandingResourcesForm({ settings }: { settings: LandingResourcesSettings }) {
+  const [state, action, pending] = useActionState(saveLandingResourcesAction, idle);
+  const links = settings.landingResourceLinks.length > 0 ? settings.landingResourceLinks : [];
+
+  return (
+    <form action={action} className="space-y-5">
+      <div>
+        <Label htmlFor="landing-resources-title">Tiêu đề phần</Label>
+        <Input id="landing-resources-title" name="landingResourcesTitle" required defaultValue={settings.landingResourcesTitle} className="mt-1" />
+      </div>
+      <fieldset className="rounded-2xl border border-slate-200 p-4">
+        <legend className="px-2 text-sm font-semibold text-slate-900">Thẻ VibeCoding</legend>
+        <div className="space-y-3">
+          <div>
+            <Label htmlFor="landing-resources-badge">Nhãn</Label>
+            <Input id="landing-resources-badge" name="landingResourcesFeaturedBadge" required defaultValue={settings.landingResourcesFeaturedBadge} className="mt-1" />
+          </div>
+          <div>
+            <Label htmlFor="landing-resources-featured-title">Tiêu đề</Label>
+            <Input id="landing-resources-featured-title" name="landingResourcesFeaturedTitle" required defaultValue={settings.landingResourcesFeaturedTitle} className="mt-1" />
+          </div>
+          <div>
+            <Label htmlFor="landing-resources-featured-description">Mô tả</Label>
+            <Textarea id="landing-resources-featured-description" name="landingResourcesFeaturedDescription" required defaultValue={settings.landingResourcesFeaturedDescription} className="mt-1 min-h-24" />
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <Label htmlFor="landing-resources-handbook-url">Liên kết cẩm nang</Label>
+              <Input id="landing-resources-handbook-url" name="landingResourcesHandbookUrl" required defaultValue={settings.landingResourcesHandbookUrl} className="mt-1" />
+            </div>
+            <div>
+              <Label htmlFor="landing-resources-guide-url">Liên kết hướng dẫn</Label>
+              <Input id="landing-resources-guide-url" name="landingResourcesGuideUrl" required defaultValue={settings.landingResourcesGuideUrl} className="mt-1" />
+            </div>
+          </div>
+        </div>
+      </fieldset>
+      <fieldset className="rounded-2xl border border-slate-200 p-4">
+        <legend className="px-2 text-sm font-semibold text-slate-900">Danh sách tài liệu</legend>
+        <div className="space-y-3">
+          <div>
+            <Label htmlFor="landing-resources-grid-title">Tiêu đề</Label>
+            <Input id="landing-resources-grid-title" name="landingResourcesGridTitle" required defaultValue={settings.landingResourcesGridTitle} className="mt-1" />
+          </div>
+          <div>
+            <Label htmlFor="landing-resources-grid-description">Mô tả</Label>
+            <Textarea id="landing-resources-grid-description" name="landingResourcesGridDescription" required defaultValue={settings.landingResourcesGridDescription} className="mt-1 min-h-20" />
+          </div>
+          {Array.from({ length: Math.max(links.length, 8) }, (_, index) => {
+            const link = links[index] ?? { label: "", url: "", icon: "" };
+            return (
+              <div key={index} className="grid gap-3 rounded-xl border border-slate-100 p-3 md:grid-cols-[80px_1fr_1fr]">
+                <div>
+                  <Label htmlFor={`link-icon-${index}`}>Icon</Label>
+                  <Input id={`link-icon-${index}`} name={`linkIcon${index}`} defaultValue={link.icon} placeholder="▶️" className="mt-1" />
+                </div>
+                <div>
+                  <Label htmlFor={`link-label-${index}`}>Tên hiển thị</Label>
+                  <Input id={`link-label-${index}`} name={`linkLabel${index}`} defaultValue={link.label} className="mt-1" />
+                </div>
+                <div>
+                  <Label htmlFor={`link-url-${index}`}>URL</Label>
+                  <Input id={`link-url-${index}`} name={`linkUrl${index}`} defaultValue={link.url} className="mt-1" />
+                </div>
+              </div>
+            );
+          })}
+          <p className="text-xs text-slate-500">Để trống cả ba ô của một dòng nếu không muốn hiển thị liên kết đó.</p>
+        </div>
+      </fieldset>
+      <div>
+        <Label htmlFor="landing-resources-reason">Lý do thay đổi (tùy chọn)</Label>
+        <Input id="landing-resources-reason" name="reason" placeholder="Ví dụ: cập nhật tài liệu Google AI Studio" className="mt-1" />
+      </div>
+      <Button type="submit" disabled={pending}>{pending ? "Đang lưu…" : "Lưu phần tài nguyên"}</Button>
+      <Feedback state={state} pending={pending} />
+    </form>
+  );
+}
 
 export function LandingFinalRoundsForm({ settings }: { settings: FinalRoundSettings }) {
   const [state, action, pending] = useActionState(saveLandingFinalRoundsAction, idle);

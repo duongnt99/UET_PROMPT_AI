@@ -1,11 +1,17 @@
 import { prisma } from "@/lib/db/prisma";
 import { writeAuditLog } from "@/lib/audit";
 import { detectBracketCycle, buildWinnerAdvancement } from "@/server/domain/bracket";
-import { remainingTimerSeconds } from "@/server/domain/timer";
+import {
+  remainingTimerSeconds,
+  runningTimerStopUpdate,
+  serializeTimerState,
+  timerHasExpired,
+} from "@/server/domain/timer";
 import { aggregateScores, resolveTieState } from "@/server/domain/scoring";
 import { getActiveRubric } from "@/server/services/review-service";
 import { normalizeCriterionScore, rubricWeightsSumTo100 } from "@/server/domain/scoring";
 import { parseCompetitionSettings } from "@/config/competition-settings";
+import { normalizeAuditReason } from "@/config/field-limits";
 import { Decimal } from "@prisma/client/runtime/library";
 import { assertLiveMatchSetup, LIVE_MATCH_STATUSES, assertCanChangePairing } from "@/server/domain/match-setup";
 import { normalizeMatchProblem } from "@/server/domain/match-problem";
@@ -141,23 +147,75 @@ export async function advanceWinner(params: {
   });
 }
 
+export async function getReconciledTimersForMatch(matchId: string, now = new Date()) {
+  await reconcileExpiredTimers(matchId, now);
+  return prisma.timerSession.findMany({
+    where: { matchId },
+    orderBy: { kind: "asc" },
+  });
+}
+
+export async function reconcileExpiredTimers(matchId: string, now = new Date()) {
+  const timers = await prisma.timerSession.findMany({
+    where: { matchId, status: "RUNNING" },
+  });
+  for (const timer of timers) {
+    const fields = {
+      status: timer.status,
+      durationSeconds: timer.durationSeconds,
+      remainingSnapshot: timer.remainingSnapshot,
+      startedAt: timer.startedAt,
+      pausedAt: timer.pausedAt,
+      accumulatedPausedMs: timer.accumulatedPausedMs,
+    };
+    if (!timerHasExpired({ now, ...fields })) continue;
+    await prisma.timerSession.updateMany({
+      where: { id: timer.id, status: "RUNNING" },
+      data: {
+        status: "COMPLETED",
+        remainingSnapshot: 0,
+        pausedAt: null,
+        version: { increment: 1 },
+      },
+    });
+  }
+}
+
+export async function getMatchTimerStates(matchId: string) {
+  const now = new Date();
+  const timers = await getReconciledTimersForMatch(matchId, now);
+  return timers.map((timer) => serializeTimerState(timer, now));
+}
+
 export async function controlTimer(params: {
   actorUserId: string;
   matchId: string;
   kind: "SPRINT" | "PITCH" | "VERDICT";
   action: "start" | "pause" | "resume";
 }) {
+  await reconcileExpiredTimers(params.matchId);
   const timer = await prisma.timerSession.findUnique({
     where: { matchId_kind: { matchId: params.matchId, kind: params.kind } },
   });
   if (!timer) throw new Error("Không tìm thấy đồng hồ của phần thi này.");
   const now = new Date();
+
   if (params.action === "start") {
     await prisma.timerSession.update({
       where: { id: timer.id },
-      data: { status: "RUNNING", startedAt: now, remainingSnapshot: timer.durationSeconds },
+      data: {
+        status: "RUNNING",
+        startedAt: now,
+        pausedAt: null,
+        accumulatedPausedMs: 0,
+        remainingSnapshot: timer.durationSeconds,
+        version: { increment: 1 },
+      },
     });
   } else if (params.action === "pause") {
+    if (timer.status !== "RUNNING") {
+      throw new Error("Chỉ có thể tạm dừng khi đồng hồ đang chạy.");
+    }
     const remaining = remainingTimerSeconds({
       now,
       status: timer.status,
@@ -167,14 +225,25 @@ export async function controlTimer(params: {
       pausedAt: timer.pausedAt,
       accumulatedPausedMs: timer.accumulatedPausedMs,
     });
-    await prisma.timerSession.update({
-      where: { id: timer.id },
-      data: { status: "PAUSED", pausedAt: now, remainingSnapshot: remaining, version: { increment: 1 } },
+    const updated = await prisma.timerSession.updateMany({
+      where: { id: timer.id, status: "RUNNING" },
+      data: {
+        status: "PAUSED",
+        pausedAt: now,
+        remainingSnapshot: remaining,
+        version: { increment: 1 },
+      },
     });
+    if (updated.count === 0) {
+      throw new Error("Trạng thái đồng hồ đã thay đổi, tải lại trang.");
+    }
   } else {
+    if (timer.status !== "PAUSED") {
+      throw new Error("Chỉ có thể tiếp tục khi đồng hồ đang tạm dừng.");
+    }
     const extra = timer.pausedAt ? now.getTime() - timer.pausedAt.getTime() : 0;
-    await prisma.timerSession.update({
-      where: { id: timer.id },
+    const updated = await prisma.timerSession.updateMany({
+      where: { id: timer.id, status: "PAUSED" },
       data: {
         status: "RUNNING",
         pausedAt: null,
@@ -182,6 +251,9 @@ export async function controlTimer(params: {
         version: { increment: 1 },
       },
     });
+    if (updated.count === 0) {
+      throw new Error("Trạng thái đồng hồ đã thay đổi, tải lại trang.");
+    }
   }
   await writeAuditLog({
     actorUserId: params.actorUserId,
@@ -338,6 +410,9 @@ export async function publicEventState(competitionId: string) {
         },
       });
   const now = new Date();
+  if (match) {
+    match.timers = await getReconciledTimersForMatch(match.id, now);
+  }
   return {
     match: match
       ? {
@@ -350,19 +425,14 @@ export async function publicEventState(competitionId: string) {
           competitorB: match.competitorB
             ? { name: match.competitorB.displayName, institution: match.competitorB.institutionPublic }
             : null,
-          timers: match.timers.map((timer) => ({
-            kind: timer.kind,
-            status: timer.status,
-            remainingSeconds: remainingTimerSeconds({
-              now,
-              status: timer.status,
-              durationSeconds: timer.durationSeconds,
-              remainingSnapshot: timer.remainingSnapshot,
-              startedAt: timer.startedAt,
-              pausedAt: timer.pausedAt,
-              accumulatedPausedMs: timer.accumulatedPausedMs,
-            }),
-          })),
+          timers: match.timers.map((timer) => {
+            const serialized = serializeTimerState(timer, now);
+            return {
+              kind: serialized.kind,
+              status: serialized.status,
+              remainingSeconds: serialized.remainingSeconds,
+            };
+          }),
           twist: match.twists[0] ? { title: match.twists[0].title, content: match.twists[0].content } : null,
           problem:
             match.problemTitle.trim() || match.problemPrompt.trim()
@@ -595,9 +665,7 @@ export async function createAndOpenScoringMatch(params: {
 }
 
 function requireReason(reason: string) {
-  const trimmed = reason.trim();
-  if (trimmed.length < 3) throw new Error("Cần ghi lý do (audit).");
-  return trimmed;
+  return normalizeAuditReason(reason);
 }
 
 async function pauseRunningTimers(
@@ -608,8 +676,7 @@ async function pauseRunningTimers(
   const timers = await tx.timerSession.findMany({ where: { matchId } });
   for (const timer of timers) {
     if (timer.status !== "RUNNING") continue;
-    const remaining = remainingTimerSeconds({
-      now,
+    const update = runningTimerStopUpdate(now, {
       status: timer.status,
       durationSeconds: timer.durationSeconds,
       remainingSnapshot: timer.remainingSnapshot,
@@ -619,7 +686,7 @@ async function pauseRunningTimers(
     });
     await tx.timerSession.update({
       where: { id: timer.id },
-      data: { status: "PAUSED", pausedAt: now, remainingSnapshot: remaining, version: { increment: 1 } },
+      data: { ...update, version: { increment: 1 } },
     });
   }
 }
@@ -815,6 +882,50 @@ export async function setMatchStatus(params: {
     after: { status: params.status },
   });
   return { code: match.code, status: params.status };
+}
+
+export async function setMatchPublicStatus(params: {
+  actorUserId: string;
+  matchId: string;
+  publicStatus: "PUBLISHED" | "DRAFT";
+  reason: string;
+}) {
+  const reason = requireReason(params.reason);
+  const match = await prisma.match.findUniqueOrThrow({ where: { id: params.matchId } });
+  if (match.publicStatus === "ARCHIVED") {
+    throw new Error("Trận đã lưu trữ, không thể thay đổi trạng thái công bố.");
+  }
+  if (match.publicStatus === params.publicStatus) {
+    throw new Error(
+      params.publicStatus === "PUBLISHED"
+        ? "Trận đã được công bố trên Bảng đấu."
+        : "Trận chưa được công bố.",
+    );
+  }
+  if (params.publicStatus === "PUBLISHED" && match.publicStatus !== "DRAFT" && match.publicStatus !== "SCHEDULED") {
+    throw new Error(`Không thể công bố trận đang ở trạng thái ${match.publicStatus}.`);
+  }
+  if (params.publicStatus === "DRAFT" && match.publicStatus !== "PUBLISHED") {
+    throw new Error("Chỉ có thể ẩn công bố trận đã được công bố.");
+  }
+
+  await prisma.match.update({
+    where: { id: match.id },
+    data: { publicStatus: params.publicStatus },
+  });
+
+  await writeAuditLog({
+    actorUserId: params.actorUserId,
+    competitionId: match.competitionId,
+    action: params.publicStatus === "PUBLISHED" ? "match.publish" : "match.unpublish",
+    entityType: "Match",
+    entityId: match.id,
+    reason,
+    before: { publicStatus: match.publicStatus },
+    after: { publicStatus: params.publicStatus },
+  });
+
+  return { code: match.code, publicStatus: params.publicStatus };
 }
 
 export async function setCurrentMatch(params: { actorUserId: string; matchId: string; reason: string }) {
